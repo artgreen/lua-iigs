@@ -1,0 +1,64 @@
+$ iix lua -v
+Lua 5.4.4  Copyright (C) 1994-2022 Lua.org, PUC-Rio
+
+$ iix lua luac.out
+Starting test
+
+Type tests
+Number type == number
+String type == string
+Boolean type == boolean
+Nil type == nil
+
+Arithmetic tests
+1.0 + 2.0 == 3.0
+1 + 2 == 3
+a + b == -3 a=-1,b=-2
+
+Conditional tests
+Pass 200 > 100
+
+Loop tests
+Basic for loop... passed
+Basic for loop with step... passed
+Basic for loop with neg step... failed
+1       1910
+2       1920
+3       1930
+4       1940
+5       1950
+6       1960
+7       1970
+8       1980
+9       1990
+
+String tests
+WalterWhite == WalterWhite
+The 3 Musketeers == The 3 Musketeers
+
+Function tests
+Say hello there 5 times...
+
+Hello   there
+Hello   there
+Hello   there
+Hello   there
+Hello   there
+Function with a single return value
+81 == 81
+Print all parameters of a function
+String 42 true
+1       String
+2       42
+3       true
+Function with multiple return values
+Jim and Jack
+The first is    Jim
+The last is     John
+
+Logic tests
+false
+true
+true
+
+Ending test
