@@ -1,3 +1,5 @@
+
+    -- https://www.lua.org/pil/10.2.html
     -- Markov Chain Program in Lua
     
     function allwords ()
