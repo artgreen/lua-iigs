@@ -1,2 +1,6 @@
 /cmake-build-debug/
 /CMakeLists.txt
+*.a
+*.b
+*.root
+*.sym
