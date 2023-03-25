@@ -2,7 +2,7 @@
 # iix provided by Golden Gate: https://juiced.gs/store/golden-gate/
 COMP="iix-compile"
 COMPFLAGS="-I -P"
-OBJS="lapi lauxlib lbaselib lcode lcorolib lctype ldblib ldebug ldo ldump lfunc lgc linit liolib llex lmathlib lmem loadlib lobject lopcodes loslib lparser lstate lstring lstrlib ltable ltablib ltm lundump lutf8lib lzio lvm"
+OBJS="lapi lauxlib lbaselib lcode lcorolib lctype ldblib ldebug ldo ldump lfunc lgc linit liolib llex lmathlib lmem loadlib lobject lopcodes loslib lparser lstate lstring lstrlib ltable ltablib ltm lundump lzio lvm"
 
 # clean house
 if [ "$1" == "clean" ]; then
