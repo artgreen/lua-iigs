@@ -84,14 +84,20 @@ static void laction (int i) {
 
 static void print_usage (const char *badoption) {
   lua_writestringerror("%s: ", progname);
+#ifdef LUA_NO_LUA_PARSER
+  if (badoption[1] == 'l')
+#else
   if (badoption[1] == 'e' || badoption[1] == 'l')
+#endif
     lua_writestringerror("'%s' needs argument\n", badoption);
   else
     lua_writestringerror("unrecognized option '%s'\n", badoption);
   lua_writestringerror(
   "usage: %s [options] [script [args]]\n"
   "Available options are:\n"
+#ifndef LUA_NO_LUA_PARSER
   "  -e stat   execute string 'stat'\n"
+#endif
   "  -i        enter interactive mode after executing 'script'\n"
   "  -l mod    require library 'mod' into global 'mod'\n"
   "  -l g=mod  require library 'mod' into global 'g'\n"
@@ -305,8 +311,10 @@ static int collectargs (char **argv, int *first) {
           return has_error;  /* invalid option */
         args |= has_v;
         break;
+#ifndef LUA_NO_LUA_PARSER
       case 'e':
         args |= has_e;  /* FALLTHROUGH */
+#endif
       case 'l':  /* both options need an argument */
         if (argv[i][2] == '\0') {  /* no concatenated argument? */
           i++;  /* try next 'argv' */
@@ -334,14 +342,21 @@ static int runargs (lua_State *L, char **argv, int n) {
     int option = argv[i][1];
     lua_assert(argv[i][0] == '-');  /* already checked */
     switch (option) {
-      case 'e':  case 'l': {
+#ifndef LUA_NO_LUA_PARSER
+      case 'e':
+#endif
+      case 'l': {
         int status;
         char *extra = argv[i] + 2;  /* both options need an argument */
         if (*extra == '\0') extra = argv[++i];
         lua_assert(extra != NULL);
+#ifdef LUA_NO_LUA_PARSER
+      status = dolibrary(L, extra);
+#else
         status = (option == 'e')
                  ? dostring(L, extra, "=(command line)")
                  : dolibrary(L, extra);
+#endif
         if (status != LUA_OK) return 0;
         break;
       }
@@ -619,10 +634,12 @@ static int pmain (lua_State *L) {
   }
   if (args & has_v)  /* option '-v'? */
     print_version();
+#ifndef LUA_NO_LUA_PARSER
   if (args & has_E) {  /* option '-E'? */
     lua_pushboolean(L, 1);  /* signal for libraries to ignore env. vars. */
     lua_setfield(L, LUA_REGISTRYINDEX, "LUA_NOENV");
   }
+#endif
   luaL_openlibs(L);  /* open standard libraries */
   createargtable(L, argv, argc, script);  /* create table 'arg' */
   lua_gc(L, LUA_GCGEN, 0, 0);  /* GC in generational mode */

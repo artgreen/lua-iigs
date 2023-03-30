@@ -40,6 +40,7 @@
 @@ LUA_USE_IIGS indicates this build is for an Apple IIgs.
 */
 #define LUA_USE_IIGS
+#define LUA_NO_LUA_PARSER
 
 /*
 @@ LUA_USE_C89 controls the use of non-ISO-C89 features.
