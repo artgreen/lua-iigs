@@ -31,6 +31,7 @@
 #pragma noroot
 #pragma memorymodel 0
 segment "llex", dynamic;
+#include "parseconf.h"
 #endif
 
 
@@ -39,7 +40,6 @@ segment "llex", dynamic;
 
 
 #define currIsNewline(ls)	(ls->current == '\n' || ls->current == '\r')
-
 
 /* ORDER RESERVED */
 static const char *const luaX_tokens [] = {
@@ -112,7 +112,6 @@ static const char *txtToken (LexState *ls, int token) {
   }
 }
 
-
 static l_noret lexerror (LexState *ls, const char *msg, int token) {
   msg = luaG_addinfo(ls->L, msg, ls->source, ls->linenumber);
   if (token)
@@ -125,7 +124,7 @@ l_noret luaX_syntaxerror (LexState *ls, const char *msg) {
   lexerror(ls, msg, ls->t.token);
 }
 
-
+#if defined(BUILD_IS_LUAC) || !defined(LUA_NO_PARSER)
 /*
 ** Creates a new string and anchors it in scanner's table so that it
 ** will not be collected until the end of the compilation; by that time
@@ -584,3 +583,4 @@ int luaX_lookahead (LexState *ls) {
   return ls->lookahead.token;
 }
 
+#endif
