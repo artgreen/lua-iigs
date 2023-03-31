@@ -32,6 +32,7 @@
 #pragma noroot
 #pragma memorymodel 0
 segment "lparser";
+#include "parseconf.h"
 #endif
 
 
@@ -61,7 +62,7 @@ typedef struct BlockCnt {
   lu_byte insidetbc;  /* true if inside the scope of a to-be-closed var. */
 } BlockCnt;
 
-
+#if defined(BUILD_IS_LUAC) || !defined(LUA_NO_PARSER)
 
 /*
 ** prototypes for recursive non-terminal functions
@@ -214,7 +215,7 @@ static int new_localvar (LexState *ls, TString *name) {
     new_localvar(ls,  \
       luaX_newstring(ls, "" v, (sizeof(v)/sizeof(char)) - 1));
 
-
+#endif
 
 /*
 ** Return the "variable description" (Vardesc) of a given variable.
@@ -249,7 +250,7 @@ int luaY_nvarstack (FuncState *fs) {
   return reglevel(fs, fs->nactvar);
 }
 
-
+#if defined(BUILD_IS_LUAC) || !defined(LUA_NO_PARSER)
 /*
 ** Get the debug-information entry for current variable 'vidx'.
 */
@@ -1969,3 +1970,4 @@ LClosure *luaY_parser (lua_State *L, ZIO *z, Mbuffer *buff,
   return cl;  /* closure is on the stack, too */
 }
 
+#endif

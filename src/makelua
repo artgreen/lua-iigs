@@ -27,19 +27,13 @@ compile_objs() {
 
 }
 do_link() {
-  # create library
-  LINKFILES=""
-  for file in $OBJS
-  do
-    LINKFILES="$LINKFILES +$file.a"
-  done
-  iix link +B $1 $OBJS KEEP=$1
+  iix link $1 $OBJS KEEP=$1
 }
-#echo '#define BUILD_IS_LUAC' > parseconf.h
-#rm -f -- *.sym *.a *.b *.d *.e *.root
-#compile_objs
-#do_compile "luac"
-#do_link "luac"
+echo '#define BUILD_IS_LUAC' > parseconf.h
+rm -f -- *.sym *.a *.b *.d *.e *.root
+compile_objs
+do_compile "luac"
+do_link "luac"
 echo '#define BUILD_IS_LUA' > parseconf.h
 rm -f -- *.sym *.a *.b *.d *.e *.root
 compile_objs
@@ -65,17 +59,3 @@ do_link "lua"
 #      do_compile "$file"
 #    fi
 #done
-
-
-
-# create library
-#LINKFILES=""
-#for file in $OBJS
-#do
-#  LINKFILES="$LINKFILES +$file.a"
-#done
-#echo $LINKFILES
-#iix MakeLib lua.lib $LINKFILES
-#iix link +B lua $OBJS KEEP=lua
-#iix link +B luac $OBJS KEEP=luac
-#iix link luac lparser lcode lapi lauxlib ldump lundump lobject lvm lopcodes lzio lctype ltable lfunc ldebug llex ldo ltm lgc lstring lmem lstate KEEP=luac
