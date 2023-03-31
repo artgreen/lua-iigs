@@ -31,6 +31,7 @@
 #pragma noroot
 #pragma memorymodel 0
 segment "lstate";
+#include "parseconf.h"
 #endif
 
 
@@ -240,7 +241,9 @@ static void f_luaopen (lua_State *L, void *ud) {
   init_registry(L, g);
   luaS_init(L);
   luaT_init(L);
+#if defined(BUILD_IS_LUAC) || !defined(LUA_NO_PARSER)
   luaX_init(L);
+#endif
   g->gcstp = 0;  /* allow gc */
   setnilvalue(&g->nilvalue);  /* now state is complete */
   luai_userstateopen(L);

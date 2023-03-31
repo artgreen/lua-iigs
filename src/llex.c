@@ -41,6 +41,7 @@ segment "llex", dynamic;
 
 #define currIsNewline(ls)	(ls->current == '\n' || ls->current == '\r')
 
+#if defined(BUILD_IS_LUAC) || !defined(LUA_NO_PARSER)
 /* ORDER RESERVED */
 static const char *const luaX_tokens [] = {
     "and", "break", "do", "else", "elseif",
@@ -111,11 +112,14 @@ static const char *txtToken (LexState *ls, int token) {
       return luaX_token2str(ls, token);
   }
 }
+#endif
 
 static l_noret lexerror (LexState *ls, const char *msg, int token) {
   msg = luaG_addinfo(ls->L, msg, ls->source, ls->linenumber);
+#if defined(BUILD_IS_LUAC) || !defined(LUA_NO_PARSER)
   if (token)
     luaO_pushfstring(ls->L, "%s near %s", msg, txtToken(ls, token));
+#endif
   luaD_throw(ls->L, LUA_ERRSYNTAX);
 }
 
