@@ -6,6 +6,7 @@
 
 #define ldo_c
 #define LUA_CORE
+#include "parseconf.h"
 
 #include "lprefix.h"
 
@@ -970,10 +971,12 @@ static void f_parser (lua_State *L, void *ud) {
     checkmode(L, p->mode, "binary");
     cl = luaU_undump(L, p->z, p->name);
   }
+#if defined(BUILD_IS_LUAC) || !defined(LUA_NO_PARSER)
   else {
     checkmode(L, p->mode, "text");
     cl = luaY_parser(L, p->z, &p->buff, &p->dyd, p->name, c);
   }
+#endif
   lua_assert(cl->nupvalues == cl->p->sizeupvalues);
   luaF_initupvals(L, cl);
 }

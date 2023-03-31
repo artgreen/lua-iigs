@@ -4,8 +4,12 @@
 ** See Copyright Notice in lua.h
 */
 
+
 #define luac_c
 #define LUA_CORE
+#ifdef LUA_USE_IIGS
+#include "parseconf.h"
+#endif
 
 #include "lprefix.h"
 

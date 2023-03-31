@@ -20,8 +20,10 @@
 #include "lauxlib.h"
 #include "lualib.h"
 
-//#pragma debug -1
+#ifdef LUA_USE_IIGS
+#include "parseconf.h"
 #pragma memorymodel 0
+#endif
 
 #if !defined(LUA_PROGNAME)
 #define LUA_PROGNAME		"lua"
@@ -84,7 +86,7 @@ static void laction (int i) {
 
 static void print_usage (const char *badoption) {
   lua_writestringerror("%s: ", progname);
-#ifdef LUA_NO_LUA_PARSER
+#ifdef LUA_NO_PARSER
   if (badoption[1] == 'l')
 #else
   if (badoption[1] == 'e' || badoption[1] == 'l')
@@ -95,10 +97,10 @@ static void print_usage (const char *badoption) {
   lua_writestringerror(
   "usage: %s [options] [script [args]]\n"
   "Available options are:\n"
-#ifndef LUA_NO_LUA_PARSER
+#ifndef LUA_NO_PARSER
   "  -e stat   execute string 'stat'\n"
-#endif
   "  -i        enter interactive mode after executing 'script'\n"
+#endif
   "  -l mod    require library 'mod' into global 'mod'\n"
   "  -l g=mod  require library 'mod' into global 'g'\n"
   "  -v        show version information\n"
@@ -311,7 +313,7 @@ static int collectargs (char **argv, int *first) {
           return has_error;  /* invalid option */
         args |= has_v;
         break;
-#ifndef LUA_NO_LUA_PARSER
+#ifndef LUA_NO_PARSER
       case 'e':
         args |= has_e;  /* FALLTHROUGH */
 #endif
@@ -342,7 +344,7 @@ static int runargs (lua_State *L, char **argv, int n) {
     int option = argv[i][1];
     lua_assert(argv[i][0] == '-');  /* already checked */
     switch (option) {
-#ifndef LUA_NO_LUA_PARSER
+#ifndef LUA_NO_PARSER
       case 'e':
 #endif
       case 'l': {
@@ -350,7 +352,7 @@ static int runargs (lua_State *L, char **argv, int n) {
         char *extra = argv[i] + 2;  /* both options need an argument */
         if (*extra == '\0') extra = argv[++i];
         lua_assert(extra != NULL);
-#ifdef LUA_NO_LUA_PARSER
+#ifdef LUA_NO_PARSER
       status = dolibrary(L, extra);
 #else
         status = (option == 'e')
@@ -634,7 +636,7 @@ static int pmain (lua_State *L) {
   }
   if (args & has_v)  /* option '-v'? */
     print_version();
-#ifndef LUA_NO_LUA_PARSER
+#ifndef LUA_NO_PARSER
   if (args & has_E) {  /* option '-E'? */
     lua_pushboolean(L, 1);  /* signal for libraries to ignore env. vars. */
     lua_setfield(L, LUA_REGISTRYINDEX, "LUA_NOENV");
@@ -652,8 +654,12 @@ static int pmain (lua_State *L) {
   if (script < argc &&  /* execute main script (if there is one) */
       handle_script(L, argv + script) != LUA_OK)
     return 0;
+#ifdef LUA_NO_PARSER
+  if (script == argc && !(args & (has_e | has_v)))  /* no arguments? */
+    dofile(L, NULL);  /* executes stdin as a file */
+#else
   if (args & has_i)  /* -i option? */
-    doREPL(L);  /* do read-eval-print loop */
+      doREPL(L);  /* do read-eval-print loop */
   else if (script == argc && !(args & (has_e | has_v))) {  /* no arguments? */
     if (lua_stdin_is_tty()) {  /* running in interactive mode? */
       print_version();
@@ -661,6 +667,7 @@ static int pmain (lua_State *L) {
     }
     else dofile(L, NULL);  /* executes stdin as a file */
   }
+#endif
   lua_pushboolean(L, 1);  /* signal no errors */
   return 1;
 }
