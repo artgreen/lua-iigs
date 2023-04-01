@@ -7,9 +7,6 @@
 
 #define luac_c
 #define LUA_CORE
-#ifdef LUA_USE_IIGS
-#include "parseconf.h"
-#endif
 
 #include "lprefix.h"
 
@@ -29,8 +26,10 @@
 #include "lstate.h"
 #include "lundump.h"
 
-//#pragma debug -1
+#ifdef LUA_USE_IIGS
+#include "parseconf.h"
 #pragma memorymodel 0
+#endif
 
 static void PrintFunction(const Proto* f, int full);
 #define luaU_print	PrintFunction
