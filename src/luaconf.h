@@ -47,6 +47,18 @@
 //#define LUA_NO_PARSER
 
 /*
+@@ LUA_IIGS_BUILD_S16 builds lua for GS/OS instead of ORCA shell
+*/
+#define LUA_IIGS_BUILD_S16
+
+/*
+ * Check for invalid IIgs combinations
+*/
+#if defined(LUA_NO_PARSER) && defined(LUA_IIGS_BUILD_S16)
+#error "IIgs SYS16 executable needs the parser"
+#endif
+
+/*
 @@ LUA_USE_C89 controls the use of non-ISO-C89 features.
 ** Define it if you want Lua to avoid the use of a few C99 features
 ** or Windows-specific features on Windows.
