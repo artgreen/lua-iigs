@@ -49,7 +49,7 @@
 /*
 @@ LUA_IIGS_BUILD_S16 builds lua for GS/OS instead of ORCA shell
 */
-#define LUA_IIGS_BUILD_S16
+//#define LUA_IIGS_BUILD_S16
 
 /*
  * Check for invalid IIgs combinations
