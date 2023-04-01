@@ -30,7 +30,9 @@
 #include "parseconf.h"
 #pragma memorymodel 0
 #endif
-
+#ifdef LUA_IIGS_BUILD_S16
+    #error "LUAC isn't S16 capable (no commandline)"
+#endif
 static void PrintFunction(const Proto* f, int full);
 #define luaU_print	PrintFunction
 
