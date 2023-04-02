@@ -12,14 +12,13 @@ SRCS := $(names:%=*.c)
 OBJS := $(foreach wrd, $(names),$(wrd).a)
 CFLAGS := -I -P -D +O
 
-.PHONY: luac_conf lua_conf all clean
-all:	lua luac
-clean:
-	@rm -f -- *.sym *.a *.b *.d *.e *.root lua luac
+.PHONY: luac_conf lua_conf all clean test
+all: lua
 
 lua_conf:
 ifeq ($(shell grep "LUAC" parseconf.h),)
 else
+	@echo "Switching to LUA build"
 	@echo '#define BUILD_IS_LUA' > parseconf.h
 endif
 lua: lua_conf lua.a $(OBJS)
@@ -27,6 +26,7 @@ lua: lua_conf lua.a $(OBJS)
 
 luac_conf:
 ifeq ($(shell grep LUAC parseconf.h),)
+	@echo "Switching to LUAC build"
 	@echo '#define BUILD_IS_LUAC' > parseconf.h
 endif
 luac: luac_conf luac.a $(OBJS)
@@ -40,6 +40,12 @@ luacdisk: cleandisk luac
 	$(AC) -l $(XFER)
 cleandisk:
 	$(AC) -pro800 $(XFER) XFER
+clean:
+	@rm -f -- *.sym *.a *.b *.d *.e *.root lua luac
+test:
+	@rm -f luac.out
+	iix luac ../test.lua
+	iix lua luac.out
 
 # Dependencies
 lapi.a: lapi.c lprefix.h lua.h luaconf.h lapi.h llimits.h lstate.h \
