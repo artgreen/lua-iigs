@@ -15,6 +15,11 @@ CFLAGS := -I -P -D +O
 .PHONY: luac_conf lua_conf all clean test
 all: lua
 
+testdisk: cleanlua luac luadisk
+	iix luac ../test.lua
+	<luac.out $(AC) -p $(XFER) luac.out bin
+	<../test.lua $(AC) -p $(XFER) test.lua txt
+
 lua_conf:
 ifeq ($(shell grep "LUAC" parseconf.h),)
 else
@@ -23,7 +28,6 @@ else
 endif
 lua: lua_conf lua.a $(OBJS)
 	iix link lua.a $(OBJS) KEEP=$@
-
 luac_conf:
 ifeq ($(shell grep LUAC parseconf.h),)
 	@echo "Switching to LUAC build"
@@ -31,7 +35,6 @@ ifeq ($(shell grep LUAC parseconf.h),)
 endif
 luac: luac_conf luac.a $(OBJS)
 	iix link luac.a $(OBJS) KEEP=$@
-
 luadisk: cleandisk lua
 	<lua $(AC) -p $(XFER) lua exe
 	$(AC) -l $(XFER)
@@ -42,6 +45,8 @@ cleandisk:
 	$(AC) -pro800 $(XFER) XFER
 clean:
 	@rm -f -- *.sym *.a *.b *.d *.e *.root lua luac
+cleanlua:
+	@rm -f -- luac.out
 test:
 	@rm -f luac.out
 	iix luac ../test.lua
