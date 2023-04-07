@@ -16,11 +16,17 @@ CFLAGS := -I -P -D +O
 .PHONY: luac_conf lua_conf all clean test
 all: lua
 
-libluac: luac_conf luac.a $(OBJS)
+libluac: luac_conf luac.lib luac.a $(OBJS)
+
+luac.lib:
+	@echo "Making luac.lib"
 	rm -f luac.lib
 	iix makelib luac.lib $(ADDS)
 
-liblua: lua_conf lua.a $(OBJS)
+liblua: lua_conf lua.lib lua.a $(OBJS)
+
+lua.lib:
+	@echo "Making lua.lib"
 	rm -f lua.lib
 	iix makelib lua.lib $(ADDS)
 
