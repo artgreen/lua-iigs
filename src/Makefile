@@ -10,10 +10,19 @@ XFER := axfer.po
 names := lapi lauxlib lbaselib lcode lcorolib lctype ldblib ldebug ldo ldump lfunc lgc linit liolib llex lmathlib lmem loadlib lobject lopcodes loslib lparser lstate lstring lstrlib ltable ltablib ltm lundump lzio lvm
 SRCS := $(names:%=*.c)
 OBJS := $(foreach wrd, $(names),$(wrd).a)
+ADDS := $(foreach wrd, $(names),+$(wrd).a)
 CFLAGS := -I -P -D +O
 
 .PHONY: luac_conf lua_conf all clean test
 all: lua
+
+libluac: luac_conf luac.a $(OBJS)
+	rm -f luac.lib
+	iix makelib luac.lib $(ADDS)
+
+liblua: lua_conf lua.a $(OBJS)
+	rm -f lua.lib
+	iix makelib lua.lib $(ADDS)
 
 testdisk: cleanlua luac luadisk
 	iix luac ../test.lua
@@ -26,15 +35,15 @@ else
 	@echo "Switching to LUA build"
 	@echo '#define BUILD_IS_LUA' > parseconf.h
 endif
-lua: lua_conf lua.a $(OBJS)
-	iix link lua.a $(OBJS) KEEP=$@
+lua: liblua lua.a $(OBJS)
+	iix link lua.a lvm lua.lib KEEP=$@
 luac_conf:
 ifeq ($(shell grep LUAC parseconf.h),)
 	@echo "Switching to LUAC build"
 	@echo '#define BUILD_IS_LUAC' > parseconf.h
 endif
-luac: luac_conf luac.a $(OBJS)
-	iix link luac.a $(OBJS) KEEP=$@
+luac: libluac luac.a $(OBJS)
+	iix link luac.a lvm luac.lib KEEP=$@
 luadisk: cleandisk lua
 	<lua $(AC) -p $(XFER) lua exe
 	$(AC) -l $(XFER)
@@ -48,7 +57,7 @@ clean:
 cleanlua:
 	@rm -f -- luac.out
 test:
-	@rm -f luac.out
+	@rm luac.out
 	iix luac ../test.lua
 	iix lua luac.out
 
