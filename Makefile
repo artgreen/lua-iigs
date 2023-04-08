@@ -3,7 +3,7 @@
 AC := ac
 # disk image to target
 XFER := axfer.po
-EXE_DIR := build/
+EXE_DIR := build
 
 .PHONY: all
 
@@ -14,10 +14,10 @@ luac: | $(EXE_DIR)
 clean:
 	+$(MAKE) -C src clean
 luadisk: cleandisk lua
-	<build/lua $(AC) -p $(XFER) lua exe
+	<$(EXE_DIR)/lua $(AC) -p $(XFER) lua exe
 	$(AC) -l $(XFER)
 luacdisk: cleandisk luac
-	<luac $(AC) -p $(XFER) luac exe
+	<$(EXE_DIR)/luac $(AC) -p $(XFER) luac exe
 	$(AC) -l $(XFER)
 cleandisk:
 	$(AC) -pro800 $(XFER) XFER
