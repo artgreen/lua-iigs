@@ -2,11 +2,6 @@
 # Crappy Makefile
 #
 
-# apple commander
-AC := ac
-# disk image to target
-XFER := axfer.po
-
 names := lapi lauxlib lbaselib lcode lcorolib lctype ldblib ldebug ldo ldump lfunc lgc linit liolib llex lmathlib lmem loadlib lobject lopcodes loslib lparser lstate lstring lstrlib ltable ltablib ltm lundump lzio lvm
 EXE_DIR := ../build
 SRCS := $(names:%=*.c)
