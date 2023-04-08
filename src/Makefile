@@ -15,32 +15,34 @@ all: lua
 libluac: luac_conf $(OBJS) luac.lib
 luac.lib:
 	@echo "Making luac.lib"
-	iix makelib $@ $(ADDS) || rm -f -- $@   # we need to delete the lib file on error
+	@iix makelib $@ $(ADDS) || rm -f -- $@   # we need to delete the lib file on error
 
 liblua: lua_conf $(OBJS) lua.lib
 lua.lib:
 	@echo "Making lua.lib"
-	@iix makelib $@ $(ADDS) || rm -f -- $@
+	@iix makelib $@ $(ADDS) || rm -f -- $@  # we need to delete the lib file on error
 
 lua_conf:
 ifeq ($(shell grep "LUAC" parseconf.h),)
 else
 	@echo "Switching to LUA build"
 	@echo '#define BUILD_IS_LUA' > parseconf.h
-	rm -f lua.lib
+	@# make sure new library gets built
+	@rm -f lua.lib
 endif
 lua: liblua lua.a
-	iix link lua.a lvm lua.lib KEEP=$@
-	cp $@ $(EXE_DIR)
+	@iix link lua.a lvm lua.lib KEEP=$@
+	@cp $@ $(EXE_DIR)
 luac_conf:
 ifeq ($(shell grep LUAC parseconf.h),)
 	@echo "Switching to LUAC build"
 	@echo '#define BUILD_IS_LUAC' > parseconf.h
-	rm -f luac.lib
+	@# make sure new library gets built
+	@rm -f luac.lib
 endif
 luac: libluac luac.a
-	iix link luac.a lvm luac.lib KEEP=$@
-	cp $@ $(EXE_DIR)
+	@iix link luac.a lvm luac.lib KEEP=$@
+	@cp $@ $(EXE_DIR)
 clean:
 	@rm -f -- *.sym *.a *.b *.d *.e *.root lua luac *.lib
 	@#rm -f -- $(EXE_DIR)/*.lib $(EXE_DIR)/lua $(EXE_DIR)/luac
