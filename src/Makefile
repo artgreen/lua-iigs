@@ -44,7 +44,7 @@ luac: libluac luac.a $(OBJS)
 	iix link luac.a lvm luac.lib KEEP=$@
 	cp $@ $(EXE_DIR)
 clean:
-	@rm -f -- *.sym *.a *.b *.d *.e *.root lua luac
+	@rm -f -- *.sym *.a *.b *.d *.e *.root *.lib lua luac
 
 # Dependencies
 lapi.a: lapi.c lprefix.h lua.h luaconf.h lapi.h llimits.h lstate.h \
