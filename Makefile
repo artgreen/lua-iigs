@@ -3,6 +3,7 @@
 AC := ac
 # disk image to target
 XFER := axfer.po
+# directory to hold binaries
 EXE_DIR := build
 
 .PHONY: all testdisk luadisk clean cleanluacout cleandisk minitest
