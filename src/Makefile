@@ -105,7 +105,6 @@ luac.a: luac.c lprefix.h lua.h luaconf.h lauxlib.h ldebug.h lstate.h parseconf.h
 lundump.a: lundump.c lprefix.h lua.h luaconf.h ldebug.h lstate.h \
  lobject.h llimits.h ltm.h lzio.h lmem.h ldo.h lfunc.h lstring.h lgc.h \
  lundump.h
-lutf8lib.a: lutf8lib.c lprefix.h lua.h luaconf.h lauxlib.h lualib.h
 lvm.a: lvm.c lprefix.h lua.h luaconf.h ldebug.h lstate.h lobject.h \
  llimits.h ltm.h lzio.h lmem.h ldo.h lfunc.h lgc.h lopcodes.h lstring.h \
  ltable.h lvm.h ljumptab.h
