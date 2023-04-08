@@ -1,25 +1,25 @@
 #
 # Crappy Makefile
 #
+EXE_DIR := ../build
 
 names := lapi lauxlib lbaselib lcode lcorolib lctype ldblib ldebug ldo ldump lfunc lgc linit liolib llex lmathlib lmem loadlib lobject lopcodes loslib lparser lstate lstring lstrlib ltable ltablib ltm lundump lzio lvm
-EXE_DIR := ../build
 SRCS := $(names:%=*.c)
 OBJS := $(foreach wrd, $(names),$(wrd).a)
 ADDS := $(foreach wrd, $(names),+$(wrd).a)
 CFLAGS := -I -P -D +O
 
-.PHONY: luac_conf lua_conf all clean test
+.PHONY: luac_conf lua_conf all clean test libluac liblua
 all: lua
 
-libluac: luac_conf luac.lib luac.a $(OBJS)
+libluac: luac_conf $(OBJS) luac.lib luac.a
 
 luac.lib:
 	@echo "Making luac.lib"
 	@rm -f luac.lib
 	@iix makelib luac.lib $(ADDS)
 
-liblua: lua_conf lua.lib lua.a $(OBJS)
+liblua: lua_conf $(OBJS) lua.lib lua.a
 
 lua.lib:
 	@echo "Making lua.lib"
@@ -32,7 +32,7 @@ else
 	@echo "Switching to LUA build"
 	@echo '#define BUILD_IS_LUA' > parseconf.h
 endif
-lua: liblua lua.a $(OBJS)
+lua: liblua lua.a
 	iix link lua.a lvm lua.lib KEEP=$@
 	cp $@ $(EXE_DIR)
 luac_conf:
@@ -40,11 +40,12 @@ ifeq ($(shell grep LUAC parseconf.h),)
 	@echo "Switching to LUAC build"
 	@echo '#define BUILD_IS_LUAC' > parseconf.h
 endif
-luac: libluac luac.a $(OBJS)
+luac: libluac luac.a
 	iix link luac.a lvm luac.lib KEEP=$@
 	cp $@ $(EXE_DIR)
 clean:
-	@rm -f -- *.sym *.a *.b *.d *.e *.root *.lib lua luac
+	@rm -f -- *.sym *.a *.b *.d *.e *.root lua luac *.lib
+	@#rm -f -- $(EXE_DIR)/*.lib $(EXE_DIR)/lua $(EXE_DIR)/luac
 
 # Dependencies
 lapi.a: lapi.c lprefix.h lua.h luaconf.h lapi.h llimits.h lstate.h \
