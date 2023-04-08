@@ -20,15 +20,15 @@ libluac: luac_conf luac.lib luac.a $(OBJS)
 
 luac.lib:
 	@echo "Making luac.lib"
-	rm -f luac.lib
-	iix makelib luac.lib $(ADDS)
+	@rm -f luac.lib
+	@iix makelib luac.lib $(ADDS)
 
 liblua: lua_conf lua.lib lua.a $(OBJS)
 
 lua.lib:
 	@echo "Making lua.lib"
-	rm -f lua.lib
-	iix makelib lua.lib $(ADDS)
+	@rm -f lua.lib
+	@iix makelib lua.lib $(ADDS)
 
 testdisk: cleanlua luac luadisk
 	iix luac ../test.lua
