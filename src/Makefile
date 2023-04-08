@@ -8,6 +8,7 @@ AC := ac
 XFER := axfer.po
 
 names := lapi lauxlib lbaselib lcode lcorolib lctype ldblib ldebug ldo ldump lfunc lgc linit liolib llex lmathlib lmem loadlib lobject lopcodes loslib lparser lstate lstring lstrlib ltable ltablib ltm lundump lzio lvm
+EXE_DIR := ../build
 SRCS := $(names:%=*.c)
 OBJS := $(foreach wrd, $(names),$(wrd).a)
 ADDS := $(foreach wrd, $(names),+$(wrd).a)
@@ -30,11 +31,6 @@ lua.lib:
 	@rm -f lua.lib
 	@iix makelib lua.lib $(ADDS)
 
-testdisk: cleanlua luac luadisk
-	iix luac ../test.lua
-	<luac.out $(AC) -p $(XFER) luac.out bin
-	<../test.lua $(AC) -p $(XFER) test.lua txt
-
 lua_conf:
 ifeq ($(shell grep "LUAC" parseconf.h),)
 else
@@ -43,6 +39,7 @@ else
 endif
 lua: liblua lua.a $(OBJS)
 	iix link lua.a lvm lua.lib KEEP=$@
+	cp $@ $(EXE_DIR)
 luac_conf:
 ifeq ($(shell grep LUAC parseconf.h),)
 	@echo "Switching to LUAC build"
@@ -50,22 +47,9 @@ ifeq ($(shell grep LUAC parseconf.h),)
 endif
 luac: libluac luac.a $(OBJS)
 	iix link luac.a lvm luac.lib KEEP=$@
-luadisk: cleandisk lua
-	<lua $(AC) -p $(XFER) lua exe
-	$(AC) -l $(XFER)
-luacdisk: cleandisk luac
-	<lua $(AC) -p $(XFER) lua exe
-	$(AC) -l $(XFER)
-cleandisk:
-	$(AC) -pro800 $(XFER) XFER
+	cp $@ $(EXE_DIR)
 clean:
 	@rm -f -- *.sym *.a *.b *.d *.e *.root lua luac
-cleanlua:
-	@rm -f -- luac.out
-test:
-	@rm luac.out
-	iix luac ../test.lua
-	iix lua luac.out
 
 # Dependencies
 lapi.a: lapi.c lprefix.h lua.h luaconf.h lapi.h llimits.h lstate.h \
