@@ -12,25 +12,22 @@ CFLAGS := -I -P -D +O
 .PHONY: luac_conf lua_conf all clean test libluac liblua
 all: lua
 
-libluac: luac_conf $(OBJS) luac.lib luac.a
-
+libluac: luac_conf $(OBJS) luac.lib
 luac.lib:
 	@echo "Making luac.lib"
-	@rm -f luac.lib
-	@iix makelib luac.lib $(ADDS)
+	iix makelib $@ $(ADDS) || rm -f -- $@   # we need to delete the lib file on error
 
-liblua: lua_conf $(OBJS) lua.lib lua.a
-
+liblua: lua_conf $(OBJS) lua.lib
 lua.lib:
 	@echo "Making lua.lib"
-	@rm -f lua.lib
-	@iix makelib lua.lib $(ADDS)
+	@iix makelib $@ $(ADDS) || rm -f -- $@
 
 lua_conf:
 ifeq ($(shell grep "LUAC" parseconf.h),)
 else
 	@echo "Switching to LUA build"
 	@echo '#define BUILD_IS_LUA' > parseconf.h
+	rm -f lua.lib
 endif
 lua: liblua lua.a
 	iix link lua.a lvm lua.lib KEEP=$@
@@ -39,6 +36,7 @@ luac_conf:
 ifeq ($(shell grep LUAC parseconf.h),)
 	@echo "Switching to LUAC build"
 	@echo '#define BUILD_IS_LUAC' > parseconf.h
+	rm -f luac.lib
 endif
 luac: libluac luac.a
 	iix link luac.a lvm luac.lib KEEP=$@
