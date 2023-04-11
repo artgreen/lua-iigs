@@ -21,7 +21,7 @@ liblua: lua_conf $(OBJS) lua.lib
 lua.lib:
 	@echo "Making lua.lib"
 	@iix makelib $@ $(ADDS) || rm -f -- $@  # we need to delete the lib file on error
-
+	@cp $@ $(EXE_DIR)/$@
 lua_conf:
 ifeq ($(shell grep "LUAC" parseconf.h),)
 else
