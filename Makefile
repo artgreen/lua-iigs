@@ -1,15 +1,26 @@
 
 # apple commander
 AC := ac
+# nulib2 for shrinkit
+NULIB := nulib2
+
 # disk image to target
 XFER := axfer.po
+EXE_DISK := luags.po
+LIB_DISK := lualib.po
+EXE_VOL := LUAGS
+LIB_VOL := LUALIB
+# lua .h files for lua.lib
+LUA_INC := luainc.shk
+SHK_FILE := luags.shk
+
 # directory to hold binaries
 EXE_DIR := build
 SRC_DIR := src
 # compiler flags
 CFLAGS := -I -P -D +O
 
-.PHONY: all testdisk luadisk clean cleanluacout cleandisk minitest bridgedisk
+.PHONY: all testdisk luadisk clean cleanluacout cleandisk minitest bridgedisk release cleanrelease
 
 bridge: test.a testiface.a testbridge.a
 	iix link test testiface testbridge $(SRC_DIR)/lvm $(SRC_DIR)/lua.lib KEEP=$@
@@ -56,10 +67,25 @@ luadisk: cleandisk lua
 luacdisk: cleandisk luac
 	<$(EXE_DIR)/luac $(AC) -p $(XFER) luac exe
 	$(AC) -l $(XFER)
+cleanrelease:
+	@rm -f -- $(EXE_DISK) $(LIB_DISK)
+release: cleanrelease clean $(EXE_DISK) $(LIB_DISK)
+	$(NULIB) -a $(EXE_DIR)/lua $(EXE_DIR)/luac test.lua
+$(EXE_DISK): luac lua
+	@$(AC) -pro800 $(EXE_DISK) LUAGS
+	@<$(EXE_DIR)/lua $(AC) -p $(EXE_DISK) lua exe
+	@<$(EXE_DIR)/luac $(AC) -p $(EXE_DISK) luac exe
+	@<test.lua $(AC) -ptx $(EXE_DISK) test.lua
+	@$(AC) -l $(EXE_DISK)
+$(LIB_DISK): lua
+	@$(AC) -pro800 $(LIB_DISK) LUALIB
+	@<$(EXE_DIR)/lua.lib $(AC) -p $(LIB_DISK) lua.lib lib
+	@<luainc.shk $(AC) -p $(XFER) luainc.shk shk
+	@$(AC) -l $(LIB_DISK)
 cleandisk:
-	$(AC) -pro800 $(XFER) XFER
+	@$(AC) -pro800 $(XFER) XFER
 $(EXE_DIR):
-	mkdir -p $@
+	@mkdir -p $@
 
 %.a:
 	iix compile $(CFLAGS) $<
