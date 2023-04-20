@@ -14,6 +14,7 @@ The goals of this project:
 Demonstration of embedding Lua into a IIgs application: https://github.com/artgreen/luagsdemo
 
 Issues
+
 The IIgs Lua completes about 70% of the official Lua tests.  It supports enough of Lua that it is able to run a lot of Lua code pretty cleanly. Several times, I've downloaded a tool like memdump (https://github.com/changnet/lua_memdump) and used them to troubleshoot.  The C/LUA API seems to work after exercising it a little.
 
 Powered by
