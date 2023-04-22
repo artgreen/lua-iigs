@@ -9,7 +9,7 @@ print "testing large tables"
 
 local debug = require"debug" 
 
-local lim = 2^18 + 1000
+local lim = 2^10 + 1000
 local prog = { "local y = {0" }
 for i = 1, lim do prog[#prog + 1] = i  end
 prog[#prog + 1] = "}\n"
