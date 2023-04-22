@@ -41,7 +41,7 @@ cleanluacout:
 luac.out:
 	iix $(EXE_DIR)/luac test.lua
 minitest: cleanluacout luac.out
-	iix $(EXE_DIR)/lua luac.out
+	iix $(EXE_DIR)/lua poker.lua
 bridgedisk: cleandisk bridge
 	<bridge $(AC) -p $(XFER) bridge exe
 	<bridge.out $(AC) -p $(XFER) bridge.out bin
