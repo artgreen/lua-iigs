@@ -19,18 +19,23 @@ The IIgs Lua completes about 70% of the official Lua tests.  It supports enough 
 
 Tests
 
-| Test           |     Status     | Notes                                                                                                      |
-|----------------|:--------------:|------------------------------------------------------------------------------------------------------------|
-| attrib.lua     |    Failing     | cannot open file 'libs/synerr.lua'                                                                         |
-| big.lua        |    Failing     | attempt to yield from outside a coroutine                                                                  |
-| bitwise.lua    |    Failing     | malformed number near '0xF0.0'                                                                             |
-| bwcoercion.lua |    Passing     |                                                                                                            |
-| calls.lua      |      N/A       | No testC                                                                                                   |
-| closure.lua    |    Passing     |                                                                                                            |
+| Test           |     Status     | Notes                                                                                                     |
+|----------------|:--------------:|-----------------------------------------------------------------------------------------------------------|
+| attrib.lua     |    Failing     | cannot open file 'libs/synerr.lua'                                                                        |
+| big.lua        |    Failing     | attempt to yield from outside a coroutine                                                                 |
+| bitwise.lua    |    Failing     | malformed number near '0xF0.0'                                                                            |
+| bwcoercion.lua |    Passing     |                                                                                                           |
+| calls.lua      |      N/A       | No testC                                                                                                  |
+| closure.lua    |    Passing     |                                                                                                           |
 | constructs.lua |    Failing     | There is bad object type being passed to reallymarkobject() that's triggering the assert in that function. |
-| gc.lua         |    Passing     | Minor tweaks to account for less memory                                                                    |
-| Row 2 Column 1 | Row 2 Column 2 | Row 2 Column 3                                                                                             |
-| Row 3 Column 1 | Row 3 Column 2 | Row 3 Column 3                                                                                             |
+| coroutine.lua  |    Failing     |coroutine.lua:285: assertion failed!|
+| cstack.lua     |    Failing     |02423c: BRK 00|
+| debug.lua      |    Failing     |02423c: BRK 00|
+| errors.lua     |    Failing     |07eba1: BRK 60|
+| events.lua     |    Passing     ||
+| gc.lua         |    Passing     | Minor tweaks to account for less memory                                                                   |
+| Row 2 Column 1 | Row 2 Column 2 | Row 2 Column 3                                                                                            |
+| Row 3 Column 1 | Row 3 Column 2 | Row 3 Column 3                                                                                            |
 
 
 Powered by
