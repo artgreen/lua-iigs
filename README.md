@@ -36,13 +36,13 @@ Tests
 | errors.lua     | Failing | 07eba1: BRK 60                                                                                             |
 | events.lua     | Passing |                                                                                                            |
 | files.lua      | Failing | files.lua:182: assertion failed!                                                                           |
-| gc.lua         | Passing | Minor tweaks to account for less memory                                                                    |
+| gc.lua         | Passing |                                                                                                            |
 | gengc.lua      | Failing | 111608: BRK 00                                                                                             |
 | goto.lua       | Passing |                                                                                                            |
 | heavy.lua      | Failing | 000002: BRK 00                                                                                             |
-| literals.lua   | Failing | literals.lua:299: malformed number near '0X0.41'                                                           |
+| literals.lua   | Passing | Commented out lines triggering malformed number bug                                                        |
 | locals.lua     | Failing | 02423c: BRK 00                                                                                             |
-| main.lua       | Failing | main.lua:14: assertion failed!                                                                             |
+| main.lua       |   N/A   | We aren't spawning subshells on the IIgs                                                                   |
 | math.lua       | Failing | math.lua:435: malformed number near '0x7.4'                                                                |
 | nextvar.lua    | Failing | Never returns. Probably memory corruption causing next() to go into a loop                                 |
 | pm.lua         | Failing | pm.lua:83: assertion failed!                                                                               |
