@@ -17,13 +17,15 @@ Issues
 
 The port supports enough of Lua that it is able to run a lot of Lua code pretty cleanly. Several times, I've downloaded a tool like memdump (https://github.com/changnet/lua_memdump) and used them to troubleshoot.  The C/LUA API seems to work after exercising it a little.
 
+- Bug: Numbers in hexadecimal ('0X0.41') are considered malformed
+
 Tests
 
 | Test           | Status  | Notes                                                                                                      |
 |----------------|:-------:|------------------------------------------------------------------------------------------------------------|
 | attrib.lua     | Failing | cannot open file 'libs/synerr.lua'                                                                         |
 | big.lua        | Failing | attempt to yield from outside a coroutine                                                                  |
-| bitwise.lua    | Failing | malformed number near '0xF0.0'                                                                             |
+| bitwise.lua    | Passing | Commented out lines triggering malformed number bug                                                        |
 | bwcoercion.lua | Passing |                                                                                                            |
 | calls.lua      |   N/A   | No testC                                                                                                   |
 | closure.lua    | Passing |                                                                                                            |
@@ -33,7 +35,7 @@ Tests
 | debug.lua      | Failing | 02423c: BRK 00                                                                                             |
 | errors.lua     | Failing | 07eba1: BRK 60                                                                                             |
 | events.lua     | Passing |                                                                                                            |
-| files.lua      | Failing | files.lua:150: malformed number near '0xABCp-3'                                                            |
+| files.lua      | Failing | files.lua:182: assertion failed!                                                                           |
 | gc.lua         | Passing | Minor tweaks to account for less memory                                                                    |
 | gengc.lua      | Failing | 111608: BRK 00                                                                                             |
 | goto.lua       | Passing |                                                                                                            |
