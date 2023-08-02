@@ -62,8 +62,11 @@ testdisk: cleanluacout luac luadisk luac.out
 	<luac.out $(AC) -p $(XFER) luac.out bin
 	<test.lua $(AC) -p $(XFER) test.lua txt
 luadisk: cleandisk lua
-	<$(EXE_DIR)/lua $(AC) -p $(XFER) lua exe
-	$(AC) -l $(XFER)
+	@<$(EXE_DIR)/lua $(AC) -p $(XFER) lua exe
+	@<examples/blackjack.lua $(AC) -ptx $(XFER) blackjack.lua
+	@<examples/replcli.lua $(AC) -ptx $(XFER) replcli.lua
+	@<examples/more.lua $(AC) -ptx $(XFER) more.lua
+	@$(AC) -l $(XFER)
 luacdisk: cleandisk luac
 	<$(EXE_DIR)/luac $(AC) -p $(XFER) luac exe
 	$(AC) -l $(XFER)
@@ -76,6 +79,9 @@ $(EXE_DISK): luac lua
 	@<$(EXE_DIR)/lua $(AC) -p $(EXE_DISK) lua exe
 	@<$(EXE_DIR)/luac $(AC) -p $(EXE_DISK) luac exe
 	@<test.lua $(AC) -ptx $(EXE_DISK) test.lua
+	@<examples/blackjack.lua $(AC) -ptx $(EXE_DISK) blackjack.lua
+	@<examples/replcli.lua $(AC) -ptx $(EXE_DISK) replcli.lua
+	@<examples/more.lua $(AC) -ptx $(XFER) more.lua
 	@$(AC) -l $(EXE_DISK)
 $(LIB_DISK): lua
 	@$(AC) -pro800 $(LIB_DISK) LUALIB
