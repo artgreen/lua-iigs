@@ -70,7 +70,7 @@ luacdisk: cleandisk luac
 cleanrelease:
 	@rm -f -- $(EXE_DISK) $(LIB_DISK)
 release: cleanrelease clean $(EXE_DISK) $(LIB_DISK)
-	$(NULIB) -a $(EXE_DIR)/lua $(EXE_DIR)/luac test.lua
+	$(NULIB) -a lua.shk $(EXE_DIR)/lua $(EXE_DIR)/luac test.lua
 $(EXE_DISK): luac lua
 	@$(AC) -pro800 $(EXE_DISK) LUAGS
 	@<$(EXE_DIR)/lua $(AC) -p $(EXE_DISK) lua exe
