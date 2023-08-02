@@ -629,7 +629,7 @@ static int pmain (lua_State *L) {
   int script;
   int args = collectargs(argv, &script);
 #ifdef LUA_IIGS_BUILD_S16
-  printf("Staring LUA...\n");           // comfort message
+  printf("Starting LUA...\n");           // comfort message
 #endif
   luaL_checkversion(L);  /* check that interpreter has correct version */
 #ifndef LUA_IIGS_BUILD_S16
