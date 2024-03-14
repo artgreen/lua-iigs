@@ -9,19 +9,24 @@ OBJS := $(foreach wrd, $(names),$(wrd).a)
 ADDS := $(foreach wrd, $(names),+$(wrd).a)
 CFLAGS := -I -P -D +O
 
-.PHONY: luac_conf lua_conf all clean test libluac liblua
+.PHONY: luac_conf lua_conf all clean test libluac liblua run
 all: lua
 
 libluac: luac_conf $(OBJS) luac.lib
-luac.lib:
+luac.lib: $(OBJS)
 	@echo "Making luac.lib"
 	@iix makelib $@ $(ADDS) || rm -f -- $@   # we need to delete the lib file on error
-
+rmlib:
+	rm -f lua.lib
+foo: rmlib liblua
+run: lua
+	iix ../build/lua ../tests/main.lua
 liblua: lua_conf $(OBJS) lua.lib
 lua.lib:
 	@echo "Making lua.lib"
 	@iix makelib $@ $(ADDS) || rm -f -- $@  # we need to delete the lib file on error
 	@cp $@ $(EXE_DIR)/$@
+	cp $@ ../../../luagsdemo/lib/
 lua_conf:
 ifeq ($(shell grep "LUAC" parseconf.h),)
 else
