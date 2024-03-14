@@ -17,7 +17,10 @@ Issues
 
 The port supports enough of Lua that it is able to run a lot of Lua code pretty cleanly. Several times, I've downloaded a tool like memdump (https://github.com/changnet/lua_memdump) and used them to troubleshoot.  The C/LUA API seems to work after exercising it a little.
 
+Another interesting discovery is that the Lua developers appear to have assumed that a type short is always smaller than a type int.
+At least one part of the code makes this assumption. I'll need to verify this and sort it out.
 - Bug: Numbers in hexadecimal ('0X0.41') are considered malformed
+- Bug: String catalog corruption.  In researching this project, I read about other porting projects running into unexplained string catalog corruption. I seem to have the same issue.  So far, the corruption seems to be limited to program termination when the string catalog is emptied.
 
 Tests
 
