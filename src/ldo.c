@@ -979,7 +979,22 @@ static void checkmode (lua_State *L, const char *mode, const char *x) {
 static void f_parser (lua_State *L, void *ud) {
   LClosure *cl;
   struct SParser *p = cast(struct SParser *, ud);
+#if defined(LUA_USE_IIGS)
+/*
+ * ORCA-C gives a compiler error because we're modifying
+ * a const in struct Zio.
+ */
+  struct Zio *pZio = p->z;
+  char *n_p = (char *) pZio->p;
+  int c = (
+          (pZio->n--) > 0 ?
+          cast_uchar(*n_p++) :
+          luaZ_fill(pZio)
+      );
+#else
   int c = zgetc(p->z);  /* read first character */
+#endif
+
   if (c == LUA_SIGNATURE[0]) {
     checkmode(L, p->mode, "binary");
     cl = luaU_undump(L, p->z, p->name);
