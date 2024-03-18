@@ -16,6 +16,9 @@ libluac: luac_conf $(OBJS) luac.lib
 luac.lib: $(OBJS)
 	@echo "Making luac.lib"
 	@iix makelib $@ $(ADDS) || rm -f -- $@   # we need to delete the lib file on error
+	@cp $@ $(EXE_DIR)/$@
+rmlibluac:
+	rm -f luac.lib
 rmlib:
 	rm -f lua.lib
 foo: rmlib liblua
