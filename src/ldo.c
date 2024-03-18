@@ -963,6 +963,7 @@ static void checkmode (lua_State *L, const char *mode, const char *x) {
   }
 }
 
+
 static void f_parser (lua_State *L, void *ud) {
   LClosure *cl;
   struct SParser *p = cast(struct SParser *, ud);

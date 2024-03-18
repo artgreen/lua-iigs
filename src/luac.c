@@ -4,7 +4,6 @@
 ** See Copyright Notice in lua.h
 */
 
-
 #define luac_c
 #define LUA_CORE
 
@@ -52,6 +51,7 @@ static void fatal(const char* message)
  fprintf(stderr,"%s: %s\n",progname,message);
  exit(EXIT_FAILURE);
 }
+
 static void cannot(const char* what)
 {
  fprintf(stderr,"%s: cannot %s %s: %s\n",progname,what,output,strerror(errno));
@@ -64,7 +64,6 @@ static void usage(const char* message)
   fprintf(stderr,"%s: unrecognized option '%s'\n",progname,message);
  else
   fprintf(stderr,"%s: %s\n",progname,message);
-
  fprintf(stderr,
   "usage: %s [options] [filenames]\n"
   "Available options are:\n"
@@ -80,6 +79,7 @@ static void usage(const char* message)
 }
 
 #define IS(s)	(strcmp(argv[i],s)==0)
+
 static int doargs(int argc, char* argv[])
 {
  int i;
@@ -129,6 +129,7 @@ static int doargs(int argc, char* argv[])
 }
 
 #define FUNCTION "(function()end)();"
+
 static const char* reader(lua_State* L, void* ud, size_t* size)
 {
  UNUSED(L);
@@ -145,6 +146,7 @@ static const char* reader(lua_State* L, void* ud, size_t* size)
 }
 
 #define toproto(L,i) getproto(s2v(L->top+(i)))
+
 static const Proto* combine(lua_State* L, int n)
 {
  if (n==1)
@@ -219,6 +221,7 @@ int main(int argc, char* argv[])
 /*
 ** print bytecodes
 */
+
 #define UPVALNAME(x) ((f->upvalues[x].name) ? getstr(f->upvalues[x].name) : "-")
 #define VOID(p) ((const void*)(p))
 #define eventname(i) (getstr(tmname[i]))
