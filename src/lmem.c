@@ -81,6 +81,9 @@ static void *firsttry (global_State *g, void *block, size_t os, size_t ns) {
 #define MINSIZEARRAY	4
 
 #ifdef LUA_USE_IIGS
+/*
+ * We need an unsigned int for limit.
+ */
 void *luaM_growaux_ (lua_State *L, void *block, int nelems, int *psize,
                      int size_elems, unsigned int limit, const char *what) {
 #else

@@ -55,6 +55,9 @@ LUAI_FUNC size_t luaZ_read (ZIO* z, void *b, size_t n);	/* read next n bytes */
 struct Zio {
   size_t n;			/* bytes still unread */
 #ifdef LUA_USE_IIGS
+/*
+ * Need to deal with the const-iness of p being modified in other parts of code
+ */
   char *p;		/* current position in buffer */
 #else
   const char *p;		/* current position in buffer */

@@ -176,6 +176,10 @@ typedef struct CallInfo {
   union {
     struct {  /* only for Lua functions */
 #ifdef LUA_USE_IIGS
+/*
+ * Need to address an issue ORCA C seems to have related to the
+ * const-iness of savedpc and later modifications of it (i.e., foo.savedpc--)
+ */
       Instruction *savedpc;
 #else
       const Instruction *savedpc;
