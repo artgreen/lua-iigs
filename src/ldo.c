@@ -356,9 +356,21 @@ void luaD_hookcall (lua_State *L, CallInfo *ci) {
     int event = (ci->callstatus & CIST_TAIL) ? LUA_HOOKTAILCALL
                                              : LUA_HOOKCALL;
     Proto *p = ci_func(ci)->p;
+#if defined(LUA_USE_IIGS)
+/*
+ * The ORCA-C compiler throws a compiler error below because
+ * savedpc is a const. Here I cast it away to prevent having to
+ * change the type in the original union.
+ */
+    Instruction *spc = (Instruction *) &(ci->u.l.savedpc);
+    (*spc)++;  /* hooks assume 'pc' is already incremented */
+    luaD_hook(L, event, -1, 1, p->numparams);
+    (*spc)--;   /* correct 'pc' */
+#else
     ci->u.l.savedpc++;  /* hooks assume 'pc' is already incremented */
     luaD_hook(L, event, -1, 1, p->numparams);
     ci->u.l.savedpc--;  /* correct 'pc' */
+#endif
   }
 }
 

@@ -175,15 +175,7 @@ typedef struct CallInfo {
   struct CallInfo *previous, *next;  /* dynamic call link */
   union {
     struct {  /* only for Lua functions */
-#ifdef LUA_USE_IIGS
-/*
- * Need to address an issue ORCA C seems to have related to the
- * const-iness of savedpc and later modifications of it (i.e., foo.savedpc--)
- */
-      Instruction *savedpc;
-#else
       const Instruction *savedpc;
-#endif
       volatile l_signalT trap;
       int nextraargs;  /* # of extra arguments in vararg functions */
     } l;
