@@ -86,7 +86,7 @@ static void laction (int i) {
 
 static void print_usage (const char *badoption) {
   lua_writestringerror("%s: ", progname);
-#ifdef LUA_NO_PARSER
+#if defined(LUA_NO_PARSER)
   if (badoption[1] == 'l')
 #else
   if (badoption[1] == 'e' || badoption[1] == 'l')
@@ -97,7 +97,7 @@ static void print_usage (const char *badoption) {
   lua_writestringerror(
   "usage: %s [options] [script [args]]\n"
   "Available options are:\n"
-#ifndef LUA_NO_PARSER
+#if !defined(LUA_NO_PARSER)
   "  -e stat   execute string 'stat'\n"
   "  -i        enter interactive mode after executing 'script'\n"
 #endif
