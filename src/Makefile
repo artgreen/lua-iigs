@@ -23,10 +23,11 @@ rmlib:
 	rm -f lua.lib
 foo: rmlib liblua
 run: lua
-	iix ../build/lua ../tests/main.lua
-liblua: lua_conf $(OBJS) lua.lib
-lua.lib:
+	iix ../build/lua ../test.lua
+liblua: lua_conf lua.lib
+lua.lib: $(OBJS)
 	@echo "Making lua.lib"
+	@rm -f lua.lib
 	@iix makelib $@ $(ADDS) || rm -f -- $@  # we need to delete the lib file on error
 	@cp $@ $(EXE_DIR)/$@
 	cp $@ ../../../luagsdemo/lib/
