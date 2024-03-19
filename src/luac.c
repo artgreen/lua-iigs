@@ -128,7 +128,7 @@ static int doargs(int argc, char* argv[])
  return i;
 }
 
-#define FUNCTION "(function()end)();"
+#define FUNCTION "(function()end)();\n"
 
 static const char* reader(lua_State* L, void* ud, size_t* size)
 {

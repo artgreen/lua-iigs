@@ -9,6 +9,11 @@
 
 #include "lua.h"
 
+
+/* Some header files included here need this definition */
+typedef struct CallInfo CallInfo;
+
+
 #include "lobject.h"
 #include "ltm.h"
 #include "lzio.h"
@@ -169,9 +174,9 @@ typedef struct stringtable {
 ** - field 'transferinfo' is used only during call/returnhooks,
 ** before the function starts or after it ends.
 */
-typedef struct CallInfo {
-  StkId func;  /* function index in the stack */
-  StkId	top;  /* top for this function */
+struct CallInfo {
+  StkIdRel func;  /* function index in the stack */
+  StkIdRel	top;  /* top for this function */
   struct CallInfo *previous, *next;  /* dynamic call link */
   union {
     struct {  /* only for Lua functions */
@@ -196,7 +201,7 @@ typedef struct CallInfo {
   } u2;
   short nresults;  /* expected number of results from this function */
   unsigned short callstatus;
-} CallInfo;
+};
 
 
 /*

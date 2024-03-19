@@ -30,6 +30,9 @@ segment "lutf8lib";
 
 #define MAXUTF		0x7FFFFFFFu
 
+
+#define MSGInvalid	"invalid UTF-8 code"
+
 /*
 ** Integer type for decoded UTF-8 values; MAXUTF needs 31 bits.
 */

@@ -187,10 +187,11 @@ static void print_version (void) {
 ** to the script (everything after 'script') go to positive indices;
 ** other arguments (before the script name) go to negative indices.
 ** If there is no script name, assume interpreter's name as base.
+** (If there is no interpreter's name either, 'script' is -1, so
+** table sizes are zero.)
 */
 static void createargtable (lua_State *L, char **argv, int argc, int script) {
   int i, narg;
-  if (script == argc) script = 0;  /* no script name? */
   narg = argc - (script + 1);  /* number of positive indices */
   lua_createtable(L, narg, script + 1);
   for (i = 0; i < argc; i++) {
@@ -278,14 +279,23 @@ static int handle_script (lua_State *L, char **argv) {
 
 /*
 ** Traverses all arguments from 'argv', returning a mask with those
-** needed before running any Lua code (or an error code if it finds
-** any invalid argument). 'first' returns the first not-handled argument
-** (either the script name or a bad argument in case of error).
+** needed before running any Lua code or an error code if it finds any
+** invalid argument. In case of error, 'first' is the index of the bad
+** argument.  Otherwise, 'first' is -1 if there is no program name,
+** 0 if there is no script name, or the index of the script name.
 */
 static int collectargs (char **argv, int *first) {
   int args = 0;
   int i;
-  for (i = 1; argv[i] != NULL; i++) {
+  if (argv[0] != NULL) {  /* is there a program name? */
+    if (argv[0][0])  /* not empty? */
+      progname = argv[0];  /* save it */
+  }
+  else {  /* no program name */
+    *first = -1;
+    return 0;
+  }
+  for (i = 1; argv[i] != NULL; i++) {  /* handle arguments */
     *first = i;
     if (argv[i][0] != '-')  /* not an option? */
         return args;  /* stop handling options */
@@ -328,7 +338,7 @@ static int collectargs (char **argv, int *first) {
         return has_error;
     }
   }
-  *first = i;  /* no script name */
+  *first = 0;  /* no script name */
   return args;
 }
 
