@@ -12,9 +12,10 @@ CFLAGS := -I -P -D +O
 .PHONY: luac_conf lua_conf all clean test libluac liblua run
 all: lua
 
-libluac: luac_conf $(OBJS) luac.lib
+libluac: luac_conf luac.lib
 luac.lib: $(OBJS)
 	@echo "Making luac.lib"
+	@rm -f $@
 	@iix makelib $@ $(ADDS) || rm -f -- $@   # we need to delete the lib file on error
 	@cp $@ $(EXE_DIR)/$@
 rmlibluac:
@@ -27,7 +28,7 @@ run: lua
 liblua: lua_conf lua.lib
 lua.lib: $(OBJS)
 	@echo "Making lua.lib"
-	@rm -f lua.lib
+	rm -f $@
 	@iix makelib $@ $(ADDS) || rm -f -- $@  # we need to delete the lib file on error
 	@cp $@ $(EXE_DIR)/$@
 	cp $@ ../../../luagsdemo/lib/
