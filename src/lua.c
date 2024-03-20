@@ -677,26 +677,25 @@ static int pmain (lua_State *L) {
       return 0;  /* interrupt in case of error */
   }
 #endif
-#ifdef LUA_NO_PARSER
-  if (script == argc && !(args & (has_e | has_v)))  /* no arguments? */
-    dofile(L, NULL);  /* executes stdin as a file */
-#else
-  #ifdef LUA_IIGS_BUILD_S16
-    print_version();
+
+  if (args & has_i)  /* -i option? */
+ #ifdef LUA_NO_PARSER
+      ;
+ #else
     doREPL(L);  /* do read-eval-print loop */
-  #else
-  if (args & has_i)  /* -i option? */ {
-      doREPL(L);  /* do read-eval-print loop */
-  }
-  else if (script == argc && !(args & (has_e | has_v))) {  /* no arguments? */
+ #endif
+ #ifndef LUA_IIGS_BUILD_S16
+  else if (script < 1 && !(args & (has_e | has_v))) { /* no active option? */
     if (lua_stdin_is_tty()) {  /* running in interactive mode? */
       print_version();
       doREPL(L);  /* do read-eval-print loop */
     }
     else dofile(L, NULL);  /* executes stdin as a file */
   }
-  #endif
-#endif
+ #else
+  print_version();
+  doREPL(L);  /* do read-eval-print loop */
+ #endif
   lua_pushboolean(L, 1);  /* signal no errors */
   return 1;
 }
