@@ -34,8 +34,6 @@ luac: | $(EXE_DIR)
 	+$(MAKE) -C src luac
 clean:
 	+$(MAKE) -C src clean
-cleanexe:
-	rm -f $(EXE_DIR)/*
 cleanluacout:
 	@rm -f -- luac.out
 luac.out:
