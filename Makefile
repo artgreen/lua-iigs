@@ -71,9 +71,9 @@ luacdisk: cleandisk luac
 	<$(EXE_DIR)/luac $(AC) -p $(XFER) luac exe
 	$(AC) -l $(XFER)
 cleanrelease:
-	@rm -f -- $(EXE_DISK) $(LIB_DISK)
+	@rm -f -- $(EXE_DISK) $(LIB_DISK) $(XFER) $(EXE_DIR)/* $(SHK_FILE)
 release: cleanrelease clean $(EXE_DISK) $(LIB_DISK)
-	$(NULIB) -a lua.shk $(EXE_DIR)/lua $(EXE_DIR)/luac test.lua
+	$(NULIB) -a $(SHK_FILE) $(EXE_DIR)/lua $(EXE_DIR)/luac test.lua
 $(EXE_DISK): luac lua
 	@$(AC) -pro800 $(EXE_DISK) LUAGS
 	@<$(EXE_DIR)/lua $(AC) -p $(EXE_DISK) lua exe
@@ -81,12 +81,12 @@ $(EXE_DISK): luac lua
 	@<test.lua $(AC) -ptx $(EXE_DISK) test.lua
 	@<examples/blackjack.lua $(AC) -ptx $(EXE_DISK) blackjack.lua
 	@<examples/replcli.lua $(AC) -ptx $(EXE_DISK) replcli.lua
-	@<examples/more.lua $(AC) -ptx $(XFER) more.lua
+	@<examples/more.lua $(AC) -ptx $(EXE_DISK) more.lua
 	@$(AC) -l $(EXE_DISK)
 $(LIB_DISK): lua
 	@$(AC) -pro800 $(LIB_DISK) LUALIB
 	@<$(EXE_DIR)/lua.lib $(AC) -p $(LIB_DISK) lua.lib lib
-	@<luainc.shk $(AC) -p $(XFER) luainc.shk shk
+	@<luainc.shk $(AC) -p $(LIB_DISK) luainc.shk shk
 	@$(AC) -l $(LIB_DISK)
 cleandisk:
 	@$(AC) -pro800 $(XFER) XFER
