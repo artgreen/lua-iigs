@@ -23,8 +23,8 @@ assert(a >> 4 == ~a)
 a = 0xF0; b = 0xCC; c = 0xAA; d = 0xFD
 assert(a | b ~ c & d == 0xF4)
 
---a = 0xF0.0; b = 0xCC.0; c = "0xAA.0"; d = "0xFD.0"
---assert(a | b ~ c & d == 0xF4)
+a = 0xF0.0; b = 0xCC.0; c = "0xAA.0"; d = "0xFD.0"
+assert(a | b ~ c & d == 0xF4)
 
 a = 0xF0000000; b = 0xCC000000;
 c = 0xAA000000; d = 0xFD000000
@@ -37,6 +37,18 @@ c = c << 32
 d = d << 32
 assert(a | b ~ c & d == 0xF4000000 << 32)
 assert(~~a == a and ~a == -1 ~ a and -d == ~d + 1)
+
+
+do   -- constant folding
+  local code = string.format("return -1 >> %d", math.maxinteger)
+  assert(load(code)() == 0)
+  local code = string.format("return -1 >> %d", math.mininteger)
+  assert(load(code)() == 0)
+  local code = string.format("return -1 << %d", math.maxinteger)
+  assert(load(code)() == 0)
+  local code = string.format("return -1 << %d", math.mininteger)
+  assert(load(code)() == 0)
+end
 
 assert(-1 >> 1 == (1 << (numbits - 1)) - 1 and 1 << 31 == 0x80000000)
 assert(-1 >> (numbits - 1) == 1)
@@ -62,8 +74,8 @@ assert("0xfffffffffffffffe" & "-1" == -2)
 assert(" \t-0xfffffffffffffffe\n\t" & "-1" == 2)
 assert("   \n  -45  \t " >> "  -2  " == -45 * 4)
 assert("1234.0" << "5.0" == 1234 * 32)
---assert("0xffff.0" ~ "0xAAAA" == 0x5555)
---assert(~"0x0.000p4" == -1)
+assert("0xffff.0" ~ "0xAAAA" == 0x5555)
+assert(~"0x0.000p4" == -1)
 
 assert(("7" .. 3) << 1 == 146)
 assert(0xffffffff >> (1 .. "9") == 0x1fff)

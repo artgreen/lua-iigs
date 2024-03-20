@@ -22,16 +22,18 @@ At least one part of the code makes this assumption. I'll need to verify this an
 - Bug: Numbers in hexadecimal ('0X0.41') are considered malformed
 - Bug: String catalog corruption.  In researching this project, I read about other porting projects running into unexplained string catalog corruption. I seem to have the same issue.  So far, the corruption seems to be limited to program termination when the string catalog is emptied.
 
-Tests
+Tests - 5.4.6
 
 | Test           | Status  | Notes                                                                                                      |
 |----------------|:-------:|------------------------------------------------------------------------------------------------------------|
+| api.lua        | Passing |                                                                                                            |
 | attrib.lua     | Failing | cannot open file 'libs/synerr.lua'                                                                         |
 | big.lua        | Failing | attempt to yield from outside a coroutine                                                                  |
 | bitwise.lua    | Passing | Commented out lines triggering malformed number bug                                                        |
 | bwcoercion.lua | Passing |                                                                                                            |
 | calls.lua      |   N/A   | No testC                                                                                                   |
 | closure.lua    | Passing |                                                                                                            |
+| code.lua       | Failing | lua: code.lua:300: malformed number near '0xF0.0'                                                          |
 | constructs.lua | Failing | There is bad object type being passed to reallymarkobject() that's triggering the assert in that function. |
 | coroutine.lua  | Failing | coroutine.lua:285: assertion failed!                                                                       |
 | cstack.lua     | Failing | 02423c: BRK 00                                                                                             |

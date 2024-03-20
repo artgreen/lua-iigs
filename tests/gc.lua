@@ -125,7 +125,7 @@ do
   end
 
   a:test()
-
+  _G.temp = nil
 end
 
 
@@ -134,7 +134,7 @@ do local f = function () end end
 
 
 print("functions with errors")
-prog = [[
+local prog = [[
 do
   a = 10;
   function foo(x,y)
@@ -153,22 +153,25 @@ do
     end
   end
 end
+rawset(_G, "a", nil)
+_G.x = nil
 
-foo = nil
-print('long strings')
-x = "01234567890123456789012345678901234567890123456789012345678901234567890123456789"
-assert(string.len(x)==80)
-s = ''
-k = math.min(300, (math.maxinteger // 80) // 2)
-for n = 1, k do s = s..x; j=tostring(n)  end
-assert(string.len(s) == k*80)
-s = string.sub(s, 1, 10000)
-s, i = string.gsub(s, '(%d%d%d%d)', '')
-assert(i==10000 // 4)
-s = nil
-x = nil
+do
+  foo = nil
+  print('long strings')
+  local x = "01234567890123456789012345678901234567890123456789012345678901234567890123456789"
+  assert(string.len(x)==80)
+  local s = ''
+  local k = math.min(300, (math.maxinteger // 80) // 2)
+  for n = 1, k do s = s..x; local j=tostring(n)  end
+  assert(string.len(s) == k*80)
+  s = string.sub(s, 1, 10000)
+  local s, i = string.gsub(s, '(%d%d%d%d)', '')
+  assert(i==10000 // 4)
 
-assert(_G["while"] == 234)
+  assert(_G["while"] == 234)
+  _G["while"] = nil
+end
 
 
 --
@@ -227,8 +230,8 @@ end
 
 
 print("clearing tables")
-lim = 15
-a = {}
+local lim = 15
+local a = {}
 -- fill a with `collectable' indices
 for i=1,lim do a[{}] = i end
 b = {}
@@ -454,18 +457,17 @@ do   -- tests for string keys in weak tables
   collectgarbage(); collectgarbage()
   local m = collectgarbage("count")         -- current memory
   local a = setmetatable({}, {__mode = "kv"})
-  a[string.rep("a", 2^14)] = 25   -- long string key -> number value
-  a[string.rep("b", 2^14)] = {}   -- long string key -> colectable value
+  a[string.rep("a", 2^22)] = 25   -- long string key -> number value
+  a[string.rep("b", 2^22)] = {}   -- long string key -> colectable value
   a[{}] = 14                     -- colectable key
-  --assert(collectgarbage("count") > m + 2^13)    -- 2^13 == 2 * 2^22 in KB
+  assert(collectgarbage("count") > m + 2^13)    -- 2^13 == 2 * 2^22 in KB
   collectgarbage()
-  --assert(collectgarbage("count") >= m + 2^12 and
-  --      collectgarbage("count") < m + 2^13)    -- one key was collected
+  assert(collectgarbage("count") >= m + 2^12 and
+        collectgarbage("count") < m + 2^13)    -- one key was collected
   local k, v = next(a)   -- string key with number value preserved
-  assert(k == string.rep("a", 2^14) and v == 25)
+  assert(k == string.rep("a", 2^22) and v == 25)
   assert(next(a, k) == nil)  -- everything else cleared
-  assert(a[string.rep("b", 2^14)] == undef)
-
+  assert(a[string.rep("b", 2^22)] == undef)
   a[k] = undef        -- erase this last entry
   k = nil
   collectgarbage()
@@ -490,8 +492,7 @@ end
 if not _soft then
   print("long list")
   local a = {}
-  --for i = 1,200000 do
-  for i = 1,135000 do
+  for i = 1,200000 do
     a = {next = a}
   end
   a = nil
@@ -554,6 +555,7 @@ do
     for i=1,1000 do _ENV.a = {} end   -- no collection during the loop
   until gcinfo() > 2 * x
   collectgarbage"restart"
+  _ENV.a = nil
 end
 
 

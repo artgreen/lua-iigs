@@ -9,12 +9,12 @@ local function checkerror (msg, f, ...)
 end
 
 
-function f(s, p)
+local function f (s, p)
   local i,e = string.find(s, p)
   if i then return string.sub(s, i, e) end
 end
 
-a,b = string.find('', '')    -- empty patterns are tricky
+local a,b = string.find('', '')    -- empty patterns are tricky
 assert(a == 1 and b == 0);
 a,b = string.find('alo', '')
 assert(a == 1 and b == 0)
@@ -73,22 +73,22 @@ assert(f('aaa', '^.-$') == 'aaa')
 assert(f('aabaaabaaabaaaba', 'b.*b') == 'baaabaaabaaab')
 assert(f('aabaaabaaabaaaba', 'b.-b') == 'baaab')
 assert(f('alo xo', '.o$') == 'xo')
-assert(f(' \n isto ï¿½ assim', '%S%S*') == 'isto')
-assert(f(' \n isto ï¿½ assim', '%S*$') == 'assim')
-assert(f(' \n isto ï¿½ assim', '[a-z]*$') == 'assim')
+assert(f(' \n isto é assim', '%S%S*') == 'isto')
+assert(f(' \n isto é assim', '%S*$') == 'assim')
+assert(f(' \n isto é assim', '[a-z]*$') == 'assim')
 assert(f('um caracter ? extra', '[^%sa-z]') == '?')
 assert(f('', 'a?') == '')
-assert(f('ï¿½', 'ï¿½?') == 'ï¿½')
-assert(f('ï¿½bl', 'ï¿½?b?l?') == 'ï¿½bl')
-assert(f('  ï¿½bl', 'ï¿½?b?l?') == '')
+assert(f('á', 'á?') == 'á')
+assert(f('ábl', 'á?b?l?') == 'ábl')
+assert(f('  ábl', 'á?b?l?') == '')
 assert(f('aa', '^aa?a?a') == 'aa')
-assert(f(']]]ï¿½b', '[^]]') == 'ï¿½')
+assert(f(']]]áb', '[^]]') == 'á')
 assert(f("0alo alo", "%x*") == "0a")
 assert(f("alo alo", "%C+") == "alo alo")
 print('+')
 
 
-function f1(s, p)
+local function f1 (s, p)
   p = string.gsub(p, "%%([0-9])", function (s)
         return "%" .. (tonumber(s)+1)
        end)
@@ -113,7 +113,7 @@ local abc = string.char(range(0, 127)) .. string.char(range(128, 255));
 
 assert(string.len(abc) == 256)
 
-function strset (p)
+local function strset (p)
   local res = {s=''}
   string.gsub(abc, p, function (c) res.s = res.s .. c end)
   return res.s
@@ -136,28 +136,28 @@ assert(string.match("alo xyzK", "(%w+)K") == "xyz")
 assert(string.match("254 K", "(%d*)K") == "")
 assert(string.match("alo ", "(%w*)$") == "")
 assert(not string.match("alo ", "(%w+)$"))
-assert(string.find("(ï¿½lo)", "%(ï¿½") == 1)
-local a, b, c, d, e = string.match("ï¿½lo alo", "^(((.).).* (%w*))$")
-assert(a == 'ï¿½lo alo' and b == 'ï¿½l' and c == 'ï¿½' and d == 'alo' and e == nil)
+assert(string.find("(álo)", "%(á") == 1)
+local a, b, c, d, e = string.match("âlo alo", "^(((.).).* (%w*))$")
+assert(a == 'âlo alo' and b == 'âl' and c == 'â' and d == 'alo' and e == nil)
 a, b, c, d  = string.match('0123456789', '(.+(.?)())')
 assert(a == '0123456789' and b == '' and c == 11 and d == nil)
 print('+')
 
-assert(string.gsub('ï¿½lo ï¿½lo', 'ï¿½', 'x') == 'xlo xlo')
-assert(string.gsub('alo ï¿½lo  ', ' +$', '') == 'alo ï¿½lo')  -- trim
+assert(string.gsub('ülo ülo', 'ü', 'x') == 'xlo xlo')
+assert(string.gsub('alo úlo  ', ' +$', '') == 'alo úlo')  -- trim
 assert(string.gsub('  alo alo  ', '^%s*(.-)%s*$', '%1') == 'alo alo')  -- double trim
 assert(string.gsub('alo  alo  \n 123\n ', '%s+', ' ') == 'alo alo 123 ')
-t = "abï¿½ d"
+local t = "abç d"
 a, b = string.gsub(t, '(.)', '%1@')
 assert('@'..a == string.gsub(t, '', '@') and b == 5)
-a, b = string.gsub('abï¿½d', '(.)', '%0@', 2)
-assert(a == 'a@b@ï¿½d' and b == 2)
+a, b = string.gsub('abçd', '(.)', '%0@', 2)
+assert(a == 'a@b@çd' and b == 2)
 assert(string.gsub('alo alo', '()[al]', '%1') == '12o 56o')
 assert(string.gsub("abc=xyz", "(%w*)(%p)(%w+)", "%3%2%1-%0") ==
               "xyz=abc-abc=xyz")
 assert(string.gsub("abc", "%w", "%1%0") == "aabbcc")
 assert(string.gsub("abc", "%w+", "%0%1") == "abcabc")
-assert(string.gsub('ï¿½ï¿½ï¿½', '$', '\0ï¿½ï¿½') == 'ï¿½ï¿½ï¿½\0ï¿½ï¿½')
+assert(string.gsub('áéí', '$', '\0óú') == 'áéí\0óú')
 assert(string.gsub('', '^', 'r') == 'r')
 assert(string.gsub('', '$', 'r') == 'r')
 print('+')
@@ -184,31 +184,33 @@ do
   local function setglobal (n,v) rawset(_G, n, v) end
   string.gsub("a=roberto,roberto=a", "(%w+)=(%w%w*)", setglobal)
   assert(_G.a=="roberto" and _G.roberto=="a")
+  _G.a = nil; _G.roberto = nil
 end
 
 function f(a,b) return string.gsub(a,'.',b) end
-assert(string.gsub("trocar tudo em |teste|b| ï¿½ |beleza|al|", "|([^|]*)|([^|]*)|", f) ==
-            "trocar tudo em bbbbb ï¿½ alalalalalal")
+assert(string.gsub("trocar tudo em |teste|b| é |beleza|al|", "|([^|]*)|([^|]*)|", f) ==
+            "trocar tudo em bbbbb é alalalalalal")
 
 local function dostring (s) return load(s, "")() or "" end
 assert(string.gsub("alo $a='x'$ novamente $return a$",
                    "$([^$]*)%$",
                    dostring) == "alo  novamente x")
 
-x = string.gsub("$x=string.gsub('alo', '.', string.upper)$ assim vai para $return x$",
+local x = string.gsub("$x=string.gsub('alo', '.', string.upper)$ assim vai para $return x$",
          "$([^$]*)%$", dostring)
 assert(x == ' assim vai para ALO')
+_G.a, _G.x = nil
 
-t = {}
-s = 'a alo jose  joao'
-r = string.gsub(s, '()(%w+)()', function (a,w,b)
-      assert(string.len(w) == b-a);
-      t[a] = b-a;
-    end)
+local t = {}
+local s = 'a alo jose  joao'
+local r = string.gsub(s, '()(%w+)()', function (a,w,b)
+             assert(string.len(w) == b-a);
+             t[a] = b-a;
+           end)
 assert(s == r and t[1] == 1 and t[3] == 3 and t[7] == 4 and t[13] == 4)
 
 
-function isbalanced (s)
+local function isbalanced (s)
   return not string.find(string.gsub(s, "%b()", ""), "[()]")
 end
 
@@ -240,7 +242,7 @@ checkerror("invalid use of '%%'", string.gsub, "alo", ".", "%x")
 
 if not _soft then
   print("big strings")
-  local a = string.rep('a', 30000)
+  local a = string.rep('a', 300000)
   assert(string.find(a, '^a*.?$'))
   assert(not string.find(a, '^a*.?b$'))
   assert(string.find(a, '^a-.?$'))
@@ -251,7 +253,7 @@ if not _soft then
 end
 
 -- recursive nest of gsubs
-function rev (s)
+local function rev (s)
   return string.gsub(s, "(.)(.+)", function (c,s1) return rev(s1)..c end)
 end
 
