@@ -22,7 +22,7 @@ DSK_DIR := images
 # compiler flags
 CFLAGS := -I -P -D +O
 
-.PHONY: all testdisk luadisk clean cleanluacout cleandisk minitest bridgedisk release cleanrelease
+.PHONY: all testdisk luadisk clean cleanluacout cleandisk minitest bridgedisk release cleanrelease disks
 
 bridge: test.a testiface.a testbridge.a
 	iix link test testiface testbridge $(SRC_DIR)/lvm $(SRC_DIR)/lua.lib KEEP=$@
@@ -72,22 +72,23 @@ luacdisk: cleandisk luac
 	@$(AC) -l $(XFER)
 cleanrelease:
 	@rm -f -- $(EXE_DISK) $(LIB_DISK) $(XFER) $(EXE_DIR)/* $(DSK_DIR)/* $(SHK_FILE)
-release: cleanrelease clean $(EXE_DISK) $(LIB_DISK)
-	$(NULIB) -a $(SHK_FILE) $(EXE_DIR)/lua $(EXE_DIR)/luac test.lua
-$(EXE_DISK): luac lua $(DSK_DIR)
-	@$(AC) -pro800 $(EXE_DISK) LUAGS
-	@<$(EXE_DIR)/lua $(AC) -p $(EXE_DISK) lua exe
-	@<$(EXE_DIR)/luac $(AC) -p $(EXE_DISK) luac exe
-	@<test.lua $(AC) -ptx $(EXE_DISK) test.lua
-	@<examples/blackjack.lua $(AC) -ptx $(EXE_DISK) blackjack.lua
-	@<examples/replcli.lua $(AC) -ptx $(EXE_DISK) replcli.lua
-	@<examples/more.lua $(AC) -ptx $(EXE_DISK) more.lua
-	@$(AC) -l $(EXE_DISK)
-$(LIB_DISK): lua $(DSK_DIR) $(EXE_DIR)/lua.lib
-	@$(AC) -pro800 $(LIB_DISK) LUALIB
-	@<$(EXE_DIR)/lua.lib $(AC) -p $(LIB_DISK) lua.lib lib
-	@<luainc.shk $(AC) -p $(LIB_DISK) luainc.shk shk
-	@$(AC) -l $(LIB_DISK)
+release: cleanrelease clean $(EXE_DISK) $(LIB_DISK) | $(DSK_DIR)
+	$(NULIB) -a $(DSK_DIR)/$(SHK_FILE) $(EXE_DIR)/lua $(EXE_DIR)/luac test.lua
+disks: $(EXE_DISK) $(LIB_DISK)
+$(EXE_DISK): luac lua | $(DSK_DIR)
+	@$(AC) -pro800 $(DSK_DIR)/$(EXE_DISK) LUAGS
+	@<$(EXE_DIR)/lua $(AC) -p $(DSK_DIR)/$(EXE_DISK) lua exe
+	@<$(EXE_DIR)/luac $(AC) -p $(DSK_DIR)/$(EXE_DISK) luac exe
+	@<test.lua $(AC) -ptx $(DSK_DIR)/$(EXE_DISK) test.lua
+	@<examples/blackjack.lua $(AC) -ptx $(DSK_DIR)/$(EXE_DISK) blackjack.lua
+	@<examples/replcli.lua $(AC) -ptx $(DSK_DIR)/$(EXE_DISK) replcli.lua
+	@<examples/more.lua $(AC) -ptx $(DSK_DIR)/$(EXE_DISK) more.lua
+	@$(AC) -l $(DSK_DIR)/$(EXE_DISK)
+$(LIB_DISK): lua $(EXE_DIR)/lua.lib | $(DSK_DIR)
+	@$(AC) -pro800 $(DSK_DIR)/$(LIB_DISK) LUALIB
+	@<$(EXE_DIR)/lua.lib $(AC) -p $(DSK_DIR)/$(LIB_DISK) lua.lib lib
+	@<luainc.shk $(AC) -p $(DSK_DIR)/$(LIB_DISK) luainc.shk shk
+	@$(AC) -l $(DSK_DIR)/$(LIB_DISK)
 cleandisk:
 	@$(AC) -pro800 $(XFER) XFER
 $(EXE_DIR):
