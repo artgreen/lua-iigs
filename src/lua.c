@@ -638,6 +638,7 @@ static int pmain (lua_State *L) {
   char **argv = (char **)lua_touserdata(L, 2);
   int script;
   int args = collectargs(argv, &script);
+  int optlim = (script > 0) ? script : argc; /* first argv not an option */
 #ifdef LUA_IIGS_BUILD_S16
   printf("Starting LUA...\n");           // comfort message
 #endif
