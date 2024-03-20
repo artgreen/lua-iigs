@@ -58,20 +58,20 @@ bridgesrcdisk: lua cleandisk bridge
 	<bridge.out $(AC) -p $(XFER) bridge.out bin
 	<bridge.lua $(AC) -p $(XFER) bridge.lua txt
 	$(AC) -l $(XFER)
-testdisk: cleanluacout luac luadisk luac.out
-	<luac.out $(AC) -p $(XFER) luac.out bin
-	<test.lua $(AC) -p $(XFER) test.lua txt
-luadisk: cleandisk lua
-	@<$(EXE_DIR)/lua $(AC) -p $(XFER) lua exe
-	@<examples/blackjack.lua $(AC) -ptx $(XFER) blackjack.lua
-	@<examples/replcli.lua $(AC) -ptx $(XFER) replcli.lua
-	@<examples/more.lua $(AC) -ptx $(XFER) more.lua
-	@$(AC) -l $(XFER)
-luacdisk: cleandisk luac
-	@<$(EXE_DIR)/luac $(AC) -p $(XFER) luac exe
-	@$(AC) -l $(XFER)
+testdisk: cleanluacout luac luadisk luac.out | $(DSK_DIR)
+	@<luac.out $(AC) -p $(DSK_DIR)/$(XFER) luac.out bin
+	@<test.lua $(AC) -p $(DSK_DIR)/$(XFER) test.lua txt
+luadisk: cleandisk lua | $(DSK_DIR)
+	@<$(EXE_DIR)/lua $(AC) -p $(DSK_DIR)/$(XFER) lua exe
+	@<examples/blackjack.lua $(AC) -ptx $(DSK_DIR)/$(XFER) blackjack.lua
+	@<examples/replcli.lua $(AC) -ptx $(DSK_DIR)/$(XFER) replcli.lua
+	@<examples/more.lua $(AC) -ptx $(DSK_DIR)/$(XFER) more.lua
+	@$(AC) -l $(DSK_DIR)/$(XFER)
+luacdisk: cleandisk luac | $(DSK_DIR)
+	@<$(EXE_DIR)/luac $(AC) -p $(DSK_DIR)/$(XFER) luac exe
+	@$(AC) -l $(DSK_DIR)/$(XFER)
 cleanrelease:
-	@rm -f -- $(EXE_DISK) $(LIB_DISK) $(XFER) $(EXE_DIR)/* $(DSK_DIR)/* $(SHK_FILE)
+	@rm -f -- $(EXE_DISK) $(LIB_DISK) $(DSK_DIR)/$(XFER) $(EXE_DIR)/* $(DSK_DIR)/* $(SHK_FILE)
 release: cleanrelease clean $(EXE_DISK) $(LIB_DISK) | $(DSK_DIR)
 	$(NULIB) -a $(DSK_DIR)/$(SHK_FILE) $(EXE_DIR)/lua $(EXE_DIR)/luac test.lua
 disks: $(EXE_DISK) $(LIB_DISK)
@@ -90,7 +90,7 @@ $(LIB_DISK): lua $(EXE_DIR)/lua.lib | $(DSK_DIR)
 	@<luainc.shk $(AC) -p $(DSK_DIR)/$(LIB_DISK) luainc.shk shk
 	@$(AC) -l $(DSK_DIR)/$(LIB_DISK)
 cleandisk:
-	@$(AC) -pro800 $(XFER) XFER
+	@$(AC) -pro800 $(DSK_DIR)/$(XFER) XFER
 $(EXE_DIR):
 	@mkdir -p $@
 $(DSK_DIR):
