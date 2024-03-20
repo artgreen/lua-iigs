@@ -19,19 +19,19 @@ luac.lib: $(OBJS)
 	@iix makelib $@ $(ADDS) || rm -f -- $@   # we need to delete the lib file on error
 	@cp $@ $(EXE_DIR)/$@
 rmlibluac:
-	rm -f luac.lib
+	@rm -f luac.lib
 rmlib:
-	rm -f lua.lib
+	@rm -f lua.lib
 foo: rmlib liblua
 run: lua
 	iix ../build/lua ../test.lua
 liblua: lua_conf lua.lib
 lua.lib: $(OBJS)
 	@echo "Making lua.lib"
-	rm -f $@
+	@rm -f $@
 	@iix makelib $@ $(ADDS) || rm -f -- $@  # we need to delete the lib file on error
 	@cp $@ $(EXE_DIR)/$@
-	cp $@ ../../../luagsdemo/lib/
+	@cp $@ ../../../luagsdemo/lib/
 lua_conf:
 ifeq ($(shell grep "LUAC" parseconf.h),)
 else
