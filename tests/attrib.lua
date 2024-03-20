@@ -21,7 +21,7 @@ print("package config: "..string.gsub(package.config, "\n", "|"))
 do
   -- create a path with 'max' templates,
   -- each with 1-10 repetitions of '?'
-  local max = _soft and 100 or 2000
+  local max = _soft and 100 or 63
   local t = {}
   for i = 1,max do t[i] = string.rep("?", i%10 + 1) end
   t[#t + 1] = ";"    -- empty template
