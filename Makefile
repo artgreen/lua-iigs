@@ -68,8 +68,8 @@ luadisk: cleandisk lua
 	@<examples/more.lua $(AC) -ptx $(XFER) more.lua
 	@$(AC) -l $(XFER)
 luacdisk: cleandisk luac
-	<$(EXE_DIR)/luac $(AC) -p $(XFER) luac exe
-	$(AC) -l $(XFER)
+	@<$(EXE_DIR)/luac $(AC) -p $(XFER) luac exe
+	@$(AC) -l $(XFER)
 cleanrelease:
 	@rm -f -- $(EXE_DISK) $(LIB_DISK) $(XFER) $(EXE_DIR)/* $(DSK_DIR)/* $(SHK_FILE)
 release: cleanrelease clean $(EXE_DISK) $(LIB_DISK)
