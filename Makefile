@@ -17,6 +17,8 @@ SHK_FILE := luags.shk
 # directory to hold binaries
 EXE_DIR := build
 SRC_DIR := src
+DSK_DIR := images
+
 # compiler flags
 CFLAGS := -I -P -D +O
 
@@ -69,10 +71,10 @@ luacdisk: cleandisk luac
 	<$(EXE_DIR)/luac $(AC) -p $(XFER) luac exe
 	$(AC) -l $(XFER)
 cleanrelease:
-	@rm -f -- $(EXE_DISK) $(LIB_DISK) $(XFER) $(EXE_DIR)/* $(SHK_FILE)
+	@rm -f -- $(EXE_DISK) $(LIB_DISK) $(XFER) $(EXE_DIR)/* $(DSK_DIR)/* $(SHK_FILE)
 release: cleanrelease clean $(EXE_DISK) $(LIB_DISK)
 	$(NULIB) -a $(SHK_FILE) $(EXE_DIR)/lua $(EXE_DIR)/luac test.lua
-$(EXE_DISK): luac lua
+$(EXE_DISK): luac lua $(DSK_DIR)
 	@$(AC) -pro800 $(EXE_DISK) LUAGS
 	@<$(EXE_DIR)/lua $(AC) -p $(EXE_DISK) lua exe
 	@<$(EXE_DIR)/luac $(AC) -p $(EXE_DISK) luac exe
@@ -81,7 +83,7 @@ $(EXE_DISK): luac lua
 	@<examples/replcli.lua $(AC) -ptx $(EXE_DISK) replcli.lua
 	@<examples/more.lua $(AC) -ptx $(EXE_DISK) more.lua
 	@$(AC) -l $(EXE_DISK)
-$(LIB_DISK): lua
+$(LIB_DISK): lua $(DSK_DIR) $(EXE_DIR)/lua.lib
 	@$(AC) -pro800 $(LIB_DISK) LUALIB
 	@<$(EXE_DIR)/lua.lib $(AC) -p $(LIB_DISK) lua.lib lib
 	@<luainc.shk $(AC) -p $(LIB_DISK) luainc.shk shk
@@ -89,6 +91,8 @@ $(LIB_DISK): lua
 cleandisk:
 	@$(AC) -pro800 $(XFER) XFER
 $(EXE_DIR):
+	@mkdir -p $@
+$(DSK_DIR):
 	@mkdir -p $@
 
 %.a:
