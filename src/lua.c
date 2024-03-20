@@ -644,7 +644,6 @@ static int pmain (lua_State *L) {
 #endif
   luaL_checkversion(L);  /* check that interpreter has correct version */
 #ifndef LUA_IIGS_BUILD_S16
-  if (argv[0] && argv[0][0]) progname = argv[0];
   if (args == has_error) {  /* bad arg? */
     print_usage(argv[script]);  /* 'script' has index of bad arg. */
     return 0;
@@ -662,19 +661,21 @@ static int pmain (lua_State *L) {
 #endif
   luaL_openlibs(L);  /* open standard libraries */
   createargtable(L, argv, argc, script);  /* create table 'arg' */
-  lua_gc(L, LUA_GCGEN, 0, 0);  /* GC in generational mode */
+  lua_gc(L, LUA_GCRESTART);  /* start GC... */
+  lua_gc(L, LUA_GCGEN, 0, 0);  /* ...in generational mode */
 #ifndef LUA_IIGS_BUILD_S16
-    if (!(args & has_E)) {  /* no option '-E'? */
+  if (!(args & has_E)) {  /* no option '-E'? */
 #endif
     if (handle_luainit(L) != LUA_OK)  /* run LUA_INIT */
       return 0;  /* error running LUA_INIT */
 #ifndef LUA_IIGS_BUILD_S16
   }
-  if (!runargs(L, argv, script))  /* execute arguments -e and -l */
+  if (!runargs(L, argv, optlim))  /* execute arguments -e and -l */
     return 0;  /* something failed */
-  if (script < argc &&  /* execute main script (if there is one) */
-      handle_script(L, argv + script) != LUA_OK)
-    return 0;
+  if (script > 0) {  /* execute main script (if there is one) */
+    if (handle_script(L, argv + script) != LUA_OK)
+      return 0;  /* interrupt in case of error */
+  }
 #endif
 #ifdef LUA_NO_PARSER
   if (script == argc && !(args & (has_e | has_v)))  /* no arguments? */
