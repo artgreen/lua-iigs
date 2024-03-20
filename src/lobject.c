@@ -469,7 +469,7 @@ static void addstr2buff (BuffFS *buff, const char *str, size_t slen) {
 
 
 /*
-** Add a number to the buffer.
+** Add a numeral to the buffer.
 */
 static void addnum2buff (BuffFS *buff, TValue *num) {
   char *numbuff = getbuff(buff, MAXNUMBER2STR);

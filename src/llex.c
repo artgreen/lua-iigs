@@ -156,7 +156,7 @@ TString *luaX_newstring (LexState *ls, const char *str, size_t l) {
   return ts;
 }
 
-#define next(ls)	(ls->current = zgetc(ls->z))
+
 /*
 ** increment line number and skips newline sequence (any of
 ** \n, \r, \n\r, or \r\n)
@@ -165,7 +165,7 @@ static void inclinenumber (LexState *ls) {
   int old = ls->current;
   lua_assert(currIsNewline(ls));
   next(ls);  /* skip '\n' or '\r' */
-  if (currIsNewline(ls) && ls->current != 0)
+  if (currIsNewline(ls) && ls->current != old)
     next(ls);  /* skip '\n\r' or '\r\n' */
   if (++ls->linenumber >= MAX_INT)
     lexerror(ls, "chunk has too many lines", 0);
