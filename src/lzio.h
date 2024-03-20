@@ -54,7 +54,15 @@ LUAI_FUNC size_t luaZ_read (ZIO* z, void *b, size_t n);	/* read next n bytes */
 
 struct Zio {
   size_t n;			/* bytes still unread */
+#if defined(LUA_USE_IIGS)
+/*
+ * Work around for compiler error generated when changing this field.
+ * To investigate more later
+ */
+  char *p;		/* current position in buffer */
+#else
   const char *p;		/* current position in buffer */
+#endif
   lua_Reader reader;		/* reader function */
   void *data;			/* additional data */
   lua_State *L;			/* Lua state (for reader) */

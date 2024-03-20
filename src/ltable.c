@@ -112,7 +112,7 @@ static const TValue absentkey = {ABSTKEYCONSTANT};
 */
 static Node *hashint (const Table *t, lua_Integer i) {
   lua_Unsigned ui = l_castS2U(i);
-  if (ui <= (unsigned int)INT_MAX)
+  if (ui <= cast_uint(INT_MAX))
     return hashmod(t, cast_int(ui));
   else
     return hashmod(t, ui);
@@ -262,9 +262,11 @@ LUAI_FUNC unsigned int luaH_realasize (const Table *t) {
     size |= (size >> 2);
     size |= (size >> 4);
     size |= (size >> 8);
+#if (UINT_MAX >> 14) > 3  /* unsigned int has more than 16 bits */
     size |= (size >> 16);
 #if (UINT_MAX >> 30) > 3
     size |= (size >> 32);  /* unsigned int has more than 32 bits */
+#endif
 #endif
     size++;
     lua_assert(ispow2(size) && size/2 < t->alimit && t->alimit < size);
@@ -493,7 +495,7 @@ static void setnodevector (lua_State *L, Table *t, unsigned int size) {
       luaG_runerror(L, "table overflow");
     size = twoto(lsize);
     t->node = luaM_newvector(L, size, Node);
-    for (i = 0; i < (int)size; i++) {
+    for (i = 0; i < cast_int(size); i++) {
       Node *n = gnode(t, i);
       gnext(n) = 0;
       setnilkey(n);

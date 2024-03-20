@@ -144,7 +144,7 @@ struct lua_longjmp;  /* defined in ldo.c */
 
 #define BASIC_STACK_SIZE        (2*LUA_MINSTACK)
 
-#define stacksize(th)	cast_int((th)->stack_last - (th)->stack)
+#define stacksize(th)	cast_int((th)->stack_last.p - (th)->stack.p)
 
 
 /* kinds of Garbage Collection */
@@ -296,7 +296,7 @@ typedef struct global_State {
   struct lua_State *mainthread;
   TString *memerrmsg;  /* message for memory-allocation errors */
   TString *tmname[TM_N];  /* array with tag-method names */
-  struct Table *mt[LUA_NUMTAGS];  /* metatables for basic types */
+  struct Table *mt[LUA_NUMTYPES];  /* metatables for basic types */
   TString *strcache[STRCACHE_N][STRCACHE_M];  /* cache for strings in API */
   lua_WarnFunction warnf;  /* warning function */
   void *ud_warn;         /* auxiliary data to 'warnf' */
@@ -311,13 +311,13 @@ struct lua_State {
   lu_byte status;
   lu_byte allowhook;
   unsigned short nci;  /* number of items in 'ci' list */
-  StkId top;  /* first free slot in the stack */
+  StkIdRel top;  /* first free slot in the stack */
   global_State *l_G;
   CallInfo *ci;  /* call info for current function */
-  StkId stack_last;  /* end of stack (last element + 1) */
-  StkId stack;  /* stack base */
+  StkIdRel stack_last;  /* end of stack (last element + 1) */
+  StkIdRel stack;  /* stack base */
   UpVal *openupval;  /* list of open upvalues in this stack */
-  StkId tbclist;  /* list of to-be-closed variables */
+  StkIdRel tbclist;  /* list of to-be-closed variables */
   GCObject *gclist;
   struct lua_State *twups;  /* list of threads with open upvalues */
   struct lua_longjmp *errorJmp;  /* current error recover point */
