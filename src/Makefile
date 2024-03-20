@@ -3,7 +3,7 @@
 #
 EXE_DIR := ../build
 
-names := lapi lauxlib lbaselib lcode lcorolib lctype ldblib ldebug ldo ldump lfunc lgc linit liolib llex lmathlib lmem loadlib lobject lopcodes loslib lparser lstate lstring lstrlib ltable ltablib ltm lundump lzio lvm
+names := lapi lauxlib lbaselib lcode lcorolib lctype ldblib ldebug ldo ldump lfunc lgc linit liolib llex lmathlib lmem loadlib lobject lopcodes loslib lparser lstate lstring lstrlib ltable ltablib ltm lundump lzio
 SRCS := $(names:%=*.c)
 OBJS := $(foreach wrd, $(names),$(wrd).a)
 ADDS := $(foreach wrd, $(names),+$(wrd).a)
@@ -40,7 +40,7 @@ else
 	@# make sure new library gets built
 	@rm -f lua.lib
 endif
-lua: liblua lua.a
+lua: liblua lua.a lvm.a
 	@iix link lua.a lvm lua.lib KEEP=$@
 	@cp $@ $(EXE_DIR)
 luac_conf:
@@ -50,7 +50,7 @@ ifeq ($(shell grep LUAC parseconf.h),)
 	@# make sure new library gets built
 	@rm -f luac.lib
 endif
-luac: libluac luac.a
+luac: libluac luac.a lvm.a
 	@iix link luac.a lvm luac.lib KEEP=$@
 	@cp $@ $(EXE_DIR)
 clean:
