@@ -49,11 +49,12 @@ end
 if a == 15 then print("Basic for loop with step... passed") else print("Basic for loop with step... failed") end
 
 -- With a negative step, swap start and end to count in descending order
+a = 0
 step = -2; start = 1; stop = -10
 for n = start, stop, step do
-    a = a - 1
+    a = n
 end
-if a == 10 then print("Basic for loop with neg step... passed") else print("Basic for loop with neg step... failed") end
+if a == -9 then print("Basic for loop with neg step... passed") else print("Basic for loop with neg step... failed") end
 
 -- Define list of years
 decades = {1910, 1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990}
