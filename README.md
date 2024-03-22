@@ -52,12 +52,15 @@ Tests - 5.4.6
 | math.lua       | Failing | lua: math.lua:557: assertion failed!                                                                       |
 | nextvar.lua    | Failing | Never returns. Probably memory corruption causing next() to go into a loop                                 |
 | pm.lua         | Passing | See note 2                                                                                                 |
-| sort.lua       | Passing |                                                                                                            |
+| sort.lua       | Failing | Multiple issues                                                                                            |
 | strings.lua    | Failing | Possible issues with string.format()                                                                       |
 | tpack.lua      | Passing |                                                                                                            |
 | vararg.lua     | Passing |                                                                                                            |
 | verybig.lua    | Failing | Timeout                                                                                                    |
+|
+
 Note 1: Removed hex numbers representing floating point numbers which are not supported by strtold()
+
 Note 2: Removed tests with strings containing certain characters. Suspect a locale issue with string.find()
 
 Powered by
