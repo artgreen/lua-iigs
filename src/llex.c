@@ -29,9 +29,9 @@
 
 #ifdef LUA_USE_IIGS
 #pragma noroot
-#pragma memorymodel 0
-segment "llex", dynamic;
-#include "parseconf.h"
+#pragma lint -1
+#pragma memorymodel 1
+segment "AUTOSEG~~~";
 #endif
 
 

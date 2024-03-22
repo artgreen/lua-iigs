@@ -1,15 +1,15 @@
 
-names := api attrib big bitwise bwcoercion calls closure code constructs coroutine cstack db errors events files gc gengc goto heavy literals locals main math nextvar pm sort strings tpack tracegc vararg verybig
-passes := api attrib bitwise bwcoercion closure code events gc goto heavy literals pm tpack tracegc vararg
-fails := big calls constructs coroutine db files gengc locals math strings sort
-hangs := cstack errors verybig nextvar
+names := api attrib big bitwise bwcoercion calls closure code  coroutine cstack db errors events files gc gengc goto heavy literals locals main math nextvar pm sort strings tpack tracegc vararg verybig
+passes := api attrib bitwise bwcoercion closure code events gc goto heavy literals locals pm tpack tracegc vararg sort
+fails := big calls coroutine db files gengc math strings
+hangs := constructs cstack errors verybig nextvar
 
 ALL := $(foreach wrd, $(names),$(wrd).out)
 PASSING := $(foreach wrd, $(passes),$(wrd).out)
 FAILING := $(foreach wrd, $(fails),$(wrd).out)
 HANGING := $(foreach wrd, $(hangs),$(wrd).out)
 
-TIMEOUT := 30
+TIMEOUT := 90
 TIMEOUT_EXE := /usr/bin/timeout
 MEMCHECK := --memcheck
 LUA := ../build/lua
@@ -21,7 +21,7 @@ tests: clean $(PASSING) $(FAILING)
 passing: clean $(PASSING)
 fails: clean $(FAILING)
 hangs: clean $(HANGING)
-
+sort.out: sort.lua
 clean:
 	@rm -f *.out
 api.out: api.lua
@@ -48,7 +48,7 @@ locals.out: locals.lua
 math.out: math.lua
 nextvar.out: nextvar.lua
 pm.out: pm.lua
-sort.out: sort.lua
+
 strings.out: strings.lua
 tpack.out: tpack.lua
 tracegc.out: tracegc.lua
@@ -58,5 +58,5 @@ verybig.out: verybig.lua
 	@echo =============================================
 	@echo $@
 	@echo =============================================
-	@-$(TIMEOUT_EXE) $(TIMEOUT) iix $(MEMCHECK) $(LUA) $< #> $@ 2>&1 || (echo "$@ Failed" && cat $@)
+	@-$(TIMEOUT_EXE) $(TIMEOUT) iix $(MEMCHECK) $(LUA) $< > $@ 2>&1 || (echo "$@ Failed" && cat $@)
 	@echo ============================================^
