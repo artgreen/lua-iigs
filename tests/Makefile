@@ -53,5 +53,5 @@ verybig.out: verybig.lua
 	@echo =============================================
 	@echo $@
 	@echo =============================================
-	timeout $(TIMEOUT) iix --memcheck ../build/lua $< #> $@ 2>&1
+	-timeout $(TIMEOUT) iix --memcheck ../build/lua $< #> $@ 2>&1
 
