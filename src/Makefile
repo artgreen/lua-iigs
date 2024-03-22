@@ -11,7 +11,8 @@ CFLAGS := -I -P -D +O
 
 .PHONY: luac_conf lua_conf all clean test libluac liblua run
 all: lua
-
+art: lua
+	timeout 15 iix ../build/lua ../test.lua
 libluac: luac_conf luac.lib
 luac.lib: $(OBJS)
 	@echo "Making luac.lib"
@@ -40,8 +41,8 @@ else
 	@# make sure new library gets built
 	@rm -f lua.lib
 endif
-lua: liblua lua.a lvm.a
-	@iix link lua.a lvm lua.lib KEEP=$@
+lua:  lua.a lvm.a $(OBJS)
+	@iix link lua.a lvm $(OBJS) KEEP=$@
 	@cp $@ $(EXE_DIR)
 luac_conf:
 ifeq ($(shell grep LUAC parseconf.h),)
@@ -122,4 +123,4 @@ lzio.a: lzio.c lprefix.h lua.h luaconf.h llimits.h lmem.h lstate.h \
  lobject.h ltm.h lzio.h
 
 %.a:
-	iix compile $(CFLAGS) $<
+	iix compile $(CFLAGS) $< || rm -f -- $@
