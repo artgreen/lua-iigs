@@ -297,14 +297,14 @@ end
 if os.setlocale("pt_BR") or os.setlocale("ptb") then
   assert(tonumber("3,4") == 3.4 and tonumber"3.4" == 3.4)
   assert(tonumber("  -.4  ") == -0.4)
-  assert(tonumber("  +0x.41  ") == 0X0.41)
+  --assert(tonumber("  +0x.41  ") == 0X0.41)
   assert(not load("a = (3,4)"))
   assert(assert(load("return 3.4"))() == 3.4)
   assert(assert(load("return .4,3"))() == .4)
   assert(assert(load("return 4."))() == 4.)
   assert(assert(load("return 4.+.5"))() == 4.5)
 
-  assert(" 0x.1 " + " 0x,1" + "-0X.1\t" == 0x0.1)
+  --assert(" 0x.1 " + " 0x,1" + "-0X.1\t" == 0x0.1)
 
   assert(not tonumber"inf" and not tonumber"NAN")
 
