@@ -32,8 +32,9 @@
 
 #ifdef LUA_USE_IIGS
 #pragma noroot
-#pragma memorymodel 0
-segment "lcode";
+#pragma lint -1
+#pragma memorymodel 1
+segment "AUTOSEG~~~";
 #endif
 
 /* Maximum number of registers in a Lua function (must fit in 8 bits) */

@@ -22,6 +22,7 @@
 
 #ifdef LUA_USE_IIGS
 #pragma noroot
+#pragma lint -1
 #pragma memorymodel 1
 segment "AUTOSEG~~~";
 #endif
