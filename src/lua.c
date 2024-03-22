@@ -23,8 +23,7 @@
 #ifdef LUA_USE_IIGS
 #include "parseconf.h"
 #pragma lint -1
-/* Setting memorymodel to 1 results in an unknown hang */
-#pragma memorymodel 0
+#pragma memorymodel 1
 #endif
 
 #if !defined(LUA_PROGNAME)

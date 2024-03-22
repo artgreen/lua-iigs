@@ -27,7 +27,7 @@
 
 #ifdef LUA_USE_IIGS
 #include "parseconf.h"
-#pragma memorymodel 0
+#pragma memorymodel 1
 #endif
 #ifdef LUA_IIGS_BUILD_S16
     #error "LUAC isn't S16 capable (no commandline)"
