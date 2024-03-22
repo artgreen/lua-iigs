@@ -19,7 +19,7 @@ The port supports enough of Lua that it is able to run a lot of Lua code pretty 
 
 Another interesting discovery is that the Lua developers appear to have assumed that a type short is always smaller than a type int.
 At least one part of the code makes this assumption. I'll need to verify this and sort it out.
-- Bug: Numbers in hexadecimal ('0X0.41') are considered malformed
+- Caveat: Numbers in hexadecimal ('0X0.41') are not supported by ORCA-C's implementation of strtod()
 - Bug: String catalog corruption.  In researching this project, I read about other porting projects running into unexplained string catalog corruption. I seem to have the same issue.  So far, the corruption seems to be limited to program termination when the string catalog is emptied.
 
 Tests - 5.4.6
@@ -27,36 +27,38 @@ Tests - 5.4.6
 | Test           | Status  | Notes                                                                                                      |
 |----------------|:-------:|------------------------------------------------------------------------------------------------------------|
 | api.lua        | Passing |                                                                                                            |
-| attrib.lua     | Failing | cannot open file 'libs/synerr.lua'                                                                         |
-| big.lua        | Failing | attempt to yield from outside a coroutine                                                                  |
-| bitwise.lua    | Passing | Commented out lines triggering malformed number bug                                                        |
+| attrib.lua     | Passing |                                                                                                            |
+| big.lua        | Failing | lua: attempt to yield from outside a coroutine big.lua:56                                                  |
+| bitwise.lua    | Passing | See note 1                                                                                                 |
 | bwcoercion.lua | Passing |                                                                                                            |
-| calls.lua      |   N/A   | No testC                                                                                                   |
+| calls.lua      | Failing | 000acd: BRK 00                                                                                             |
 | closure.lua    | Passing |                                                                                                            |
-| code.lua       | Failing | lua: code.lua:300: malformed number near '0xF0.0'                                                          |
+| code.lua       | Passing | See note 1                                                                                                 |
 | constructs.lua | Failing | There is bad object type being passed to reallymarkobject() that's triggering the assert in that function. |
-| coroutine.lua  | Failing | coroutine.lua:285: assertion failed!                                                                       |
-| cstack.lua     | Failing | 02423c: BRK 00                                                                                             |
-| debug.lua      | Failing | 02423c: BRK 00                                                                                             |
-| errors.lua     | Failing | 07eba1: BRK 60                                                                                             |
+| coroutine.lua  | Failing | 0000c9: BRK 00  MemCheck: memory altered at 004800                                                         |
+| cstack.lua     | Failing | Timeout                                                                                                    |
+| db.lua         | Failing | lua: db.lua:599: assertion failed!                                                                         |
+| debug.lua      |   N/A   | Removed from tests 5.4.6                                                                                   |
+| errors.lua     | Failing | Timeout                                                                                                    |
 | events.lua     | Passing |                                                                                                            |
-| files.lua      | Failing | files.lua:182: assertion failed!                                                                           |
+| files.lua      | Failing | files.lua:8: assertion failed!; fixed hex formatted numbers                                                |
 | gc.lua         | Passing |                                                                                                            |
-| gengc.lua      | Failing | 111608: BRK 00                                                                                             |
+| gengc.lua      | Failing | e11607: BRK 00                                                                                             |
 | goto.lua       | Passing |                                                                                                            |
-| heavy.lua      | Failing | 000002: BRK 00                                                                                             |
-| literals.lua   | Passing | Commented out lines triggering malformed number bug                                                        |
-| locals.lua     | Failing | 02423c: BRK 00                                                                                             |
+| heavy.lua      | Passing |                                                                                                            |
+| literals.lua   | Passing | See note 1                                                                                                 |
+| locals.lua     | Failing | Timeout                                                                                                    |
 | main.lua       |   N/A   | We aren't spawning subshells on the IIgs                                                                   |
-| math.lua       | Failing | math.lua:435: malformed number near '0x7.4'                                                                |
+| math.lua       | Failing | lua: math.lua:557: assertion failed!                                                                       |
 | nextvar.lua    | Failing | Never returns. Probably memory corruption causing next() to go into a loop                                 |
-| pm.lua         | Failing | pm.lua:83: assertion failed!                                                                               |
-| sort.lua       | Failing | 02423c: BRK 00                                                                                             |
-| strings.lua    | Failing | strings.lua:220: assertion failed!                                                                         |
+| pm.lua         | Passing | See note 2                                                                                                 |
+| sort.lua       | Passing |                                                                                                            |
+| strings.lua    | Failing | Possible issues with string.format()                                                                       |
 | tpack.lua      | Passing |                                                                                                            |
 | vararg.lua     | Passing |                                                                                                            |
-| verybig.lua    | Failing | file lgc.c, line 535, function traversestrongtable; assertion: !(keytt(n) == LUA_TNIL)                     |
-
+| verybig.lua    | Failing | Timeout                                                                                                    |
+Note 1: Removed hex numbers representing floating point numbers which are not supported by strtold()
+Note 2: Removed tests with strings containing certain characters. Suspect a locale issue with string.find()
 
 Powered by
 - ORCA/C https://github.com/byteworksinc/ORCA-C
