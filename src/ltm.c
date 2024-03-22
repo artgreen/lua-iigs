@@ -26,8 +26,9 @@
 
 #ifdef LUA_USE_IIGS
 #pragma noroot
-#pragma memorymodel 0
-segment "ltm";
+#pragma lint -1
+#pragma memorymodel 1
+segment "AUTOSEG~~~";
 #endif
 
 static const char udatatypename[] = "userdata";
