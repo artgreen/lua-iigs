@@ -21,7 +21,7 @@ tests: clean $(PASSING) $(FAILING)
 passing: clean $(PASSING)
 fails: clean $(FAILING)
 hangs: clean $(HANGING)
-sort.out: sort.lua
+
 clean:
 	@rm -f *.out
 api.out: api.lua
@@ -48,7 +48,7 @@ locals.out: locals.lua
 math.out: math.lua
 nextvar.out: nextvar.lua
 pm.out: pm.lua
-
+sort.out: sort.lua
 strings.out: strings.lua
 tpack.out: tpack.lua
 tracegc.out: tracegc.lua
