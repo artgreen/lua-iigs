@@ -22,8 +22,8 @@
 
 #ifdef LUA_USE_IIGS
 #pragma noroot
-#pragma memorymodel 0
-segment "lbaselib";
+#pragma memorymodel 1
+segment "AUTOSEG~~~";
 #endif
 
 static int luaB_print (lua_State *L) {

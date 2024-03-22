@@ -45,8 +45,8 @@
 
 #ifdef LUA_USE_IIGS
 #pragma noroot
-#pragma memorymodel 0
-segment "lauxlib";
+#pragma memorymodel 1
+segment "AUTOSEG~~~";
 #endif
 
 /*

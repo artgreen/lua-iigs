@@ -9,7 +9,7 @@ PASSING := $(foreach wrd, $(passes),$(wrd).out)
 FAILING := $(foreach wrd, $(fails),$(wrd).out)
 HANGING := $(foreach wrd, $(hangs),$(wrd).out)
 
-TIMEOUT := 120
+TIMEOUT := 30
 TIMEOUT_EXE := /usr/bin/timeout
 MEMCHECK := --memcheck
 LUA := ../build/lua
@@ -58,5 +58,5 @@ verybig.out: verybig.lua
 	@echo =============================================
 	@echo $@
 	@echo =============================================
-	@-$(TIMEOUT_EXE) $(TIMEOUT) iix $(MEMCHECK) $(LUA) $< > $@ 2>&1 || (echo "$@ Failed" && cat $@)
+	@-$(TIMEOUT_EXE) $(TIMEOUT) iix $(MEMCHECK) $(LUA) $< #> $@ 2>&1 || (echo "$@ Failed" && cat $@)
 	@echo ============================================^

@@ -32,8 +32,8 @@
 
 #ifdef LUA_USE_IIGS
 #pragma noroot
-#pragma memorymodel 0
-segment "lapi";
+#pragma memorymodel 1
+segment "AUTOSEG~~~";
 #endif
 
 const char lua_ident[] =
