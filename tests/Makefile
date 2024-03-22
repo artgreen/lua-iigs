@@ -1,16 +1,18 @@
 
 names := api attrib big bitwise bwcoercion calls closure code constructs coroutine cstack db errors events files gc gengc goto heavy literals locals main math nextvar pm sort strings tpack tracegc vararg verybig
-passes := api attrib bitwise bwcoercion closure code events gc goto heavy literals pm sort tpack tracegc vararg
-fails := big calls constructs coroutine db files gengc locals math strings
+passes := api attrib bitwise bwcoercion closure code events gc goto heavy literals pm tpack tracegc vararg
+fails := big calls constructs coroutine db files gengc locals math strings sort
 hangs := cstack errors verybig nextvar
 
 ALL := $(foreach wrd, $(names),$(wrd).out)
 PASSING := $(foreach wrd, $(passes),$(wrd).out)
 FAILING := $(foreach wrd, $(fails),$(wrd).out)
+HANGING := $(foreach wrd, $(hangs),$(wrd).out)
 
 TIMEOUT := 120
 TIMEOUT_EXE := /usr/bin/timeout
 MEMCHECK := --memcheck
+LUA := ../build/lua
 
 .PHONEY: all tests fails clean
 
@@ -18,6 +20,8 @@ all: clean $(ALL)
 tests: clean $(PASSING) $(FAILING)
 passing: clean $(PASSING)
 fails: clean $(FAILING)
+hangs: clean $(HANGING)
+
 clean:
 	@rm -f *.out
 api.out: api.lua
@@ -50,10 +54,9 @@ tpack.out: tpack.lua
 tracegc.out: tracegc.lua
 vararg.out: vararg.lua
 verybig.out: verybig.lua
-
 %.out:
 	@echo =============================================
 	@echo $@
 	@echo =============================================
-	@-timeout $(TIMEOUT) iix $(MEMCHECK) ../build/lua $< > $@ 2>&1 || echo Failed
-
+	@-$(TIMEOUT_EXE) $(TIMEOUT) iix $(MEMCHECK) $(LUA) $< > $@ 2>&1 || (echo "$@ Failed" && cat $@)
+	@echo ============================================^
