@@ -18,8 +18,13 @@
 
 #ifdef LUA_USE_IIGS
 #pragma noroot
+#pragma lint -1
+/*
+ * Memory model 0 is needed or really strange things start to happen.
+ * And unpleasant things, too.
+ */
 #pragma memorymodel 0
-segment "lctype";
+segment "AUTOSEG~~~";
 #endif
 
 
