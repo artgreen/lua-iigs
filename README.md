@@ -53,7 +53,7 @@ Tests - 5.4.6
 | nextvar.lua    | Failing | Never returns. Probably memory corruption causing next() to go into a loop                                 |
 | pm.lua         | Passing | See note 2                                                                                                 |
 | sort.lua       | Passing |                                                                                                            |
-| strings.lua    | Failing | Possible issues with string.format()                                                                       |
+| strings.lua    | Passing |                                                                                                            |
 | tpack.lua      | Passing |                                                                                                            |
 | vararg.lua     | Passing |                                                                                                            |
 | verybig.lua    | Failing | Timeout                                                                                                    |

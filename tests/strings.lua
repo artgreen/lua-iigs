@@ -269,6 +269,7 @@ do    -- longest number that can be formatted
   end
   assert(10^i < math.huge and 10^j == math.huge)
   -- The line below is corrupting something in memory
+  -- TODO Look into why no limit is in place
   --local s = string.format('%.99f', -(10^i))
   --assert(string.len(s) >= i + 101)
   --assert(tonumber(s) == -(10^i))
