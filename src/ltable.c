@@ -42,7 +42,7 @@
 #pragma noroot
 #pragma lint -1
 #pragma memorymodel 1
-segment "ltable";
+segment "AUTOSEG~~~";
 #endif
 
 /*
