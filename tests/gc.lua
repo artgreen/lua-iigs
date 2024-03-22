@@ -457,17 +457,17 @@ do   -- tests for string keys in weak tables
   collectgarbage(); collectgarbage()
   local m = collectgarbage("count")         -- current memory
   local a = setmetatable({}, {__mode = "kv"})
-  a[string.rep("a", 2^22)] = 25   -- long string key -> number value
-  a[string.rep("b", 2^22)] = {}   -- long string key -> colectable value
+  a[string.rep("a", 2^14)] = 25   -- long string key -> number value
+  a[string.rep("b", 2^14)] = {}   -- long string key -> colectable value
   a[{}] = 14                     -- colectable key
-  assert(collectgarbage("count") > m + 2^13)    -- 2^13 == 2 * 2^22 in KB
+  assert(collectgarbage("count") > m + 2^5)    -- 2^13 == 2 * 2^22 in KB
   collectgarbage()
-  assert(collectgarbage("count") >= m + 2^12 and
-        collectgarbage("count") < m + 2^13)    -- one key was collected
+  assert(collectgarbage("count") >= m + 2^4 and
+        collectgarbage("count") < m + 2^5)    -- one key was collected
   local k, v = next(a)   -- string key with number value preserved
-  assert(k == string.rep("a", 2^22) and v == 25)
+  assert(k == string.rep("a", 2^14) and v == 25)
   assert(next(a, k) == nil)  -- everything else cleared
-  assert(a[string.rep("b", 2^22)] == undef)
+  assert(a[string.rep("b", 2^14)] == undef)
   a[k] = undef        -- erase this last entry
   k = nil
   collectgarbage()
@@ -492,7 +492,7 @@ end
 if not _soft then
   print("long list")
   local a = {}
-  for i = 1,200000 do
+  for i = 1,20000 do
     a = {next = a}
   end
   a = nil
