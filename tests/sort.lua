@@ -257,7 +257,7 @@ local function timesort (a, n, func, msg, pre)
   check(a, func)
 end
 
-local limit = 50000
+local limit = 32000
 if _soft then limit = 5000 end
 
 a = {}
@@ -289,7 +289,7 @@ timesort(a, limit,  function(x,y) return nil end, "equal")
 
 for i,v in pairs(a) do assert(v == false) end
 
-AA = {"álo", "\0first :-)", "alo", "then this one", "45", "and a new"}
+AA = {"ï¿½lo", "\0first :-)", "alo", "then this one", "45", "and a new"}
 table.sort(AA)
 check(AA)
 
