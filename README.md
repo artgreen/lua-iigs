@@ -47,12 +47,12 @@ Tests - 5.4.6
 | goto.lua       | Passing |                                                                                                            |
 | heavy.lua      | Passing |                                                                                                            |
 | literals.lua   | Passing | See note 1                                                                                                 |
-| locals.lua     | Failing | Timeout                                                                                                    |
+| locals.lua     | Passing |                                                                                                            |
 | main.lua       |   N/A   | We aren't spawning subshells on the IIgs                                                                   |
 | math.lua       | Failing | lua: math.lua:557: assertion failed!                                                                       |
 | nextvar.lua    | Failing | Never returns. Probably memory corruption causing next() to go into a loop                                 |
 | pm.lua         | Passing | See note 2                                                                                                 |
-| sort.lua       | Failing | Multiple issues                                                                                            |
+| sort.lua       | Passing |                                                                                                            |
 | strings.lua    | Failing | Possible issues with string.format()                                                                       |
 | tpack.lua      | Passing |                                                                                                            |
 | vararg.lua     | Passing |                                                                                                            |
