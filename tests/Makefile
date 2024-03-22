@@ -10,11 +10,13 @@ FAILING := $(foreach wrd, $(fails),$(wrd).out)
 
 TIMEOUT := 120
 TIMEOUT_EXE := /usr/bin/timeout
+MEMCHECK := --memcheck
 
 .PHONEY: all tests fails clean
 
 all: clean $(ALL)
-tests: clean $(PASSING)
+tests: clean $(PASSING) $(FAILING)
+passing: clean $(PASSING)
 fails: clean $(FAILING)
 clean:
 	@rm -f *.out
@@ -53,5 +55,5 @@ verybig.out: verybig.lua
 	@echo =============================================
 	@echo $@
 	@echo =============================================
-	-timeout $(TIMEOUT) iix --memcheck ../build/lua $< #> $@ 2>&1
+	@-timeout $(TIMEOUT) iix $(MEMCHECK) ../build/lua $< > $@ 2>&1 || echo Failed
 
