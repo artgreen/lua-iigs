@@ -57,7 +57,6 @@ Tests - 5.4.6
 | tpack.lua      | Passing |                                                                                                            |
 | vararg.lua     | Passing |                                                                                                            |
 | verybig.lua    | Failing | Timeout                                                                                                    |
-|
 
 Note 1: Removed hex numbers representing floating point numbers which are not supported by strtold()
 
