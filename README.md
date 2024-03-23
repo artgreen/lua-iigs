@@ -39,7 +39,7 @@ Tests - 5.4.6
 | cstack.lua     | Failing | Timeout                                                                                                    |
 | db.lua         | Failing | lua: db.lua:599: assertion failed!                                                                         |
 | debug.lua      |   N/A   | Removed from tests 5.4.6                                                                                   |
-| errors.lua     | Failing | Timeout                                                                                                    |
+| errors.lua     | Failing | C stack overflow not detected; Errors in recursion fails; MemCheck: memory altered at 009112               |
 | events.lua     | Passing |                                                                                                            |
 | files.lua      | Failing | files.lua:8: assertion failed!; fixed hex formatted numbers                                                |
 | gc.lua         | Passing |                                                                                                            |
