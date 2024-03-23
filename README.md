@@ -50,7 +50,7 @@ Tests - 5.4.6
 | locals.lua     | Passing |                                                                                                            |
 | main.lua       |   N/A   | We aren't spawning subshells on the IIgs                                                                   |
 | math.lua       | Failing | lua: math.lua:557: assertion failed!                                                                       |
-| nextvar.lua    | Failing | Never returns. Probably memory corruption causing next() to go into a loop                                 |
+| nextvar.lua    | Passing |                                                                                                            |
 | pm.lua         | Passing | See note 2                                                                                                 |
 | sort.lua       | Passing |                                                                                                            |
 | strings.lua    | Passing |                                                                                                            |
