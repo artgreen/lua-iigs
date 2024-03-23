@@ -34,8 +34,8 @@ Tests - 5.4.6
 | calls.lua      | Failing | 000acd: BRK 00                                                                                             |
 | closure.lua    | Passing |                                                                                                            |
 | code.lua       | Passing | See note 1                                                                                                 |
-| constructs.lua | Failing | There is bad object type being passed to reallymarkobject() that's triggering the assert in that function. |
-| coroutine.lua  | Failing | 0000c9: BRK 00  MemCheck: memory altered at 004800                                                         |
+| constructs.lua | Passing | There is bad object type being passed to reallymarkobject() that's triggering the assert in that function. |
+| coroutine.lua  | Failing | Needed to remove infinite coroutine recursion test                                                         |
 | cstack.lua     | Failing | Timeout                                                                                                    |
 | db.lua         | Failing | lua: db.lua:599: assertion failed!                                                                         |
 | debug.lua      |   N/A   | Removed from tests 5.4.6                                                                                   |
