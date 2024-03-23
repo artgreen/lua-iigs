@@ -14,7 +14,7 @@ TIMEOUT_EXE := /usr/bin/timeout
 MEMCHECK := --memcheck
 LUA := ../build/lua
 
-.PHONEY: all tests fails clean
+.PHONEY: all tests fails passing hangs clean
 
 all: clean $(ALL)
 tests: clean $(PASSING) $(FAILING)
