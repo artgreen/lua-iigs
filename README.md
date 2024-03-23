@@ -56,7 +56,7 @@ Tests - 5.4.6
 | strings.lua    | Passing |                                                                                                            |
 | tpack.lua      | Passing |                                                                                                            |
 | vararg.lua     | Passing |                                                                                                            |
-| verybig.lua    | Failing | Timeout                                                                                                    |
+| verybig.lua    | Failing | lua: table overflow                                                                                        |
 
 Note 1: Removed hex numbers representing floating point numbers which are not supported by strtold()
 
