@@ -32,6 +32,8 @@ test_bridge.a: testbridge.c
 
 lua: | $(EXE_DIR)
 	+$(MAKE) -C src lua
+liblua: | $(EXE_DIR)
+	+$(MAKE) -C src liblua
 luac: | $(EXE_DIR)
 	+$(MAKE) -C src luac
 clean:
@@ -84,7 +86,7 @@ $(EXE_DISK): luac lua | $(DSK_DIR)
 	@<examples/replcli.lua $(AC) -ptx $(DSK_DIR)/$(EXE_DISK) replcli.lua
 	@<examples/more.lua $(AC) -ptx $(DSK_DIR)/$(EXE_DISK) more.lua
 	@$(AC) -l $(DSK_DIR)/$(EXE_DISK)
-$(LIB_DISK): lua $(EXE_DIR)/lua.lib | $(DSK_DIR)
+$(LIB_DISK): liblua $(EXE_DIR)/lua.lib | $(DSK_DIR)
 	@$(AC) -pro800 $(DSK_DIR)/$(LIB_DISK) LUALIB
 	@<$(EXE_DIR)/lua.lib $(AC) -p $(DSK_DIR)/$(LIB_DISK) lua.lib lib
 	@<luainc.shk $(AC) -p $(DSK_DIR)/$(LIB_DISK) luainc.shk shk
