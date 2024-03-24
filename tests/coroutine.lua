@@ -3,6 +3,8 @@
 
 print "testing coroutines"
 
+_iigs = true  -- skip failing tests
+
 local debug = require'debug'
 
 local f
@@ -115,7 +117,9 @@ local function filter (p, g)
 end
 
 -- Reducing from 80 to 46
-local x = gen(46)
+local gennum = 80
+if _iigs then gennum = 46 end
+local x = gen(gennum)
 local a = {}
 while 1 do
   local n = x()
@@ -129,8 +133,11 @@ while 1 do
   x = filter(n, x)
 end
 
-assert(#a == 14 and a[#a] == 43)
---assert(#a == 22 and a[#a] == 79)
+if _iigs then
+  assert(#a == 14 and a[#a] == 43)
+else
+  assert(#a == 22 and a[#a] == 79)
+end
 x, a = nil
 
 
@@ -497,7 +504,9 @@ assert(coroutine.status(co1) == 'dead')
 -- infinite recursion of coroutines
 a = function(a) coroutine.wrap(a)(a) end
 --TODO: below hangs
---assert(not pcall(a, a))
+if not _iigs then
+  assert(not pcall(a, a))
+end
 a = nil
 
 
