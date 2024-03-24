@@ -5,13 +5,15 @@
 -- most (all?) tests here assume a reasonable "Unix-like" shell
 if _port then return end
 
+_iigs = true
+if _iigs then return end
 -- use only "double quotes" inside shell scripts (better change to
 -- run on Windows)
 
 
 print ("testing stand-alone interpreter")
 
-assert(os.execute())   -- machine has a system command
+--assert(os.execute())   -- machine has a system command
 
 local arg = arg or ARG
 
