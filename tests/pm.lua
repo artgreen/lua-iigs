@@ -3,6 +3,8 @@
 
 print('testing pattern matching')
 
+_iigs = true -- work around failing tests or change sizes
+
 local function checkerror (msg, f, ...)
   local s, err = pcall(f, ...)
   assert(not s and string.find(err, msg))
@@ -80,9 +82,13 @@ assert(f('um caracter ? extra', '[^%sa-z]') == '?')
 assert(f('', 'a?') == '')
 assert(f('�', '�?') == '�')
 assert(f('�bl', '�?b?l?') == '�bl')
---assert(f('  �bl', '�?b?l?') == '')
+if not _iigs then
+  assert(f('  �bl', '�?b?l?') == '')
+end
 assert(f('aa', '^aa?a?a') == 'aa')
---assert(f(']]]�b', '[^]]') == '�')
+if not _iigs then
+  assert(f(']]]�b', '[^]]') == '�')
+end
 assert(f("0alo alo", "%x*") == "0a")
 assert(f("alo alo", "%C+") == "alo alo")
 print('+')
@@ -138,7 +144,9 @@ assert(string.match("alo ", "(%w*)$") == "")
 assert(not string.match("alo ", "(%w+)$"))
 assert(string.find("(�lo)", "%(�") == 1)
 local a, b, c, d, e = string.match("�lo alo", "^(((.).).* (%w*))$")
---assert(a == '�lo alo' and b == '�l' and c == '�' and d == 'alo' and e == nil)
+if not _iigs then
+  assert(a == '�lo alo' and b == '�l' and c == '�' and d == 'alo' and e == nil)
+end
 a, b, c, d  = string.match('0123456789', '(.+(.?)())')
 assert(a == '0123456789' and b == '' and c == 11 and d == nil)
 print('+')
@@ -149,7 +157,9 @@ assert(string.gsub('  alo alo  ', '^%s*(.-)%s*$', '%1') == 'alo alo')  -- double
 assert(string.gsub('alo  alo  \n 123\n ', '%s+', ' ') == 'alo alo 123 ')
 local t = "ab� d"
 a, b = string.gsub(t, '(.)', '%1@')
---assert('@'..a == string.gsub(t, '', '@') and b == 5)
+if not _iigs then
+  assert('@'..a == string.gsub(t, '', '@') and b == 5)
+end
 a, b = string.gsub('ab�d', '(.)', '%0@', 2)
 assert(a == 'a@b@�d' and b == 2)
 assert(string.gsub('alo alo', '()[al]', '%1') == '12o 56o')
@@ -242,7 +252,12 @@ checkerror("invalid use of '%%'", string.gsub, "alo", ".", "%x")
 
 if not _soft then
   print("big strings")
-  local a = string.rep('a', 30000)
+  local a
+  if _iigs then
+    a = string.rep('a', 32747)
+  else
+    a = string.rep('a', 300000)
+  end
   assert(string.find(a, '^a*.?$'))
   assert(not string.find(a, '^a*.?b$'))
   assert(string.find(a, '^a-.?$'))
