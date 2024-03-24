@@ -3,6 +3,8 @@
 
 print('testing incremental garbage collection')
 
+_iigs = true -- used to skip failing tests/size adjustments
+
 local debug = require"debug"
 
 assert(collectgarbage("isrunning"))
@@ -457,17 +459,35 @@ do   -- tests for string keys in weak tables
   collectgarbage(); collectgarbage()
   local m = collectgarbage("count")         -- current memory
   local a = setmetatable({}, {__mode = "kv"})
-  a[string.rep("a", 2^14)] = 25   -- long string key -> number value
-  a[string.rep("b", 2^14)] = {}   -- long string key -> colectable value
+  if _iigs then
+    a[string.rep("a", 2^14)] = 25   -- long string key -> number value
+    a[string.rep("b", 2^14)] = {}   -- long string key -> colectable value
+  else
+    a[string.rep("a", 2^22)] = 25   -- long string key -> number value
+    a[string.rep("b", 2^22)] = {}   -- long string key -> colectable value
+  end
   a[{}] = 14                     -- colectable key
-  assert(collectgarbage("count") > m + 2^5)    -- 2^13 == 2 * 2^22 in KB
+  if _iigs then
+    assert(collectgarbage("count") > m + 2^5)    -- 2^13 == 2 * 2^22 in KB
+  else
+    assert(collectgarbage("count") > m + 2^13)    -- 2^13 == 2 * 2^22 in KB
+  end
   collectgarbage()
-  assert(collectgarbage("count") >= m + 2^4 and
-        collectgarbage("count") < m + 2^5)    -- one key was collected
+  if _iigs then
+    assert(collectgarbage("count") >= m + 2^4 and
+            collectgarbage("count") < m + 2^5)    -- one key was collected
+  else
+    assert(collectgarbage("count") >= m + 2^12 and
+            collectgarbage("count") < m + 2^13)    -- one key was collected
+  end
   local k, v = next(a)   -- string key with number value preserved
   assert(k == string.rep("a", 2^14) and v == 25)
   assert(next(a, k) == nil)  -- everything else cleared
-  assert(a[string.rep("b", 2^14)] == undef)
+  if _iigs then
+    assert(a[string.rep("b", 2^14)] == undef)
+  else
+    assert(a[string.rep("b", 2^22)] == undef)
+  end
   a[k] = undef        -- erase this last entry
   k = nil
   collectgarbage()
@@ -488,11 +508,14 @@ if T then
   warn("@normal")
 end
 
-
+local countnum = 200000
+if _iigs then
+  countnum = 135000   -- Prevent memory exhaustion below
+end
 if not _soft then
   print("long list")
   local a = {}
-  for i = 1,20000 do
+  for i = 1,countnum do
     a = {next = a}
   end
   a = nil
