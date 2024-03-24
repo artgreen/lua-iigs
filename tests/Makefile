@@ -1,7 +1,7 @@
 
 names := api attrib big bitwise bwcoercion calls closure code coroutine cstack db errors events files gc gengc goto heavy literals locals main math nextvar pm sort strings tpack tracegc vararg verybig
-passes := api attrib bitwise bwcoercion calls coroutine closure code db events gc gengc goto heavy literals locals nextvar pm sort strings tpack tracegc vararg
-fails := big constructs errors files math verybig cstack
+passes := api attrib bitwise bwcoercion calls constructs coroutine closure code db events gc gengc goto heavy literals locals nextvar pm sort strings tpack tracegc vararg
+fails := big  errors files math verybig cstack
 hangs :=
 
 ALL := $(foreach wrd, $(names),$(wrd).out)

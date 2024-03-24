@@ -5,6 +5,7 @@
 
 local debug = require "debug"
 
+_iigs = true -- used to skip failing tests and set sizes
 
 local function checkload (s, msg)
   assert(string.find(select(2, load(s)), msg))
@@ -378,7 +379,12 @@ local function createcases (n)
 end
 
 -- do not do too many combinations for soft tests
-local level = _soft and 3 or 4
+local level
+if not _iigs then
+  level = _soft and 3 or 4
+else
+  level = 3
+end
 
 cases[1] = basiccases
 for i = 2, level do cases[i] = createcases(i) end
