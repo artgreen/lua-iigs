@@ -260,7 +260,7 @@ local function timesort (a, n, func, msg, pre)
 end
 
 local limit = 50000
-if _iigs then limit = 32700 end
+if _iigs then limit = 10000 end
 if _soft then limit = 5000 end
 
 a = {}
