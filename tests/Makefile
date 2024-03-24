@@ -1,6 +1,6 @@
 
 names := api attrib big bitwise bwcoercion calls closure code coroutine cstack db errors events files gc gengc goto heavy literals locals main math nextvar pm sort strings tpack tracegc vararg verybig
-passes := api attrib big bitwise bwcoercion calls constructs coroutine closure code db errors events gc gengc goto heavy literals locals nextvar pm sort strings tpack tracegc vararg
+passes := api attrib big bitwise bwcoercion calls constructs coroutine closure code db errors events gc gengc goto heavy literals locals main nextvar pm sort strings tpack tracegc vararg
 fails := cstack files math verybig
 hangs :=
 
@@ -45,6 +45,7 @@ goto.out: goto.lua
 heavy.out: heavy.lua
 literals.out: literals.lua
 locals.out: locals.lua
+main.out: main.lua
 math.out: math.lua
 nextvar.out: nextvar.lua
 pm.out: pm.lua
