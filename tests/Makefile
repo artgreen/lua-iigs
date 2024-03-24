@@ -1,8 +1,8 @@
 
-names := api attrib big bitwise bwcoercion calls closure code  coroutine cstack db errors events files gc gengc goto heavy literals locals main math nextvar pm sort strings tpack tracegc vararg verybig
-passes := api attrib bitwise bwcoercion coroutine closure code events gc goto heavy literals locals nextvar pm strings tpack tracegc vararg sort
-fails := big calls constructs db errors files math verybig
-hangs := gengc cstack
+names := api attrib big bitwise bwcoercion calls closure code coroutine cstack db errors events files gc gengc goto heavy literals locals main math nextvar pm sort strings tpack tracegc vararg verybig
+passes := api attrib bitwise bwcoercion calls coroutine closure code db events gc gengc goto heavy literals locals nextvar pm sort strings tpack tracegc vararg
+fails := big constructs errors files math verybig cstack
+hangs :=
 
 ALL := $(foreach wrd, $(names),$(wrd).out)
 PASSING := $(foreach wrd, $(passes),$(wrd).out)
