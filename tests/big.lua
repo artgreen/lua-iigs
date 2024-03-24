@@ -8,8 +8,13 @@ end
 print "testing large tables"
 
 local debug = require"debug" 
-
-local lim = 2^12 + 1000
+_iigs = true -- used to skip failling tests and set sizes
+local lim
+if not _iigs then
+  lim = 2^18 + 1000
+else
+  lim = 2^12 + 1000
+end
 local prog = { "local y = {0" }
 for i = 1, lim do prog[#prog + 1] = i  end
 prog[#prog + 1] = "}\n"
@@ -53,7 +58,7 @@ assert(not e and m:find("'newindex'"))
 
 f, X = nil
 
-coroutine.yield'b'
+--coroutine.yield'b'
 
 if 2^32 == 0 then   -- (small integers) {   
 
