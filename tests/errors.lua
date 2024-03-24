@@ -3,6 +3,8 @@
 
 print("testing errors")
 
+_iigs = true -- used to skip failing tests
+
 local debug = require"debug"
 
 -- avoid problems with 'strict' module (which may generate other error messages)
@@ -349,7 +351,9 @@ end
 --
 -- TODO: The below line doesn't trigger an expected stack overflow
 --
---assert(string.find(f(), "C stack overflow"))
+if not _iigs then
+  assert(string.find(f(), "C stack overflow"))
+end
 
 checkmessage("coroutine.yield()", "outside a coroutine")
 
@@ -532,7 +536,7 @@ if not _soft then
       return a,b
     end
   end
-  --f(3)
+  if not _iigs then f(3) end
   local function loop (x,y,z) return 1 + loop(x, y, z) end
  
   local res, msg = xpcall(loop, function (m)
