@@ -3,6 +3,8 @@
 
 print "testing (parts of) table library"
 
+_iigs = true  -- used to skip failing tests or set sizes
+
 print "testing unpack"
 
 local unpack = table.unpack
@@ -257,7 +259,8 @@ local function timesort (a, n, func, msg, pre)
   check(a, func)
 end
 
-local limit = 32000
+local limit = 50000
+if _iigs then limit = 32700 end
 if _soft then limit = 5000 end
 
 a = {}
