@@ -11,27 +11,25 @@ CFLAGS := -I -P -D +O
 
 .PHONY: luac_conf lua_conf all clean test libluac liblua run
 all: lua
-art: lua
-	timeout 15 iix ../build/lua ../test.lua
 libluac: luac_conf luac.lib
 luac.lib: $(OBJS)
 	@echo "Making luac.lib"
-	@rm -f $@
+	@#rm -f $@
 	@iix makelib $@ $(ADDS) || rm -f -- $@   # we need to delete the lib file on error
 	@cp $@ $(EXE_DIR)/$@
 rmlibluac:
 	@rm -f luac.lib
 rmlib:
 	@rm -f lua.lib
-foo: rmlib liblua
 run: lua
 	iix ../build/lua ../test.lua
 liblua: lua_conf lua.lib
 lua.lib: $(OBJS)
 	@echo "Making lua.lib"
-	@rm -f $@
+	@#rm -f $@
 	@iix makelib $@ $(ADDS) || rm -f -- $@  # we need to delete the lib file on error
 	@cp $@ $(EXE_DIR)/$@
+	@cp lvm.a $(EXE_DIR)/lvm.a
 	@cp $@ ../../../luagsdemo/lib/
 lua_conf:
 ifeq ($(shell grep "LUAC" parseconf.h),)
@@ -39,9 +37,9 @@ else
 	@echo "Switching to LUA build"
 	@echo '#define BUILD_IS_LUA' > parseconf.h
 	@# make sure new library gets built
-	@rm -f lua.lib
+	@rm -f lua.lib $(EXE_DIR)/lua.lib
 endif
-lua:  lua.a lvm.a $(OBJS)
+lua: lua_conf lua.a lvm.a $(OBJS)
 	@iix link lua.a lvm $(OBJS) KEEP=$@
 	@cp $@ $(EXE_DIR)
 luac_conf:
@@ -51,13 +49,13 @@ ifeq ($(shell grep LUAC parseconf.h),)
 	@# make sure new library gets built
 	@rm -f luac.lib
 endif
-luac: libluac luac.a lvm.a
-	@iix link luac.a lvm luac.lib KEEP=$@
-	@cp $@ $(EXE_DIR)
+luac: luac_conf luac.a lvm.a $(OBJS)
+	@iix link luac.a lvm $(OBJS) KEEP=$@
+	@cp $@ $(EXE_DIR)/
 clean:
 	@rm -f -- *.sym *.a *.b *.d *.e *.root lua luac *.lib
 	@#rm -f -- $(EXE_DIR)/*.lib $(EXE_DIR)/lua $(EXE_DIR)/luac
-
+	@echo '#define BUILD_IS_LUA' > parseconf.h
 # Dependencies
 lapi.a: lapi.c lprefix.h lua.h luaconf.h lapi.h llimits.h lstate.h \
  lobject.h ltm.h lzio.h lmem.h ldebug.h ldo.h lfunc.h lgc.h lstring.h \
