@@ -4,7 +4,7 @@
 -- testing debug library
 
 local debug = require "debug"
-
+_iigs = true
 local function dostring(s) return assert(load(s))() end
 
 print"testing debug library and debug information"
@@ -345,7 +345,7 @@ function f(a,b)
   local _, y = debug.getlocal(1, 2)
   assert(x == a and y == b)
   assert(debug.setlocal(2, 3, "pera") == "AA".."AA")
-  assert(debug.setlocal(2, 4, "maçã") == "B")
+  assert(debug.setlocal(2, 4, "maï¿½ï¿½") == "B")
   x = debug.getinfo(2)
   assert(x.func == g and x.what == "Lua" and x.name == 'g' and
          x.nups == 2 and string.find(x.source, "^@.*db%.lua$"))
@@ -373,9 +373,9 @@ function g (...)
   local arg = {...}
   do local a,b,c; a=math.sin(40); end
   local feijao
-  local AAAA,B = "xuxu", "mamão"
+  local AAAA,B = "xuxu", "mamï¿½o"
   f(AAAA,B)
-  assert(AAAA == "pera" and B == "maçã")
+  assert(AAAA == "pera" and B == "maï¿½ï¿½")
   do
      local B = 13
      local x,y = debug.getlocal(1,5)
@@ -594,9 +594,11 @@ debug.sethook(function (e) a=a+1 end, "", 4000)
 a=0; for i=1,1000 do end; assert(a == 0)
 
 do
-  debug.sethook(print, "", 2^24 - 1)   -- count upperbound
+  local size = 2^24
+  if _iigs then size = 2^15 end
+  debug.sethook(print, "", size - 1)   -- count upperbound
   local f,m,c = debug.gethook()
-  assert(({debug.gethook()})[3] == 2^24 - 1)
+  assert(({debug.gethook()})[3] == size - 1)
 end
 
 debug.sethook()
