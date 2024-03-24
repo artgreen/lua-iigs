@@ -3,7 +3,7 @@
 
 print('testing strings and string library')
 
-_port = true
+_iigs = true -- used to skip failing tests or set sizes
 
 local maxi <const> = math.maxinteger
 local mini <const> = math.mininteger
@@ -224,8 +224,11 @@ do
   checkQ("\0\0\1\255\u{234}")
   checkQ(math.maxinteger)
   checkQ(math.mininteger)
-  --checkQ(math.pi)
-  checkQ(3.141593e+00)
+  if _iigs then
+    checkQ(3.141593e+00)
+  else
+    checkQ(math.pi)
+  end
   checkQ(0.1)
   checkQ(true)
   checkQ(nil)
@@ -270,15 +273,18 @@ do    -- longest number that can be formatted
   assert(10^i < math.huge and 10^j == math.huge)
   -- The line below is corrupting something in memory
   -- TODO Look into why no limit is in place
-  --local s = string.format('%.99f', -(10^i))
-  --assert(string.len(s) >= i + 101)
-  --assert(tonumber(s) == -(10^i))
-
+  if not _iigs then
+    local s = string.format('%.99f', -(10^i))
+    assert(string.len(s) >= i + 101)
+    assert(tonumber(s) == -(10^i))
+  end
   -- limit for floats
   assert(10^38 < math.huge)
-  --local s = string.format('%.99f', -(10^38))
-  --assert(string.len(s) >= 38 + 101)
-  --assert(tonumber(s) == -(10^38))
+  if not _iigs then
+    local s = string.format('%.99f', -(10^38))
+    assert(string.len(s) >= 38 + 101)
+    assert(tonumber(s) == -(10^38))
+  end
 end
 
 
@@ -312,6 +318,7 @@ if not _port then
 do print("testing 'format %a %A'")
   local function matchhexa (n)
     local s = string.format("%a", n)
+    print(n .. " => " .. s)
     -- result matches ISO C requirements
     assert(string.find(s, "^%-?0x[1-9a-f]%.?[0-9a-f]*p[-+]?%d+$"))
     assert(tonumber(s) == n)  -- and has full precision
@@ -321,24 +328,26 @@ do print("testing 'format %a %A'")
   end
   for _, n in ipairs{0.1, -0.1, 1/3, -1/3, 1e30, -1e30,
                      -45/247, 1, -1, 2, -2, 3e-20, -3e-20} do
-    matchhexa(n)
+    if not _iigs then matchhexa(n) end
   end
 
-  assert(string.find(string.format("%A", 0.0), "^0X0%.?0*P%+?0$"))
-  assert(string.find(string.format("%a", -0.0), "^%-0x0%.?0*p%+?0$"))
+  if not _iigs then
+    assert(string.find(string.format("%A", 0.0), "^0X0%.?0*P%+?0$"))
+    assert(string.find(string.format("%a", -0.0), "^%-0x0%.?0*p%+?0$"))
 
-  if not _port then   -- test inf, -inf, NaN, and -0.0
-    assert(string.find(string.format("%a", 1/0), "^inf"))
-    assert(string.find(string.format("%A", -1/0), "^%-INF"))
-    assert(string.find(string.format("%a", 0/0), "^%-?nan"))
-    assert(string.find(string.format("%a", -0.0), "^%-0x0"))
-  end
+    if not _port then   -- test inf, -inf, NaN, and -0.0
+      assert(string.find(string.format("%a", 1/0), "^inf"))
+      assert(string.find(string.format("%A", -1/0), "^%-INF"))
+      assert(string.find(string.format("%a", 0/0), "^%-?nan"))
+      assert(string.find(string.format("%a", -0.0), "^%-0x0"))
+    end
 
-  if not pcall(string.format, "%.3a", 0) then
-    (Message or print)("\n >>> modifiers for format '%a' not available <<<\n")
-  else
-    assert(string.find(string.format("%+.2A", 12), "^%+0X%x%.%x0P%+?%d$"))
-    assert(string.find(string.format("%.4A", -12), "^%-0X%x%.%x000P%+?%d$"))
+    if not pcall(string.format, "%.3a", 0) then
+      (Message or print)("\n >>> modifiers for format '%a' not available <<<\n")
+    else
+      assert(string.find(string.format("%+.2A", 12), "^%+0X%x%.%x0P%+?%d$"))
+      assert(string.find(string.format("%.4A", -12), "^%-0X%x%.%x000P%+?%d$"))
+    end
   end
 end
 end
