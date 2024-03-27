@@ -224,11 +224,7 @@ do
   checkQ("\0\0\1\255\u{234}")
   checkQ(math.maxinteger)
   checkQ(math.mininteger)
-  if _iigs then
-    checkQ(3.141593e+00)
-  else
-    checkQ(math.pi)
-  end
+  checkQ(math.pi)
   checkQ(0.1)
   checkQ(true)
   checkQ(nil)
@@ -314,11 +310,10 @@ do   -- assume at least 32 bits
   end
 end
 
-if not _port then
+
 do print("testing 'format %a %A'")
   local function matchhexa (n)
     local s = string.format("%a", n)
-    print(n .. " => " .. s)
     -- result matches ISO C requirements
     assert(string.find(s, "^%-?0x[1-9a-f]%.?[0-9a-f]*p[-+]?%d+$"))
     assert(tonumber(s) == n)  -- and has full precision
@@ -328,29 +323,27 @@ do print("testing 'format %a %A'")
   end
   for _, n in ipairs{0.1, -0.1, 1/3, -1/3, 1e30, -1e30,
                      -45/247, 1, -1, 2, -2, 3e-20, -3e-20} do
-    if not _iigs then matchhexa(n) end
+    matchhexa(n)
   end
 
-  if not _iigs then
-    assert(string.find(string.format("%A", 0.0), "^0X0%.?0*P%+?0$"))
-    assert(string.find(string.format("%a", -0.0), "^%-0x0%.?0*p%+?0$"))
+  assert(string.find(string.format("%A", 0.0), "^0X0%.?0*P%+?0$"))
+  assert(string.find(string.format("%a", -0.0), "^%-0x0%.?0*p%+?0$"))
 
-    if not _port then   -- test inf, -inf, NaN, and -0.0
-      assert(string.find(string.format("%a", 1/0), "^inf"))
-      assert(string.find(string.format("%A", -1/0), "^%-INF"))
-      assert(string.find(string.format("%a", 0/0), "^%-?nan"))
-      assert(string.find(string.format("%a", -0.0), "^%-0x0"))
-    end
+  if not _port then   -- test inf, -inf, NaN, and -0.0
+    assert(string.find(string.format("%a", 1/0), "^inf"))
+    assert(string.find(string.format("%A", -1/0), "^%-INF"))
+    assert(string.find(string.format("%a", 0/0), "^%-?nan"))
+    assert(string.find(string.format("%a", -0.0), "^%-0x0"))
+  end
 
-    if not pcall(string.format, "%.3a", 0) then
-      (Message or print)("\n >>> modifiers for format '%a' not available <<<\n")
-    else
-      assert(string.find(string.format("%+.2A", 12), "^%+0X%x%.%x0P%+?%d$"))
-      assert(string.find(string.format("%.4A", -12), "^%-0X%x%.%x000P%+?%d$"))
-    end
+  if not pcall(string.format, "%.3a", 0) then
+    (Message or print)("\n >>> modifiers for format '%a' not available <<<\n")
+  else
+    assert(string.find(string.format("%+.2A", 12), "^%+0X%x%.%x0P%+?%d$"))
+    assert(string.find(string.format("%.4A", -12), "^%-0X%x%.%x000P%+?%d$"))
   end
 end
-end
+
 
 -- testing some flags  (all these results are required by ISO C)
 assert(string.format("%#12o", 10) == "         012")
@@ -470,6 +463,7 @@ do
   assert(co() == "2")
 end
 
+
 if T==nil then
   (Message or print)
      ("\n >>> testC not active: skipping 'pushfstring' tests <<<\n")
@@ -530,6 +524,7 @@ else
   str = string.rep("%%", 3 * blen) .. "%p" .. string.rep("%%", 2 * blen)
   testpfs("P", str, {})
 end
+
 
 print('OK')
 

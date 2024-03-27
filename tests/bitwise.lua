@@ -23,7 +23,7 @@ assert(a >> 4 == ~a)
 a = 0xF0; b = 0xCC; c = 0xAA; d = 0xFD
 assert(a | b ~ c & d == 0xF4)
 
-a = 0xF0; b = 0xCC; c = "0xAA"; d = "0xFD"
+a = 0xF0.0; b = 0xCC.0; c = "0xAA.0"; d = "0xFD.0"
 assert(a | b ~ c & d == 0xF4)
 
 a = 0xF0000000; b = 0xCC000000;
@@ -74,8 +74,8 @@ assert("0xfffffffffffffffe" & "-1" == -2)
 assert(" \t-0xfffffffffffffffe\n\t" & "-1" == 2)
 assert("   \n  -45  \t " >> "  -2  " == -45 * 4)
 assert("1234.0" << "5.0" == 1234 * 32)
-assert("0xffff" ~ "0xAAAA" == 0x5555)
---assert(~"0x0.000p4" == -1)
+assert("0xffff.0" ~ "0xAAAA" == 0x5555)
+assert(~"0x0.000p4" == -1)
 
 assert(("7" .. 3) << 1 == 146)
 assert(0xffffffff >> (1 .. "9") == 0x1fff)

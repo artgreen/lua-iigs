@@ -143,20 +143,20 @@ do
   local f <close> = assert(io.open(file, "w"))
   f:write(maxint, '\n')
   f:write(string.format("0X%x\n", maxint))
-  if not _iigs then f:write("0xABCp-3", '\n') end
+  f:write("0xABCp-3", '\n')
   f:write(0, '\n')
   f:write(-maxint, '\n')
   f:write(string.format("0x%X\n", -maxint))
-  if not _iigs then f:write("-0xABCp-3", '\n') end
+  f:write("-0xABCp-3", '\n')
   assert(f:close())
   local f <close> = assert(io.open(file, "r"))
   assert(f:read("n") == maxint)
   assert(f:read("n") == maxint)
-  if not _iigs then assert(f:read("n") == 0xABC) end
+  assert(f:read("n") == 0xABCp-3)
   assert(f:read("n") == 0)
   assert(f:read("*n") == -maxint)            -- test old format (with '*')
   assert(f:read("n") == -maxint)
-  if not _iigs then assert(f:read("*n") == -0xABC) end           -- test old format (with '*')
+  assert(f:read("*n") == -0xABCp-3)            -- test old format (with '*')
 end
 assert(os.remove(file))
 
@@ -243,12 +243,7 @@ assert(f:read("n") == 234e13); assert(f:read(1) == "E")
   else
     assert(f:read("n") == 0Xdeadbeefdeadbeef); assert(f:read(2) == "x\r")
   end
-  if _iigs then
-    -- we can't parse the below line because of strtod
-    --assert(f:read("n") == 0x1.13aP3); assert(f:read(1) == "e")
-    f:read(10)
-    assert(f:read(1) == "e")
-  end
+assert(f:read("n") == 0x1.13aP3); assert(f:read(1) == "e")
 
 do   -- attempt to read too long number
   assert(not f:read("n"))  -- fails

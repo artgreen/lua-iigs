@@ -420,19 +420,19 @@ end
 
 if not _soft then
   -- tests with very long numerals
-  --assert(tonumber("0x"..string.rep("f", 13)..".0") == 2.0^(4*13) - 1)
-  --assert(tonumber("0x"..string.rep("f", 150)..".0") == 2.0^(4*150) - 1)
-  --assert(tonumber("0x"..string.rep("f", 300)..".0") == 2.0^(4*300) - 1)
-  --assert(tonumber("0x"..string.rep("f", 500)..".0") == 2.0^(4*500) - 1)
-  --assert(tonumber('0x3.' .. string.rep('0', 1000)) == 3)
-  --assert(tonumber('0x' .. string.rep('0', 1000) .. 'a') == 10)
-  --assert(tonumber('0x0.' .. string.rep('0', 13).."1") == 2.0^(-4*14))
-  --assert(tonumber('0x0.' .. string.rep('0', 150).."1") == 2.0^(-4*151))
-  --assert(tonumber('0x0.' .. string.rep('0', 300).."1") == 2.0^(-4*301))
-  --assert(tonumber('0x0.' .. string.rep('0', 500).."1") == 2.0^(-4*501))
-  --
-  --assert(tonumber('0xe03' .. string.rep('0', 1000) .. 'p-4000') == 3587.0)
-  --assert(tonumber('0x.' .. string.rep('0', 1000) .. '74p4004') == 0x7.4)
+  assert(tonumber("0x"..string.rep("f", 13)..".0") == 2.0^(4*13) - 1)
+  assert(tonumber("0x"..string.rep("f", 150)..".0") == 2.0^(4*150) - 1)
+  assert(tonumber("0x"..string.rep("f", 300)..".0") == 2.0^(4*300) - 1)
+  assert(tonumber("0x"..string.rep("f", 500)..".0") == 2.0^(4*500) - 1)
+  assert(tonumber('0x3.' .. string.rep('0', 1000)) == 3)
+  assert(tonumber('0x' .. string.rep('0', 1000) .. 'a') == 10)
+  assert(tonumber('0x0.' .. string.rep('0', 13).."1") == 2.0^(-4*14))
+  assert(tonumber('0x0.' .. string.rep('0', 150).."1") == 2.0^(-4*151))
+  assert(tonumber('0x0.' .. string.rep('0', 300).."1") == 2.0^(-4*301))
+  assert(tonumber('0x0.' .. string.rep('0', 500).."1") == 2.0^(-4*501))
+
+  assert(tonumber('0xe03' .. string.rep('0', 1000) .. 'p-4000') == 3587.0)
+  assert(tonumber('0x.' .. string.rep('0', 1000) .. '74p4004') == 0x7.4)
 end
 
 -- testing 'tonumber' for invalid formats
@@ -489,7 +489,7 @@ assert(not tonumber('0x5p+-2'))
 -- testing hexadecimal numerals
 
 assert(0x10 == 16 and 0xfff == 2^12 - 1 and 0XFB == 251)
---assert(0x0p12 == 0 and 0x.0p-3 == 0)
+assert(0x0p12 == 0 and 0x.0p-3 == 0)
 assert(0xFFFFFFFF == (1 << 32) - 1)
 assert(tonumber('+0x2') == 2)
 assert(tonumber('-0xaA') == -170)
@@ -501,15 +501,15 @@ assert(0E+1 == 0 and 0xE+1 == 15 and 0xe-1 == 13)
 
 -- floating hexas
 
-assert(tonumber('  0x2  ') == 0x2)
---assert(tonumber('  -0x2.5  ') == -0x25/16)
---assert(tonumber('  +0x0.51p+8  ') == 0x51)
---assert(0x.FfffFFFF == 1 - '0x.00000001')
---assert('0xA.a' + 0 == 10 + 10/16)
---assert(0xa.aP4 == 0XAA)
---assert(0x4P-2 == 1)
---assert(0x1.1 == '0x1.' + '+0x.1')
---assert(0Xabcdef.0 == 0x.ABCDEFp+24)
+assert(tonumber('  0x2.5  ') == 0x25/16)
+assert(tonumber('  -0x2.5  ') == -0x25/16)
+assert(tonumber('  +0x0.51p+8  ') == 0x51)
+assert(0x.FfffFFFF == 1 - '0x.00000001')
+assert('0xA.a' + 0 == 10 + 10/16)
+assert(0xa.aP4 == 0XAA)
+assert(0x4P-2 == 1)
+assert(0x1.1 == '0x1.' + '+0x.1')
+assert(0Xabcdef.0 == 0x.ABCDEFp+24)
 
 
 assert(1.1 == 1.+.1)
@@ -546,11 +546,7 @@ assert(eqT(4 % -5.0, -1.0))
 assert(eqT(4 % 5, 4))
 assert(eqT(4 % 5.0, 4.0))
 assert(eqT(-4 % -5, -4))
-if not _iigs then
-  -- should be -4.0 but returning as -1.0
-  print(-4 % -5.0)
-  assert(eqT(-4 % -5.0, -4.0))
-end
+assert(eqT(-4 % -5.0, -4.0))
 assert(eqT(-4 % 5, 1))
 assert(eqT(-4 % 5.0, 1.0))
 assert(eqT(4.25 % 4, 0.25))
@@ -558,10 +554,7 @@ assert(eqT(10.0 % 2, 0.0))
 assert(eqT(-10.0 % 2, 0.0))
 assert(eqT(-10.0 % -2, 0.0))
 assert(math.pi - math.pi % 1 == 3)
-if not _iigs then
-  print(math.pi - math.pi % 0.001)
-  assert(math.pi - math.pi % 0.001 == 3.141)
-end
+assert(math.pi - math.pi % 0.001 == 3.141)
 
 do   -- very small numbers
   local i, j = 0, 20000
@@ -580,9 +573,7 @@ do   -- very small numbers
   assert(eq((2.1 * b) % (2 * b), (0.1 * b), delta))
   assert(eq((-2.1 * b) % (2 * b), (2 * b) - (0.1 * b), delta))
   assert(eq((2.1 * b) % (-2 * b), (0.1 * b) - (2 * b), delta))
-  if not _iigs then
-    assert(eq((-2.1 * b) % (-2 * b), (-0.1 * b), delta))
-  end
+  assert(eq((-2.1 * b) % (-2 * b), (-0.1 * b), delta))
 end
 
 
@@ -590,10 +581,7 @@ end
 for i = -10, 10 do
   for j = -10, 10 do
     if j ~= 0 then
-      if not _iigs then
-        print(i, j, (i + 0.0) % j, i%j)
-        assert((i + 0.0) % j == i % j)
-      end
+      assert((i + 0.0) % j == i % j)
     end
   end
 end
@@ -746,7 +734,6 @@ for i = -6, 6 do
     if j ~= 0 then
       local mi = math.fmod(i, j)
       local mf = math.fmod(i + 0.0, j)
-print(i,j,mi,mf)
       assert(mi == mf)
       assert(math.type(mi) == 'integer' and math.type(mf) == 'float')
       if (i >= 0 and j >= 0) or (i <= 0 and j <= 0) or mi == 0 then
@@ -856,7 +843,7 @@ do
     res = (h % 2^32) * 2^(floatbits - 32) + ((l >> (64 - floatbits)) % 2^32)
   end
   local rand = random()
-  --assert(eq(rand, 0x0.7a7040a5a323c9d6, 2^-floatbits))
+  assert(eq(rand, 0x0.7a7040a5a323c9d6, 2^-floatbits))
   assert(rand * 2^floatbits == res)
 end
 
