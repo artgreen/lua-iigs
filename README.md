@@ -10,7 +10,7 @@ Issues
 - There are two places in the Lua source where the field of a union/structure is declared as **const**.  In several 
 places, this field is changed; usually to increment or decrement the field.  These modifications of the const fields 
 results in a compiler error in the ORCA_C compiler.  Removing the const declaration appears to solve the errors.
-- There is at least one function in the Lua source that assumes that a **short** is always smaller than (and not equal to)  
+- There is at least one function in the Lua source that assumes that a **short** is always smaller than 
 an **int**.  I plan on hunting for more instances of similar assumptions.
 - String catalog corruption.  In researching this project, I read about other porting projects running into
   unexplained string catalog corruption. I seem to have the same issue.  So far, the corruption seems to be limited to 
