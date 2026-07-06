@@ -562,6 +562,14 @@ void luaH_resize (lua_State *L, Table *t, unsigned int newasize,
   Table newt;  /* to keep the new hash part */
   unsigned int oldasize = setlimittosize(t);
   TValue *newarray;
+#if defined(LUA_USE_IIGS)
+  /* with MAXASIZE == 2^15, OP_SETLIST with a long literal prefix plus a
+     multret tail can legitimately request a larger array; beyond this
+     bound numusearray/binsearch 16-bit arithmetic breaks down, so fail
+     cleanly here (mirrors setnodevector's MAXHBITS check) */
+  if (newasize > MAXASIZE)
+    luaG_runerror(L, "table overflow");
+#endif
   /* create new hash part with appropriate size into 'newt' */
   setnodevector(L, &newt, nhsize);
   if (newasize < oldasize) {  /* will array shrink? */
@@ -606,7 +614,9 @@ static void rehash (lua_State *L, Table *t, const TValue *ek) {
   unsigned int na;  /* number of keys in the array part */
   unsigned int nums[MAXABITS + 1];
   int i;
-  int totaluse;
+  /* unsigned: with 16-bit int, a full 2^15-entry array part would
+     overflow a signed count (correct today only via wraparound) */
+  unsigned int totaluse;
   for (i = 0; i <= MAXABITS; i++) nums[i] = 0;  /* reset counts */
   setlimittosize(t);
   na = numusearray(t, nums);  /* count keys in array part */

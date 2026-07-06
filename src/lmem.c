@@ -110,7 +110,17 @@ void *luaM_growaux_ (lua_State *L, void *block, int nelems, int *psize,
 #endif
   void *newblock;
   int size = *psize;
-  if (nelems + 1 <= size)  /* does one extra element still fit? */
+#ifdef LUA_USE_IIGS
+  /* with 16-bit int, a limit above INT_MAX (e.g. USHRT_MAX for the
+     parser's Vardesc array) would make 'size = limit' and the doubling
+     below overflow; nothing can index past INT_MAX anyway */
+  if (limit > (unsigned int)MAX_INT)
+    limit = MAX_INT;
+#endif
+  /* does one extra element still fit? (overflow-safe form: with 16-bit
+     int, 'nelems + 1' wraps when nelems == INT_MAX == the growth limit,
+     which would bypass the "too many" check below and overrun the array) */
+  if (nelems < size)
     return block;  /* nothing to be done */
   if (size >= limit / 2) {  /* cannot double it? */
     if (l_unlikely(size >= limit))  /* cannot grow even a little? */
@@ -140,8 +150,11 @@ void *luaM_growaux_ (lua_State *L, void *block, int nelems, int *psize,
 void *luaM_shrinkvector_ (lua_State *L, void *block, int *size,
                           int final_n, int size_elem) {
   void *newblock;
-  size_t oldsize = cast_sizet((*size) * size_elem);
-  size_t newsize = cast_sizet(final_n * size_elem);
+  /* multiply as size_t: with 16-bit int, 'int * int' byte sizes wrap at
+     32KB (e.g. shrinking a Proto's 4096-entry constant array computes
+     4096*11 in int), silently truncating or freeing live arrays */
+  size_t oldsize = cast_sizet(*size) * cast_sizet(size_elem);
+  size_t newsize = cast_sizet(final_n) * cast_sizet(size_elem);
   lua_assert(newsize <= oldsize);
   newblock = luaM_saferealloc_(L, block, oldsize, newsize);
   *size = final_n;

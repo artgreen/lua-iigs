@@ -923,11 +923,14 @@ int luaG_traceexec (lua_State *L, const Instruction *pc) {
       L->hookcount = 1;  /* undo decrement to zero */
 #if defined(LUA_USE_IIGS)
 /*
- * The ORCA-C compiler throws a compiler error below because
- * savedpc is a const. Here I cast it away to prevent having to
- * change the type in the original union.
+ * ORCA/C rejects modifying 'savedpc' because it is declared const.
+ * Cast away const on the POINTER-TO-POINTER: (*spc)-- is then pointer
+ * arithmetic stepping back sizeof(Instruction) bytes. (An earlier
+ * version cast to Instruction* and decremented the stored pointer
+ * VALUE by one byte, leaving a misaligned pc after a hook yield —
+ * resuming then decoded garbage instructions.)
  */
-      Instruction *spc = (Instruction *) &(ci->u.l.savedpc);
+      Instruction **spc = (Instruction **) &(ci->u.l.savedpc);
       (*spc)--;  /* undo increment (resume will increment it again) */
 #else
       ci->u.l.savedpc--;  /* undo increment (resume will increment it again) */

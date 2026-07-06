@@ -153,6 +153,10 @@ int luaD_rawrunprotected (lua_State *L, Pfunc f, void *ud) {
   );
   L->errorJmp = lj.previous;  /* restore old error handler */
   L->nCcalls = oldnCcalls;
+#if defined(LUA_USE_IIGS)
+  if (lj.status != LUA_OK)
+    luaE_cstackrearm();  /* error delivered; re-arm the byte stack guard */
+#endif
   return lj.status;
 }
 
@@ -381,11 +385,13 @@ void luaD_hookcall (lua_State *L, CallInfo *ci) {
     Proto *p = ci_func(ci)->p;
 #if defined(LUA_USE_IIGS)
 /*
- * The ORCA-C compiler throws a compiler error below because
- * savedpc is a const. Here I cast it away to prevent having to
- * change the type in the original union.
+ * ORCA/C rejects modifying 'savedpc' because it is declared const.
+ * Cast away const on the POINTER-TO-POINTER so ++/-- is pointer
+ * arithmetic (sizeof(Instruction) steps), not a 1-byte adjustment of
+ * the stored pointer value (which left the pc misaligned during the
+ * hook, giving wrong line info in call hooks).
  */
-    Instruction *spc = (Instruction *) &(ci->u.l.savedpc);
+    Instruction **spc = (Instruction **) &(ci->u.l.savedpc);
     (*spc)++;  /* hooks assume 'pc' is already incremented */
     luaD_hook(L, event, -1, 1, p->numparams);
     (*spc)--;   /* correct 'pc' */
@@ -647,7 +653,7 @@ CallInfo *luaD_precall (lua_State *L, StkId func, int nresults) {
 l_sinline void ccall (lua_State *L, StkId func, int nResults, l_uint32 inc) {
   CallInfo *ci;
   L->nCcalls += inc;
-  if (l_unlikely(getCcalls(L) >= LUAI_MAXCCALLS)) {
+  if (l_unlikely(luaE_cstackover(L))) {
     checkstackp(L, 0, func);  /* free any use of EXTRA_STACK */
     luaE_checkcstack(L);
   }
@@ -1007,22 +1013,10 @@ static void checkmode (lua_State *L, const char *mode, const char *x) {
 static void f_parser (lua_State *L, void *ud) {
   LClosure *cl;
   struct SParser *p = cast(struct SParser *, ud);
-#if defined(LUA_USE_IIGS)
-/*
- * ORCA-C gives a compiler error because we're modifying
- * a const in struct Zio.
- */
-  struct Zio *pZio = p->z;
-  char *n_p = (char *) pZio->p;
-  int c = (
-          (pZio->n--) > 0 ?
-          cast_uchar(*n_p++) :
-          luaZ_fill(pZio)
-      );
-#else
+  /* (lzio.h declares Zio.p non-const for ORCA/C, so the stock zgetc
+     macro compiles; an earlier hand-inlined copy here advanced a local
+     pointer without writing it back to the Zio) */
   int c = zgetc(p->z);  /* read first character */
-#endif
-
   if (c == LUA_SIGNATURE[0]) {
     checkmode(L, p->mode, "binary");
     cl = luaU_undump(L, p->z, p->name);

@@ -5,3 +5,16 @@
 *.b
 *.root
 *.sym
+
+# build artifacts (executables + static libs)
+/build/
+*.lib
+/src/lua
+/src/luac
+
+# local ORCA/C 2.2.1 SDK copy (see PROPOSED_CHANGES.md / README)
+/.orca-sdk-2.2.1/
+
+# test run outputs and runtime scratch dirs
+/tests/*.out
+/tests/libs/

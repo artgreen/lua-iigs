@@ -1,6 +1,13 @@
 #
 # Crappy Makefile
 #
+# This code requires ORCA/C 2.2.x; the system GoldenGate install may
+# carry 2.1.0. Default to the repo-local SDK unless the caller already
+# selected one (iix reads GOLDEN_GATE as its root; --sdk only remaps
+# headers, not the compiler).
+ifneq (,$(wildcard $(CURDIR)/../.orca-sdk-2.2.1))
+export GOLDEN_GATE ?= $(CURDIR)/../.orca-sdk-2.2.1
+endif
 EXE_DIR := ../build
 
 names := lapi lauxlib lbaselib lcode lcorolib lctype ldblib ldebug ldo ldump lfunc lgc linit liolib llex lmathlib lmem loadlib lobject lopcodes loslib lparser lstate lstring lstrlib ltable ltablib ltm lundump lzio
@@ -30,7 +37,8 @@ lua.lib: $(OBJS)
 	@iix makelib $@ $(ADDS) || rm -f -- $@  # we need to delete the lib file on error
 	@cp $@ $(EXE_DIR)/$@
 	@cp lvm.a $(EXE_DIR)/lvm.a
-	@cp $@ ../../../luagsdemo/lib/
+	@# optional: also stage into a sibling demo project if it exists
+	@[ -d ../../../luagsdemo/lib ] && cp $@ ../../../luagsdemo/lib/ || true
 lua_conf:
 ifeq ($(shell grep "LUAC" parseconf.h),)
 else

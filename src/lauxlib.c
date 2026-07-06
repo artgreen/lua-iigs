@@ -684,8 +684,15 @@ LUALIB_API int luaL_ref (lua_State *L, int t) {
     lua_rawgeti(L, t, ref);  /* remove it from list */
     lua_rawseti(L, t, freelist);  /* (t[freelist] = t[ref]) */
   }
-  else  /* no free elements */
+  else {  /* no free elements */
+#ifdef LUA_USE_IIGS
+    /* 16-bit int: past INT_MAX live refs the cast below would wrap and
+       silently alias/overwrite existing references */
+    if (lua_rawlen(L, t) >= (lua_Unsigned)INT_MAX)
+      return luaL_error(L, "too many references");
+#endif
     ref = (int)lua_rawlen(L, t) + 1;  /* get a new reference */
+  }
   lua_rawseti(L, t, ref);
   return ref;
 }

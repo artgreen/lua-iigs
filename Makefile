@@ -1,4 +1,9 @@
 
+# ORCA/C 2.2.x required; default to the repo-local SDK (see src/Makefile)
+ifneq (,$(wildcard $(CURDIR)/.orca-sdk-2.2.1))
+export GOLDEN_GATE ?= $(CURDIR)/.orca-sdk-2.2.1
+endif
+
 # apple commander
 AC := ac
 # nulib2 for shrinkit

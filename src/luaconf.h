@@ -788,7 +788,17 @@
 @@ LUAL_BUFFERSIZE is the initial buffer size used by the lauxlib
 ** buffer system.
 */
+#if defined(LUA_USE_IIGS)
+/*
+** luaL_Buffer lives on the C stack; the default sizing formula gives
+** 640 bytes here (4-byte pointers, 10-byte SANE lua_Number), which
+** multiplies dangerously under recursion (e.g. recursive gsub) on the
+** small bank-0 stack. Keep it modest.
+*/
+#define LUAL_BUFFERSIZE   256
+#else
 #define LUAL_BUFFERSIZE   ((int)(16 * sizeof(void*) * sizeof(lua_Number)))
+#endif
 
 
 /*

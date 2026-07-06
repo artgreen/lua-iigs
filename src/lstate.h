@@ -400,6 +400,25 @@ LUAI_FUNC void luaE_freeCI (lua_State *L);
 LUAI_FUNC void luaE_shrinkCI (lua_State *L);
 LUAI_FUNC void luaE_checkcstack (lua_State *L);
 LUAI_FUNC void luaE_incCstack (lua_State *L);
+
+#if defined(LUA_USE_IIGS)
+/*
+** Byte-based C-stack guard. The 65816 run-time stack lives in bank 0
+** and is small (see #pragma stacksize in lua.c); the per-level frame
+** cost varies too much for the nCcalls count alone to protect it.
+** The host records the stack top at startup; luaE_cstacklow compares
+** the address of a local against precomputed floors. Until the host
+** calls luaE_setcstacktop the probe is disabled and only the counter
+** guard applies.
+*/
+LUAI_FUNC void luaE_setcstacktop (char *top, unsigned long size);
+LUAI_FUNC int luaE_cstacklow (int hard);
+LUAI_FUNC void luaE_cstackrearm (void);
+#define luaE_cstackover(L)  \
+	(getCcalls(L) >= LUAI_MAXCCALLS || luaE_cstacklow(0))
+#else
+#define luaE_cstackover(L)  (getCcalls(L) >= LUAI_MAXCCALLS)
+#endif
 LUAI_FUNC void luaE_warning (lua_State *L, const char *msg, int tocont);
 LUAI_FUNC void luaE_warnerror (lua_State *L, const char *where);
 LUAI_FUNC int luaE_resetthread (lua_State *L, int status);

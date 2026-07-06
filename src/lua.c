@@ -24,6 +24,12 @@
 #include "parseconf.h"
 #pragma lint -1
 #pragma memorymodel 1
+/*
+ * The ORCA shell default stack is 4KB (bank 0). Lua's C recursion at
+ * LUAI_MAXCCALLS=128 needs far more; overflow silently corrupts bank-0
+ * memory. Allocate the largest stack a text-environment program can get.
+ */
+#pragma stacksize 32512
 #endif
 
 #if !defined(LUA_PROGNAME)
@@ -702,9 +708,20 @@ static int pmain (lua_State *L) {
 }
 
 
+#ifdef LUA_USE_IIGS
+/* defined in lstate.c: byte-based C-stack guard floors */
+extern void luaE_setcstacktop (char *top, unsigned long size);
+#endif
+
 int main (int argc, char **argv) {
   int status, result;
-  lua_State *L = luaL_newstate();  /* create state */
+  lua_State *L;
+#ifdef LUA_USE_IIGS
+  char stackanchor;
+  /* #pragma stacksize above, minus slack used before main runs */
+  luaE_setcstacktop(&stackanchor, 31488);
+#endif
+  L = luaL_newstate();  /* create state */
   if (L == NULL) {
     l_message(argv[0], "cannot create state: not enough memory");
     return EXIT_FAILURE;

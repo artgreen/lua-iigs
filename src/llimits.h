@@ -252,7 +252,13 @@ typedef l_uint32 Instruction;
 ** the size of the C stack.)
 */
 #if !defined(LUAI_MAXCCALLS)
-#define LUAI_MAXCCALLS		128
+/*
+ * IIgs: this count alone cannot protect the small bank-0 stack (frame
+ * cost per level varies ~150..1000+ bytes); the byte-based probe in
+ * lstate.c (luaE_cstacklow) is the real guard. This stays at the stock
+ * value so parser nesting depth matches stock Lua behavior.
+ */
+#define LUAI_MAXCCALLS		200
 #endif
 
 

@@ -625,10 +625,14 @@ end
 
 -- testing syntax limits
 
+-- _iigs: the 65816 bank-0 C stack (32K max) cannot hold 100 levels of
+-- parser recursion for the heavier constructs; 25 levels is the
+-- guaranteed-safe depth on this platform.
+local replevels = _iigs and 25 or 100
 local function testrep (init, rep, close, repc, finalresult)
-  local s = init .. string.rep(rep, 100) .. close .. string.rep(repc, 100)
+  local s = init .. string.rep(rep, replevels) .. close .. string.rep(repc, replevels)
   local res, msg = load(s)
-  assert(res)   -- 100 levels is OK
+  assert(res)   -- 'replevels' levels is OK
   if (finalresult) then
     assert(res() == finalresult)
   end

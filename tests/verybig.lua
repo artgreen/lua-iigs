@@ -1,6 +1,8 @@
 -- $Id: testes/verybig.lua $
 -- See Copyright Notice in file all.lua
 
+_iigs = true  -- used to skip tests impossible on 16-bit int
+
 print "testing RK"
 
 -- testing opcodes with RK arguments larger than K limit
@@ -48,6 +50,12 @@ foo()
 foo = nil
 
 if _soft then return 10 end
+
+-- _iigs: >64k programs are impossible with 16-bit int (code is capped
+-- at 32767 instructions per function, arrays at 2^15 entries; the
+-- attempt now fails with a clean "table overflow" instead of
+-- corrupting, but it can never succeed)
+if _iigs then print("(>64k programs: skipped on 16-bit int)"); return 10 end
 
 print "testing large programs (>64k)"
 
