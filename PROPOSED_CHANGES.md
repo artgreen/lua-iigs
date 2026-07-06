@@ -336,6 +336,56 @@ still wins). Verified: `make lua` with no environment builds with 2.2.1.
   decodes (cast_int) — same exposure as stock Lua; load() of untrusted
   binaries is documented-unsafe upstream.
 
+## Round 4 — REAL HARDWARE results and the allocator replacement (2026-07-06)
+
+First runs on a real 8MB IIgs (thanks to hwtest/hwdiag/hwdiag2):
+
+**Confirmed working on hardware:** interning (3000 strings), constant
+tables up to 2400, big tables via appends (per hwdiag D40), string ops,
+GC, and the byte-based stack guard's early rungs.
+
+**New hardware-only defect found:** allocations above ~32KB obtained
+through ORCALib malloc/realloc alias other live memory. Evidence:
+- hwdiag const-3200 failed DETERMINISTICALLY across runs at idx 472
+  with an internal 'proto'-tagged TValue pointing at the chunk's own
+  Proto (21C774 both runs) — i.e. two live objects overlapping, not a
+  random stomp. const-2400 (26,400-byte array) passed; const-3200
+  (35,200 bytes) failed: the bracket straddles 32,768.
+- Collateral stomps hit the bank-0/E1 text pages (80-column screens
+  showing alternating-column garbage) and once crashed hard enough to
+  reboot into a garbled ROM banner + "Check startup device!".
+- GoldenGate cannot reproduce ANY of this: it reimplements the Memory
+  Manager natively, so real-MM block placement / SetHandleSize
+  fallback paths / address-dependent arithmetic in ORCALib never
+  diverge under emulation. (A 65816 emulator runs the same CODE
+  identically; only reimplemented tools can differ.)
+
+**Fix applied: hybrid allocator in lauxlib.c (l_alloc).** Lua's
+frealloc contract supplies the old size on every call, which makes the
+C heap's bookkeeping unnecessary: every block gets a 4-byte header
+holding either its Memory Manager Handle or NULL (= C heap block).
+- Blocks >= 16KB (MMA_BIG) go straight to NewHandle
+  (attrLocked|attrFixed|attrNoSpec, +attrNoCross when they fit in one
+  bank), sidestepping ORCALib entirely for the size class where the
+  hardware bug lives. Grows are a fresh block + explicit C byte copy
+  (large memory model handles bank crossings); shrinks trim in place
+  via SetHandleSize.
+- Blocks < 16KB stay on ORCALib malloc (suballocated - a first attempt
+  that put EVERY tiny block in its own fixed MM handle fragmented the
+  address space into "not enough memory" under GG; fixed handles never
+  compact). Small blocks fall back to the MM if the C heap is full.
+- Define LUA_IIGS_NO_MMALLOC to revert to plain realloc/free.
+- build/lua-libcmalloc preserved (pre-allocator binary) for hardware
+  A/B comparison.
+
+**Hardware procedure note:** after any corruption event, COLD
+POWER-CYCLE before the next run - warm resets carry poisoned memory
+and video soft-switch state (observed: garbled ROM boot banner).
+
+**Status:** hybrid allocator passes hwdiag2 + full suite under
+GoldenGate; awaiting hardware re-test (cold boot, new build/lua,
+run tests/hwdiag2.lua).
+
 ## Open items / next investigations
 
 - ~~`math.lua:877`~~ RESOLVED in R3-1 (GoldenGate 53-bit SANE emulation

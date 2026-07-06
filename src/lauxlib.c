@@ -1026,6 +1026,101 @@ LUALIB_API const char *luaL_gsub (lua_State *L, const char *s,
 }
 
 
+#if defined(LUA_USE_IIGS) && !defined(LUA_IIGS_NO_MMALLOC)
+
+#include <memory.h>
+#include <orca.h>
+
+/*
+** Allocator on raw Memory Manager handles, bypassing ORCALib
+** malloc/realloc. On real hardware, blocks above 32KB obtained through
+** the C heap were observed aliasing other live memory (deterministic
+** internal-value corruption plus stomps into the bank-0/E1 text pages);
+** GoldenGate reimplements the Memory Manager natively and cannot
+** reproduce that divergence. Lua's frealloc contract hands us the old
+** block size on every call, so no C-heap bookkeeping is needed: each
+** block stores its own Handle in a small header, grows are a fresh
+** NewHandle plus an explicit byte copy (large memory model handles bank
+** crossings in compiled code), and shrinks stay in place. Define
+** LUA_IIGS_NO_MMALLOC to fall back to the C library allocator.
+*/
+
+#define MMA_HDR   4      /* header: the block's Handle, or NULL for malloc */
+#define MMA_BIG   16384  /* blocks this size or larger bypass the C heap */
+
+static void *mma_new (size_t nsize) {  /* Memory Manager block */
+  char *p;
+  Handle h;
+  Word attr = attrLocked | attrFixed | attrNoSpec;
+  if (nsize + MMA_HDR <= 0xFFFFul)
+    attr |= attrNoCross;      /* keep blocks inside one bank when possible */
+  h = NewHandle((long)(nsize + MMA_HDR), userid(), attr, NULL);
+  if (toolerror() || h == NULL)
+    return NULL;
+  p = (char *) *h;
+  *(Handle *) p = h;
+  return p + MMA_HDR;
+}
+
+static void *libc_new (size_t nsize) {  /* C-heap block (suballocated) */
+  char *p = (char *) malloc(nsize + MMA_HDR);
+  if (p == NULL)
+    return NULL;
+  *(Handle *) p = NULL;
+  return p + MMA_HDR;
+}
+
+static void *any_new (size_t nsize) {
+  if (nsize >= MMA_BIG)
+    return mma_new(nsize);   /* no C-heap fallback: fail cleanly instead */
+  else {
+    void *p = libc_new(nsize);
+    if (p == NULL)
+      p = mma_new(nsize);    /* small block, C heap exhausted: try the MM */
+    return p;
+  }
+}
+
+static void any_free (void *ptr) {
+  char *p = (char *) ptr - MMA_HDR;
+  Handle h = *(Handle *) p;
+  if (h != NULL)
+    DisposeHandle(h);
+  else
+    free(p);
+}
+
+static void *l_alloc (void *ud, void *ptr, size_t osize, size_t nsize) {
+  (void)ud;
+  if (nsize == 0) {
+    if (ptr != NULL)
+      any_free(ptr);
+    return NULL;
+  }
+  else if (ptr == NULL)
+    return any_new(nsize);
+  else if (nsize <= osize) {  /* shrink: keep the block (must not fail) */
+    Handle h = *(Handle *) ((char *) ptr - MMA_HDR);
+    if (h != NULL)
+      SetHandleSize((long)(nsize + MMA_HDR), h);  /* trim tail; ignore error */
+    return ptr;
+  }
+  else {  /* grow: fresh block (classed by new size) + explicit copy */
+    void *np = any_new(nsize);
+    if (np != NULL) {
+      size_t i;
+      char *d = (char *) np;
+      const char *s = (const char *) ptr;
+      for (i = 0; i < osize; i++)
+        d[i] = s[i];
+      any_free(ptr);
+    }
+    return np;
+  }
+}
+
+#else
+
 static void *l_alloc (void *ud, void *ptr, size_t osize, size_t nsize) {
   (void)ud; (void)osize;  /* not used */
   if (nsize == 0) {
@@ -1035,6 +1130,8 @@ static void *l_alloc (void *ud, void *ptr, size_t osize, size_t nsize) {
   else
     return realloc(ptr, nsize);
 }
+
+#endif
 
 
 static int panic (lua_State *L) {

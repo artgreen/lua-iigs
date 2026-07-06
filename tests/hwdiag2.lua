@@ -32,6 +32,7 @@ do
   local PAT = "ABCDEFGHIJ"
   local sizes = {16000, 28000, 33000, 40000, 65000, 131000}
   for _, want in ipairs(sizes) do
+    say("E10 trying " .. want)   -- announced BEFORE: a dead machine still names its killer
     local ok, err = pcall(function()
       local s = string.rep(PAT, 100)          -- 1000 bytes (rep is capped
       while #s < want do                       -- at 32767, so double up)
@@ -68,6 +69,7 @@ end
 do
   local sizes = {1000, 2400, 3000, 3200, 4096, 5000}
   for _, n in ipairs(sizes) do
+    say("E20 trying " .. n)
     local ok, err = pcall(function()
       local t = {}
       for i = 1, n do t[i] = "k" .. (i - 1) end
@@ -96,6 +98,7 @@ end
 do
   local sizes = {2400, 2900, 3000, 3200}
   for _, n in ipairs(sizes) do
+    say("E30 trying " .. n)
     local ok, err = pcall(function()
       local parts = {}
       for i = 0, n - 1 do parts[i + 1] = string.format("%q", "k" .. i) end
