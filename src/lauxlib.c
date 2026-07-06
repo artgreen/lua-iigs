@@ -1047,17 +1047,92 @@ LUALIB_API const char *luaL_gsub (lua_State *L, const char *s,
 
 #define MMA_HDR   4      /* header: the block's Handle, or NULL for malloc */
 #define MMA_BIG   16384  /* blocks this size or larger bypass the C heap */
+#define MMA_LIBC_MAX 30000  /* if the MM path is unusable, the C heap is
+                               still trusted below the ~32KB hardware bug */
+
+/* is a block pointer in acceptable memory? (attrNoSpec must keep us out
+** of banks 0/1/E0/E1; if the real MM ignores that, refuse the block) */
+static int mma_badptr (char *p) {
+  unsigned int bank = (unsigned int)((unsigned long)p >> 16);
+  return (p == NULL || bank < 2 || bank == 0xE0u || bank == 0xE1u);
+}
+
+static Word mma_attr = 0;     /* attribute set proven by the self-test */
+static int mma_state = 0;     /* 0 = untested, 1 = usable, -1 = broken */
+
+/*
+** Allocate one probe block with 'attr', validate the handle, the
+** block's bank, and end-to-end pattern writes, then free it. The real
+** MM diverges from GoldenGate's native reimplementation in ways we
+** could not fully characterize, so nothing is trusted untested.
+*/
+static int mma_probe (Word attr) {
+  Handle h;
+  char *p;
+  h = NewHandle((long)(MMA_BIG + MMA_HDR), userid(), attr, NULL);
+  if (toolerror() || h == NULL)
+    return 0;
+  CheckHandle(h);
+  if (toolerror())
+    return 0;                 /* bogus handle: do not touch or dispose */
+  p = (char *) *h;
+  if (mma_badptr(p)) {
+    DisposeHandle(h);
+    return 0;
+  }
+  *(Handle *) p = h;          /* header slot */
+  p[MMA_HDR] = (char) 0xA5;   /* pattern at both ends and the middle */
+  p[MMA_BIG / 2] = (char) 0x5A;
+  p[MMA_BIG + MMA_HDR - 1] = (char) 0xC3;
+  if (*(Handle *) p != h ||
+      p[MMA_HDR] != (char) 0xA5 ||
+      p[MMA_BIG / 2] != (char) 0x5A ||
+      p[MMA_BIG + MMA_HDR - 1] != (char) 0xC3) {
+    DisposeHandle(h);
+    return 0;
+  }
+  DisposeHandle(h);
+  if (toolerror())
+    return 0;
+  return 1;
+}
+
+static void mma_selftest (void) {
+  static const Word tries[] = {
+    attrLocked | attrFixed | attrNoSpec | attrNoCross,
+    attrLocked | attrFixed | attrNoSpec,
+    attrLocked | attrNoSpec
+  };
+  int i;
+  for (i = 0; i < 3; i++) {
+    if (mma_probe(tries[i])) {
+      mma_attr = tries[i];
+      mma_state = 1;
+      return;
+    }
+  }
+  mma_state = -1;   /* MM path unusable: stay on the C heap (bounded) */
+}
 
 static void *mma_new (size_t nsize) {  /* Memory Manager block */
   char *p;
   Handle h;
-  Word attr = attrLocked | attrFixed | attrNoSpec;
-  if (nsize + MMA_HDR <= 0xFFFFul)
-    attr |= attrNoCross;      /* keep blocks inside one bank when possible */
+  Word attr;
+  if (mma_state == 0)
+    mma_selftest();
+  if (mma_state < 0)
+    return NULL;
+  attr = mma_attr;
+  if (nsize + MMA_HDR > 0xFFFFul)
+    attr = (Word)(attr & (Word)~attrNoCross);  /* cannot fit in one bank */
   h = NewHandle((long)(nsize + MMA_HDR), userid(), attr, NULL);
   if (toolerror() || h == NULL)
     return NULL;
   p = (char *) *h;
+  if (mma_badptr(p)) {
+    DisposeHandle(h);
+    return NULL;
+  }
   *(Handle *) p = h;
   return p + MMA_HDR;
 }
@@ -1071,11 +1146,15 @@ static void *libc_new (size_t nsize) {  /* C-heap block (suballocated) */
 }
 
 static void *any_new (size_t nsize) {
-  if (nsize >= MMA_BIG)
-    return mma_new(nsize);   /* no C-heap fallback: fail cleanly instead */
+  if (nsize >= MMA_BIG) {
+    void *p = mma_new(nsize);
+    if (p == NULL && mma_state < 0 && nsize < MMA_LIBC_MAX)
+      p = libc_new(nsize);   /* MM path unusable: C heap is safe < ~30KB */
+    return p;                /* beyond that: clean out-of-memory error */
+  }
   else {
     void *p = libc_new(nsize);
-    if (p == NULL)
+    if (p == NULL && mma_state > 0)
       p = mma_new(nsize);    /* small block, C heap exhausted: try the MM */
     return p;
   }
