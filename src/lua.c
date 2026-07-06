@@ -32,6 +32,12 @@
 #pragma stacksize 32512
 #endif
 
+#if defined(LUA_IIGS_MMTRACE)
+#define LTRACE(s)  do { fprintf(stderr, "%s\n", s); fflush(stderr); } while (0)
+#else
+#define LTRACE(s)  ((void)0)
+#endif
+
 #if !defined(LUA_PROGNAME)
 #define LUA_PROGNAME		"lua"
 #endif
@@ -268,8 +274,10 @@ static int handle_script (lua_State *L, char **argv) {
   if (strcmp(fname, "-") == 0 && strcmp(argv[-1], "--") != 0)
     fname = NULL;  /* stdin */
   status = luaL_loadfile(L, fname);
+  LTRACE("[M4a] parsed");
   if (status == LUA_OK) {
     int n = pushargs(L);  /* push arguments to script */
+    LTRACE("[M4b] calling");
     status = docall(L, n, LUA_MULTRET);
   }
   return report(L, status);
@@ -667,6 +675,7 @@ static int pmain (lua_State *L) {
 #endif
 #endif
   luaL_openlibs(L);  /* open standard libraries */
+  LTRACE("[M3] libs");
   createargtable(L, argv, argc, script);  /* create table 'arg' */
   lua_gc(L, LUA_GCRESTART);  /* start GC... */
   lua_gc(L, LUA_GCGEN, 0, 0);  /* ...in generational mode */
@@ -680,8 +689,10 @@ static int pmain (lua_State *L) {
   if (!runargs(L, argv, optlim))  /* execute arguments -e and -l */
     return 0;  /* something failed */
   if (script > 0) {  /* execute main script (if there is one) */
+    LTRACE("[M4] script");
     if (handle_script(L, argv + script) != LUA_OK)
       return 0;  /* interrupt in case of error */
+    LTRACE("[M5] script done");
   }
 #endif
 
@@ -721,7 +732,9 @@ int main (int argc, char **argv) {
   /* #pragma stacksize above, minus slack used before main runs */
   luaE_setcstacktop(&stackanchor, 31488);
 #endif
+  LTRACE("[M1] main");
   L = luaL_newstate();  /* create state */
+  LTRACE("[M2] state");
   if (L == NULL) {
     l_message(argv[0], "cannot create state: not enough memory");
     return EXIT_FAILURE;

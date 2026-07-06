@@ -1045,6 +1045,22 @@ LUALIB_API const char *luaL_gsub (lua_State *L, const char *s,
 ** LUA_IIGS_NO_MMALLOC to fall back to the C library allocator.
 */
 
+/*
+** LUA_IIGS_MMTRACE: print every Memory-Manager-path event and every
+** large allocation to stderr, flushed, for on-hardware tracing. The
+** last line on screen before a crash names the exact operation.
+*/
+#if defined(LUA_IIGS_MMTRACE)
+#include <stdio.h>
+#define MMTRACE1(fmt,a)     do { fprintf(stderr, fmt "\n", a); fflush(stderr); } while (0)
+#define MMTRACE2(fmt,a,b)   do { fprintf(stderr, fmt "\n", a, b); fflush(stderr); } while (0)
+#define MMTRACE3(fmt,a,b,c) do { fprintf(stderr, fmt "\n", a, b, c); fflush(stderr); } while (0)
+#else
+#define MMTRACE1(fmt,a)     ((void)0)
+#define MMTRACE2(fmt,a,b)   ((void)0)
+#define MMTRACE3(fmt,a,b,c) ((void)0)
+#endif
+
 #define MMA_HDR   4      /* header: the block's Handle, or NULL for malloc */
 #define MMA_BIG   16384  /* blocks this size or larger bypass the C heap */
 #define MMA_LIBC_MAX 30000  /* if the MM path is unusable, the C heap is
@@ -1069,7 +1085,9 @@ static int mma_state = 0;     /* 0 = untested, 1 = usable, -1 = broken */
 static int mma_probe (Word attr) {
   Handle h;
   char *p;
+  MMTRACE1("[mm] probe attr=%04X", attr);
   h = NewHandle((long)(MMA_BIG + MMA_HDR), userid(), attr, NULL);
+  MMTRACE2("[mm] probe err=%04X h=%08lX", toolerror(), (unsigned long) h);
   if (toolerror() || h == NULL)
     return 0;
   CheckHandle(h);
@@ -1118,18 +1136,25 @@ static void *mma_new (size_t nsize) {  /* Memory Manager block */
   char *p;
   Handle h;
   Word attr;
-  if (mma_state == 0)
+  if (mma_state == 0) {
     mma_selftest();
+    MMTRACE2("[mm] selftest state=%d attr=%04X", mma_state, mma_attr);
+  }
   if (mma_state < 0)
     return NULL;
   attr = mma_attr;
   if (nsize + MMA_HDR > 0xFFFFul)
     attr = (Word)(attr & (Word)~attrNoCross);  /* cannot fit in one bank */
+  MMTRACE2("[mm] new %lu attr=%04X", (unsigned long) nsize, attr);
   h = NewHandle((long)(nsize + MMA_HDR), userid(), attr, NULL);
-  if (toolerror() || h == NULL)
+  if (toolerror() || h == NULL) {
+    MMTRACE1("[mm] new FAILED err=%04X", toolerror());
     return NULL;
+  }
   p = (char *) *h;
+  MMTRACE2("[mm] new ok h=%08lX p=%08lX", (unsigned long) h, (unsigned long) p);
   if (mma_badptr(p)) {
+    MMTRACE1("[mm] new BADBANK p=%08lX", (unsigned long) p);
     DisposeHandle(h);
     return NULL;
   }
@@ -1163,8 +1188,10 @@ static void *any_new (size_t nsize) {
 static void any_free (void *ptr) {
   char *p = (char *) ptr - MMA_HDR;
   Handle h = *(Handle *) p;
-  if (h != NULL)
+  if (h != NULL) {
+    MMTRACE1("[mm] free h=%08lX", (unsigned long) h);
     DisposeHandle(h);
+  }
   else
     free(p);
 }
@@ -1180,8 +1207,11 @@ static void *l_alloc (void *ud, void *ptr, size_t osize, size_t nsize) {
     return any_new(nsize);
   else if (nsize <= osize) {  /* shrink: keep the block (must not fail) */
     Handle h = *(Handle *) ((char *) ptr - MMA_HDR);
-    if (h != NULL)
+    if (h != NULL) {
+      MMTRACE2("[mm] shrink h=%08lX to %lu", (unsigned long) h,
+               (unsigned long) nsize);
       SetHandleSize((long)(nsize + MMA_HDR), h);  /* trim tail; ignore error */
+    }
     return ptr;
   }
   else {  /* grow: fresh block (classed by new size) + explicit copy */
