@@ -412,9 +412,11 @@ completion on the real 8MB IIgs: 133KB/195KB/197KB MM allocations
 filled+verified at real addresses (bank-crossing blocks included),
 shrinks/disposes clean, "E73 chain caught ok" (stack guard works on
 iron), **"E99 DONE fails=0 / ALL DIAGNOSTICS PASSED / [M5] script
-done"**. The corruption saga - C-stack overflow, 16-bit int bugs,
-ORCALib >32KB heap aliasing, and the oversized bank-0 stack - is
-closed end to end.
+done"**. Four bug classes closed by this point: C-stack overflow,
+16-bit int bugs, ORCALib >32KB heap aliasing, and the oversized bank-0
+stack. (This "closed end to end" claim was premature — see Round 6: a
+residual disk-I/O-correlated corruption remained. The four classes above
+ARE fixed and validated; the storage-path issue is separate.)
 
 Tooling added along the way: mmtest.c (raw MM probe), memfree.c
 (TotalMem/FreeMem/MaxBlock report), LUA_IIGS_MMTRACE build option
@@ -425,8 +427,83 @@ Recommended hardware follow-ups: run tests/hwtest.lua for the
 self-verifying proof; check the Control Panel battery-RAM settings
 (RAM disk size, slots) once more after the earlier corruption events.
 
+## Round 6 — interrupt-margin hardening + the disk-I/O discovery (2026-07-07)
+
+Round 5's "closed end to end" claim was premature: on real hardware the
+non-trace binaries still intermittently wrote null bytes across the
+$0400 text page. A long hardware bisect narrowed and then REFRAMED the
+residual problem. Two distinct issues emerged, one fixed and one still
+open:
+
+### R6-1. Applied: widen stack-guard margins for interrupt headroom
+(commit "Widen stack-guard margins for real-hardware interrupt headroom")
+
+luatr24 loaded coroutine.lua cleanly (block at $1D8070, healthy trace)
+and then died DURING execution. coroutine.lua is a guard-RIDING
+workload: it deliberately recurses until "C stack overflow" is caught,
+holding the hardware SP within ~2KB of the stack-segment base for long
+stretches. Real-IIgs IRQ handlers (heartbeat/ADB/AppleTalk) push onto
+whatever stack is live; with only a 2KB floor an IRQ can punch through
+the segment base into adjacent bank-0 memory. Fix: hard floor
+2048->4096, soft floor 8192->10240 (lstate.c luaE_setcstacktop). Usable
+stack ~14.3KB; all guard-riding suite tests still pass under GG and
+under the instrumented GG (poison + high-bank). This is defensible
+hardening regardless of whether it fully fixes the crash — thin margins
+on an interrupt-driven machine are simply wrong.
+
+### R6-2. OPEN: screen/memory corruption correlates with DISK I/O, not Lua
+The decisive photo (2026-07-07): plain ORCA shell `copy` commands — no
+Lua process anywhere — garbled the text page during the copy, while an
+adjacent copy printed clean. In the Lua runs, the garbled rows are
+exactly those printed WHILE the script file is being read during parse
+(the [mm] rows mid-load); once the file is fully read, everything
+prints clean. A prior FLAWLESS luatr24 run is consistent: the script
+had just been copied and was served from the GS/OS cache (no physical
+disk access). Working hypothesis: something in the STORAGE path
+(driver / storage card / accelerator DMA timing) corrupts memory
+including the aux text page during transfers. This is machine-level,
+not a Lua bug — it garbles `copy` output with Lua nowhere in sight —
+and it is invisible to every emulator reproduction built (stock GG,
+W65_POISON uninitialized-RAM/stack, W65_HIGHMEM top-down allocation).
+The crash-during-load incidents are plausibly the same driver stomping
+program memory rather than only the screen.
+
+Next-session discriminators (all cheap):
+- Cold boot, NO Lua: `copy` several large files repeatedly / `cat` a big
+  text file. Garbling with no Lua running formally exonerates Lua for the
+  screen corruption.
+- Run `luatr24 coroutine.lua` twice in one boot: run 2 loads from cache.
+  Garble on run 1 (disk) but not run 2 (cache) confirms the correlation.
+- Identify storage hardware (MicroDrive/Turbo? CFFA? SCSI?) and any
+  accelerator (TransWarp/ZipGS), plus configurable transfer settings.
+
+### Hardware timing budgets (from `iix --cycles`, why runs look "hung")
+coroutine ~298M cycles (~2 min @ 2.8MHz), gc ~436M (~2.6 min),
+hwdiag2 ~1.04B (~6 min), hwtest ~2.9B (~17 min). coroutine.lua is nearly
+silent after "testing coroutines" for ~2 min on a stock machine — that
+is healthy, not hung. After [M4b] the interpreter does NO disk I/O
+unless a script asks (only files.lua does).
+
+### Binary set on the branch (rebuilt with R6-1 margins)
+- build/lua        — canonical, no trace code (daily driver goal)
+- build/luatr24    — trace code, output ON (prints [M*]/[mm]); hardware
+                     workhorse while diagnosing
+- build/luasil     — trace code compiled in, output OFF (never-true
+                     volatile flag): isolates code-layout effects from
+                     stdio side effects
+- build/lua-libcmalloc — pre-hybrid-allocator, stock realloc (A/B)
+(build/ is gitignored; rebuild via `make lua` etc. The MMTRACE variants
+come from defining LUA_IIGS_MMTRACE[_SILENT] in luaconf.h.)
+
+### Machine confirmed healthy (memfree on hardware)
+TotalMem 8320KB, FreeMem 6487KB, MaxBlock 6047KB, RealFreeMem 6814KB —
+the earlier "Memory Manager: Out of memory" was purely the 32KB stack
+ask (fixed in R5), not a starved pool.
+
 ## Open items / next investigations
 
+- **Storage-path memory corruption (R6-2) — the live investigation.**
+  Corruption tracks disk I/O, not Lua. See R6-2 discriminators above.
 - ~~`math.lua:877`~~ RESOLVED in R3-1 (GoldenGate 53-bit SANE emulation
   vs FIGS=64; clamped to 53). math.lua passes.
 - ~~`verybig.lua`~~ RESOLVED: its RK section passes; the ">64k programs"
