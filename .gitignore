@@ -18,3 +18,8 @@
 # test run outputs and runtime scratch dirs
 /tests/*.out
 /tests/libs/
+
+# local tool binaries and outputs
+/mmtest
+/memfree
+/luac.out
