@@ -570,13 +570,35 @@ overrun blows past all floors because the guard was never consulted.
 New/updated tests: tests/sieve.lua (reproducer), tests/cobisect.lua
 (coroutine-class bisect harness), coroutine.lua (sieve depth reduced).
 
+## Round 8 — resume fix did NOT resolve hardware; localizing the true point (2026-07-07)
+
+The R7 resume-guard fix reproduced+fixed the sieve corruption under
+emulation but did NOT fix coroutine.lua on real hardware (it "failed as
+well"). So either coroutine.lua fails at a DIFFERENT point than the sieve
+(the sieve was a real bug but not THE hardware crash), or the crash is a
+different mechanism entirely. Not theorizing further without the actual
+failure location.
+
+Diagnostic-reliability concern found: coroutine.lua has only ~2 flushed
+section prints across 1178 lines, and if stdout is block-buffered on
+hardware the last prints before a crash are lost — so prior screenshots
+may show LESS than actually ran. Fix for diagnosis: tests/cobeacon.lua
+(auto-derived from coroutine.lua) sets `io.stdout:setvbuf("no")` and
+emits a flushed "Bnn <section>" beacon before every section (38 of
+them). Run under build/luatrace (MMTRACE trace binary of the CURRENT
+fixed code) so one hardware run shows Bnn beacons + [M]/[mm] events, all
+flushed — the last beacon names the crashing block.
+
+Next hardware run: `luatrace cobeacon.lua`, cold boot, photograph where
+it stops. Open questions for the user: how did the failing coroutine.lua
+run fail (garble / freeze / reboot) and roughly where; and was the
+transferred binary the R7 fix (build/lua 361,395 bytes, 07-07 17:45)?
+
 ## Open items / next investigations
 
-- **Hardware re-test of the resume-guard fix** — rebuild build/lua and run
-  coroutine.lua (and sieve.lua) on the real IIgs; expect completion with
-  no screen corruption. This is the prime candidate for THE fix.
-- **coroutine.lua-triggered corruption (R6-2) — resolved by R7 pending
-  hardware confirmation.**
+- **Localize the true coroutine.lua hardware failure** via
+  `luatrace cobeacon.lua` (R8). Resume-guard fix (R7) was necessary but
+  insufficient on hardware.
   Corruption occurs during coroutine.lua execution (the earlier disk-I/O
   reading is retracted — text-page garble is address-based, so garbled
   `copy` text at screen top was coincidental). Next: tests/cobisect.lua
