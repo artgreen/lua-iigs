@@ -868,6 +868,14 @@ LUA_API int lua_resume (lua_State *L, lua_State *from, int nargs,
   L->nCcalls = (from) ? getCcalls(from) : 0;
   if (getCcalls(L) >= LUAI_MAXCCALLS)
     return resume_error(L, "C stack overflow", nargs);
+#if defined(LUA_USE_IIGS)
+  /* Coroutine CONTINUATION resumes bypass the ccall byte-guard (they run
+     via unroll, not ccall); a deep chain of chained coroutines would
+     otherwise overrun the bank-0 stack segment. This is the one point
+     every resume passes through. */
+  if (luaE_resumelow())
+    return resume_error(L, "C stack overflow", nargs);
+#endif
   L->nCcalls++;
   luai_userstateresume(L, nargs);
   api_checknelems(L, (L->status == LUA_OK) ? nargs + 1 : nargs);

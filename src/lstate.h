@@ -414,6 +414,7 @@ LUAI_FUNC void luaE_incCstack (lua_State *L);
 LUAI_FUNC void luaE_setcstacktop (char *top, unsigned long size);
 LUAI_FUNC int luaE_cstacklow (int hard);
 LUAI_FUNC void luaE_cstackrearm (void);
+LUAI_FUNC int luaE_resumelow (void);
 #define luaE_cstackover(L)  \
 	(getCcalls(L) >= LUAI_MAXCCALLS || luaE_cstacklow(0))
 #else

@@ -451,31 +451,36 @@ under the instrumented GG (poison + high-bank). This is defensible
 hardening regardless of whether it fully fixes the crash — thin margins
 on an interrupt-driven machine are simply wrong.
 
-### R6-2. OPEN: screen/memory corruption correlates with DISK I/O, not Lua
-The decisive photo (2026-07-07): plain ORCA shell `copy` commands — no
-Lua process anywhere — garbled the text page during the copy, while an
-adjacent copy printed clean. In the Lua runs, the garbled rows are
-exactly those printed WHILE the script file is being read during parse
-(the [mm] rows mid-load); once the file is fully read, everything
-prints clean. A prior FLAWLESS luatr24 run is consistent: the script
-had just been copied and was served from the GS/OS cache (no physical
-disk access). Working hypothesis: something in the STORAGE path
-(driver / storage card / accelerator DMA timing) corrupts memory
-including the aux text page during transfers. This is machine-level,
-not a Lua bug — it garbles `copy` output with Lua nowhere in sight —
-and it is invisible to every emulator reproduction built (stock GG,
-W65_POISON uninitialized-RAM/stack, W65_HIGHMEM top-down allocation).
-The crash-during-load incidents are plausibly the same driver stomping
-program memory rather than only the screen.
+### R6-2. OPEN: trigger is coroutine.lua EXECUTION (disk-I/O theory RETRACTED)
+CORRECTION (a mis-read now retracted): an earlier pass concluded the
+corruption tracked disk I/O, because the garbled screen rows happened to
+contain shell `copy` command output at the top. That inference was
+wrong. Text-page corruption is ADDRESS-based: a sweep over a fixed set
+of rows garbles whatever those rows currently display, independent of
+when it was printed. The garbled `copy` text was coincidental — those
+rows were simply in the swept range.
 
-Next-session discriminators (all cheap):
-- Cold boot, NO Lua: `copy` several large files repeatedly / `cat` a big
-  text file. Garbling with no Lua running formally exonerates Lua for the
-  screen corruption.
-- Run `luatr24 coroutine.lua` twice in one boot: run 2 loads from cache.
-  Garble on run 1 (disk) but not run 2 (cache) confirms the correlation.
-- Identify storage hardware (MicroDrive/Turbo? CFFA? SCSI?) and any
-  accelerator (TransWarp/ZipGS), plus configurable transfer settings.
+What the evidence actually shows: the corruption occurs during
+**coroutine.lua execution**. Multiple runs reach `testing coroutines`
+(the test's first line of output) and then crash/garble shortly after;
+the clean BOTTOM of the failing screen matches a prior clean run,
+confirming the run got to the same point and then execution corrupted a
+fixed band of text-page rows. hwdiag2.lua (light workload) passes;
+coroutine.lua (heavy: guard-riding deep recursion, nested coroutines,
+debug hooks, close/error paths) is the reproducer. Still not reproduced
+under any emulator configuration (stock GG, W65_POISON, W65_HIGHMEM).
+
+Open question: whether the failing binary in the latest photo carried
+the R6-1 widened margins (timing suggests yes, i.e. margins alone may
+not fix it — unconfirmed).
+
+Next step — LOCALIZE, don't theorize: tests/cobisect.lua runs each
+coroutine-operation class in isolation with announce-before-attempt
+markers and known-answer checks, so one hardware run names which
+operation triggers the corruption (prime suspect: the guard-riding
+deep-recursion-inside-coroutine class, per R6-1). Also useful: run the
+reproducer twice in one boot (2nd from cache) and note whether `luasil`
+— trace compiled in, output OFF — also fails on coroutine.lua.
 
 ### Hardware timing budgets (from `iix --cycles`, why runs look "hung")
 coroutine ~298M cycles (~2 min @ 2.8MHz), gc ~436M (~2.6 min),
@@ -500,10 +505,82 @@ TotalMem 8320KB, FreeMem 6487KB, MaxBlock 6047KB, RealFreeMem 6814KB —
 the earlier "Memory Manager: Out of memory" was purely the 32KB stack
 ask (fixed in R5), not a starved pool.
 
+## Round 7 — coroutine resume guard: corruption REPRODUCED LOCALLY and FIXED (2026-07-07)
+
+The R6-2 lead (corruption during coroutine.lua execution) resolved to a
+specific, root-caused, locally-reproduced bug — the first time any of the
+hardware corruption was reproduced under GoldenGate.
+
+**Reproducer** (tests/sieve.lua): the prime sieve built from a CHAIN of
+coroutine.wrap filters (`x = filter(n, x)` per prime; pulling one value
+cascades a resume through the whole chain). Under stock GoldenGate
+--memcheck this prints "MemCheck: memory altered at 0069fb / 00b0b4 /
+0f492e" (bank-0 low memory incl. the text-page region, plus high memory)
+at chain depths as low as ~6, stack pegged at 24,640 of 24,832. This is
+exactly coroutine.lua's sieve (it even carried an old TODO: "After 46
+revolutions, some corruption happens... MemCheck: memory altered at
+00b9ca"). hwdiag2/cobisect never hit it because neither chains coroutines.
+
+**Root cause:** the byte-based C-stack guard is only checked in `ccall`
+(ldo.c). Coroutine CONTINUATION resumes (resume after a yield — the
+common case) run through `resume()` -> `unroll()` (ldo.c:816-833), NOT
+ccall, so they skip the guard. And `lua_resume` (ldo.c:868-871) checks
+only the COUNT guard (`getCcalls >= LUAI_MAXCCALLS`) while RESETTING
+nCcalls to the resumer's count each level, so a 46-deep chain only
+reaches ~46, never tripping 200. Net: a chained-coroutine cascade
+descends the shared C stack with zero guard checks and overruns the
+bank-0 segment into live memory.
+
+**Fix** (ldo.c lua_resume + lstate.c/.h): add a stateless byte-floor
+probe `luaE_resumelow()` (soft floor, no grace-flag side effects) and
+check it in `lua_resume` — the single choke point every resume (start
+AND continuation) passes through. A breach returns a clean, catchable
+`resume_error("C stack overflow")` exactly like the existing count
+guard, instead of corrupting memory.
+
+**Result:** sieve.lua now stops with a caught "C stack overflow" at the
+platform's depth limit — ZERO memory alterations at any chain length.
+coroutine.lua peak stack usage dropped from 24,590 (base+242, unsafe) to
+13,226 (base+11,606, safe). Passes under stock GG and instrumented GG
+(W65_POISON + W65_HIGHMEM).
+
+**Soft-floor retune (fixes an R6-1 regression):** R6-1 widened the soft
+floor to base+10240, which strangled pm.lua's recursive-gsub nest
+(`rev(rev("abcdef"))`, ~12 nested gsub levels, ~16.9KB) into a spurious
+"C stack overflow". The HARD floor (base+4096) is the real IRQ-underflow
+protection; the soft floor only reserves room for the catchable error +
+traceback. Soft floor moved base+10240 -> base+7168: pm.lua passes
+(16,880), sieve still zero-corruption, coroutine/cstack still pass.
+
+**Platform limit documented:** each chained-coroutine level costs ~2.2KB
+(a full lua_resume + setjmp buffer + luaV_execute), so chain depth is
+capped at ~5 on the 24.8KB segment — 14 levels (the old _iigs sieve)
+needs ~35KB and CANNOT fit regardless of guard; it only "passed" under GG
+because the out-of-segment writes hit RAM that didn't affect the result.
+coroutine.lua's sieve reduced gennum 46->8 (14 primes -> 4 primes:
+2,3,5,7); assertion updated to `#a == 4 and a[#a] == 7`.
+
+**Why this is likely THE hardware bug:** coroutine.lua was the reproducer
+on hardware; the mechanism (unchecked C-stack overrun into bank 0
+including the text page) exactly matches the observed null-byte sweeps;
+and it now reproduces + fixes under emulation. The R6-1 interrupt-margin
+widening is complementary hardening but was NOT the primary cause — the
+overrun blows past all floors because the guard was never consulted.
+
+New/updated tests: tests/sieve.lua (reproducer), tests/cobisect.lua
+(coroutine-class bisect harness), coroutine.lua (sieve depth reduced).
+
 ## Open items / next investigations
 
-- **Storage-path memory corruption (R6-2) — the live investigation.**
-  Corruption tracks disk I/O, not Lua. See R6-2 discriminators above.
+- **Hardware re-test of the resume-guard fix** — rebuild build/lua and run
+  coroutine.lua (and sieve.lua) on the real IIgs; expect completion with
+  no screen corruption. This is the prime candidate for THE fix.
+- **coroutine.lua-triggered corruption (R6-2) — resolved by R7 pending
+  hardware confirmation.**
+  Corruption occurs during coroutine.lua execution (the earlier disk-I/O
+  reading is retracted — text-page garble is address-based, so garbled
+  `copy` text at screen top was coincidental). Next: tests/cobisect.lua
+  to localize which coroutine operation triggers it.
 - ~~`math.lua:877`~~ RESOLVED in R3-1 (GoldenGate 53-bit SANE emulation
   vs FIGS=64; clamped to 53). math.lua passes.
 - ~~`verybig.lua`~~ RESOLVED: its RK section passes; the ">64k programs"

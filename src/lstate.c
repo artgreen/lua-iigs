@@ -185,8 +185,14 @@ void luaE_setcstacktop (char *top, unsigned long size) {
   ** $0400 text page during guard-riding workloads; emulators without
   ** interrupts never show this). SANE's direct page also sits at the
   ** segment bottom. */
-  cstackhard = base + 4096;   /* throw/panic machinery + IRQ headroom */
-  cstacksoft = base + 10240;  /* error object + traceback + IRQ headroom */
+  /* The HARD floor is the real interrupt-underflow protection (last-ditch
+  ** headroom kept below SP at all times); the SOFT floor only reserves
+  ** room to build the catchable overflow error + traceback. Widening the
+  ** soft floor too far strangles legitimate deep recursion (e.g. pm.lua's
+  ** recursive-gsub nest), so keep the hard floor generous for IRQs but
+  ** the soft floor only as large as error handling needs. */
+  cstackhard = base + 4096;   /* IRQ headroom + throw/panic machinery */
+  cstacksoft = base + 7168;   /* error object + traceback */
 }
 
 /*
@@ -219,6 +225,21 @@ int luaE_cstacklow (int hard) {
 ** delivered, so the soft check may report a fresh overflow again */
 void luaE_cstackrearm (void) {
   cstackinerr = 0;
+}
+
+/*
+** Stateless soft-floor probe for lua_resume. Coroutine CONTINUATION
+** resumes run through unroll(), not ccall(), so they never hit the
+** luaE_cstackover guard; a chain of chained coroutines (e.g. the prime
+** sieve of coroutine filters) descends the shared C stack unchecked and
+** overruns the segment into other bank-0 memory. lua_resume is the one
+** choke point every resume passes through, so check the floor there.
+** Stateless (no grace flag): a breach returns a clean, catchable failed
+** resume rather than entering error-handling.
+*/
+int luaE_resumelow (void) {
+  char probe;
+  return cstacksoft != NULL && &probe <= cstacksoft;
 }
 
 #endif
