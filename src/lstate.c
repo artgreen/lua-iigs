@@ -177,8 +177,16 @@ static int cstackinerr = 0;      /* soft overflow already reported? */
 
 void luaE_setcstacktop (char *top, unsigned long size) {
   char *base = top - size;  /* approximate bottom of the stack segment */
-  cstackhard = base + 2048;   /* keep room for throw/panic machinery */
-  cstacksoft = base + 8192;   /* keep room for error object + traceback */
+  /* Margins reserve room not only for our own error handling but for
+  ** real-hardware INTERRUPTS: IRQ handlers (heartbeat, ADB, AppleTalk)
+  ** push onto whatever stack is live, so riding near the segment bottom
+  ** with thin margins lets an IRQ punch through the base into adjacent
+  ** bank-0 memory (observed on hardware as null bytes sweeping the
+  ** $0400 text page during guard-riding workloads; emulators without
+  ** interrupts never show this). SANE's direct page also sits at the
+  ** segment bottom. */
+  cstackhard = base + 4096;   /* throw/panic machinery + IRQ headroom */
+  cstacksoft = base + 10240;  /* error object + traceback + IRQ headroom */
 }
 
 /*
