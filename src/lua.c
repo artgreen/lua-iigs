@@ -33,7 +33,12 @@
 #endif
 
 #if defined(LUA_IIGS_MMTRACE)
-#define LTRACE(s)  do { fprintf(stderr, "%s\n", s); fflush(stderr); } while (0)
+#if defined(LUA_IIGS_MMTRACE_SILENT)
+static volatile int ltrace_on = 0;  /* traced layout, no output */
+#else
+static volatile int ltrace_on = 1;
+#endif
+#define LTRACE(s)  do { if (ltrace_on) { fprintf(stderr, "%s\n", s); fflush(stderr); } } while (0)
 #else
 #define LTRACE(s)  ((void)0)
 #endif

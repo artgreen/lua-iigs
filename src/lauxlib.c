@@ -1052,9 +1052,16 @@ LUALIB_API const char *luaL_gsub (lua_State *L, const char *s,
 */
 #if defined(LUA_IIGS_MMTRACE)
 #include <stdio.h>
-#define MMTRACE1(fmt,a)     do { fprintf(stderr, fmt "\n", a); fflush(stderr); } while (0)
-#define MMTRACE2(fmt,a,b)   do { fprintf(stderr, fmt "\n", a, b); fflush(stderr); } while (0)
-#define MMTRACE3(fmt,a,b,c) do { fprintf(stderr, fmt "\n", a, b, c); fflush(stderr); } while (0)
+#if defined(LUA_IIGS_MMTRACE_SILENT)
+/* code layout of the traced build, but no output/stdio side effects:
+   used to bisect a hardware heisenbug that tracks build layout */
+static volatile int mmtrace_on = 0;
+#else
+static volatile int mmtrace_on = 1;
+#endif
+#define MMTRACE1(fmt,a)     do { if (mmtrace_on) { fprintf(stderr, fmt "\n", a); fflush(stderr); } } while (0)
+#define MMTRACE2(fmt,a,b)   do { if (mmtrace_on) { fprintf(stderr, fmt "\n", a, b); fflush(stderr); } } while (0)
+#define MMTRACE3(fmt,a,b,c) do { if (mmtrace_on) { fprintf(stderr, fmt "\n", a, b, c); fflush(stderr); } } while (0)
 #else
 #define MMTRACE1(fmt,a)     ((void)0)
 #define MMTRACE2(fmt,a,b)   ((void)0)
