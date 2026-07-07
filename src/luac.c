@@ -29,7 +29,7 @@
 #include "parseconf.h"
 #pragma memorymodel 1
 /* parser recursion needs far more than the 4KB default (see lua.c) */
-#pragma stacksize 32512
+#pragma stacksize 24832
 #endif
 #ifdef LUA_IIGS_BUILD_S16
     #error "LUAC isn't S16 capable (no commandline)"

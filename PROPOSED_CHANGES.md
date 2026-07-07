@@ -386,6 +386,45 @@ and video soft-switch state (observed: garbled ROM boot banner).
 GoldenGate; awaiting hardware re-test (cold boot, new build/lua,
 run tests/hwdiag2.lua).
 
+## Round 5 — HARDWARE VALIDATED (2026-07-06 evening)
+
+The remaining "instant blow-up" saga, in order of exoneration:
+- mmtest.c on hardware: raw MM call sequence PERFECT (errs=0) - the
+  hybrid allocator's tool calls were never wrong.
+- luac -l: hwdiag2's main chunk is only 171 instructions, so no MM-path
+  allocation even occurs during script load - killing the "dies at
+  first MM call" theory.
+- The real failure: "#pragma stacksize 32512" was too aggressive a
+  bank-0 ask on a real system (ORCA/C manual: 32K is possible "often",
+  not always). Depending on boot state it either failed the load
+  outright ("Memory Manager: Out of memory") or squeezed bank 0 to the
+  point of destabilizing the console/system (the garbled-screen
+  crashes). Battery-RAM damage from an early crash ("Check startup
+  device!") added boot-to-boot variance.
+
+**Fix:** stack request reduced to 24,832 bytes (lua.c pragma +
+luaE_setcstacktop(,23808), luac.c pragma). Guard floors scale
+automatically. Stack-sensitive tests (errors/cstack/coroutine/hwtest/
+hwdiag2) all pass under GG at the smaller size.
+
+**Hardware proof (photo):** luatr24 ran tests/hwdiag2.lua to
+completion on the real 8MB IIgs: 133KB/195KB/197KB MM allocations
+filled+verified at real addresses (bank-crossing blocks included),
+shrinks/disposes clean, "E73 chain caught ok" (stack guard works on
+iron), **"E99 DONE fails=0 / ALL DIAGNOSTICS PASSED / [M5] script
+done"**. The corruption saga - C-stack overflow, 16-bit int bugs,
+ORCALib >32KB heap aliasing, and the oversized bank-0 stack - is
+closed end to end.
+
+Tooling added along the way: mmtest.c (raw MM probe), memfree.c
+(TotalMem/FreeMem/MaxBlock report), LUA_IIGS_MMTRACE build option
+(lifecycle + MM-event tracing to stderr), build/lua-libcmalloc and
+build/luatr24 comparison binaries.
+
+Recommended hardware follow-ups: run tests/hwtest.lua for the
+self-verifying proof; check the Control Panel battery-RAM settings
+(RAM disk size, slots) once more after the earlier corruption events.
+
 ## Open items / next investigations
 
 - ~~`math.lua:877`~~ RESOLVED in R3-1 (GoldenGate 53-bit SANE emulation

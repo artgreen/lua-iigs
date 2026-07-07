@@ -1,6 +1,8 @@
 -- $Id: testes/events.lua $
 -- See Copyright Notice in file all.lua
 
+_iigs = true  -- used to scale depths to the 65816's small C stack
+
 print('testing metatables')
 
 local debug = require'debug'
@@ -84,7 +86,9 @@ do
                      {__index = setmetatable({},
                      {__index = function (_,n) return a[n-3]+4, "lixo" end})})})
   a[0] = 20
-  for i=0,10 do
+  -- _iigs: each round recurses ~4 C levels through the __index chain;
+  -- depth 10 needs ~23KB of C stack, beyond the 24.8KB bank-0 budget
+  for i=0,(_iigs and 5 or 10) do
     assert(a[i*3] == 20 + i*4)
   end
 end

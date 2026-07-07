@@ -29,7 +29,7 @@
  * LUAI_MAXCCALLS=128 needs far more; overflow silently corrupts bank-0
  * memory. Allocate the largest stack a text-environment program can get.
  */
-#pragma stacksize 32512
+#pragma stacksize 24832
 #endif
 
 #if defined(LUA_IIGS_MMTRACE)
@@ -730,7 +730,7 @@ int main (int argc, char **argv) {
 #ifdef LUA_USE_IIGS
   char stackanchor;
   /* #pragma stacksize above, minus slack used before main runs */
-  luaE_setcstacktop(&stackanchor, 31488);
+  luaE_setcstacktop(&stackanchor, 23808);
 #endif
   LTRACE("[M1] main");
   L = luaL_newstate();  /* create state */
