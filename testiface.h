@@ -29,4 +29,6 @@ void setCollectionValue(Collection *collection, size_t index, int value);
 // Function to get a value from a collection
 int getCollectionValue(Collection *collection, size_t index);
 
+int luaopen_test_iface(lua_State *L);
+
 #endif
