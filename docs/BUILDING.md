@@ -94,14 +94,15 @@ make mmtest memfree
 | --- | --- |
 | `make lua` | `build/lua` and `src/lua` |
 | `make luac` | `build/luac` and `src/luac` |
-| `make liblua` | `src/lua.lib`, `src/lvm.a`, and copies in `build/` |
+| `make liblua` | `src/lua.lib` and copies of it and the existing `src/lvm.a` in `build/` |
 | `make bridge` | root `bridge` embedding demo |
 | `make mmtest memfree` | root standalone Memory Manager probes |
 
 Run `make lua` before `make liblua` or `make bridge`: the current library
 recipe assumes `src/lvm.a` already exists. Specify a target: bare `make`
-currently selects `bridge`, not an all-tools build. Build sequentially; interpreter/compiler modes share source objects
-and rewrite `src/parseconf.h`. Use the isolated kit for release evidence or
+currently selects `bridge`, not an all-tools build. Build sequentially:
+interpreter/compiler modes share source objects and rewrite `src/parseconf.h`.
+Use the isolated kit for release evidence or
 plain/trace comparisons. A normal `make lua` build does not receive the kit's
 unique build-ID macro and must not be labeled the archived tested binary.
 
@@ -126,8 +127,8 @@ it attempts removal of top-level build/image outputs.
 
 For a completed kit, replace the example path below with the directory
 printed by the builder. Use a new output directory for each build; do not
-overwrite archived packages. Distribution executables and archives can use `lua` and `LUA.SHK`
-without carrying temporary investigation names.
+overwrite archived packages. Distribution executables and archives can use
+`lua` and `LUA.SHK` without carrying temporary investigation names.
 
 ```sh
 cd build/hardware/REPLACE-WITH-KIT-DIRECTORY/package

@@ -26,8 +26,8 @@ interactive prompt, run `lua -E -i` and leave with `os.exit()`.
 
 The root-level `poker.lua`, `test.lua`, and `test2.lua` are older standalone
 examples/manual checks. Their output is not an automated regression contract.
-The early [firsttest.txt](../docs/history/firsttest.txt) transcript is historical Lua 5.4.4 output, not
-current test evidence.
+The early [firsttest.txt](../docs/history/firsttest.txt) transcript is
+historical Lua 5.4.4 output, not current test evidence.
 
 `bridge.lua` requires a statically registered C module and runs through the
 `bridge` executable, not the ordinary interpreter. See the

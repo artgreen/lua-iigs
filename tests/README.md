@@ -98,8 +98,8 @@ or unmodified upstream-suite pass is not claimed. `tracegc.lua` is a helper.
 
 `hwtest.lua` reports its unsupported Lua-hook yield case as a skip and prints
 `HWTEST PASSED WITH SKIPS`. Earlier baseline output counted that unsupported
-case as a pass; [the evidence record](../docs/validation/HARDWARE_RESULTS.md) preserves the
-correction. Avoid quoting a whole-suite percentage.
+case as a pass; [the evidence record](../docs/validation/HARDWARE_RESULTS.md)
+preserves the correction. Avoid quoting a whole-suite percentage.
 
 `files.lua` is still expected-failing and has test-instrumentation/fixture
 issues to isolate before diagnosing a runtime defect; see

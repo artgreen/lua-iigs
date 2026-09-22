@@ -44,7 +44,7 @@ leaves it. The `-E` option ignores Lua environment settings, including
 
 Lua modules default to `?.lua;?/init.lua`, relative to the working directory.
 Keep test helpers such as `tracegc.lua` beside the scripts that require them.
-The tested package is a shell executable, not a Finder-launched desktop app
+The interpreter is a shell executable, not a Finder-launched desktop app
 or a boot disk.
 
 For transfer details, expected test output, and new-build validation, follow

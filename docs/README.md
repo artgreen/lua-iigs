@@ -1,6 +1,6 @@
 # Documentation map
 
-The current development branch is `master`. PR #13 merged as `b911c3c`;
+The repository's default branch is `master`. PR #13 merged as `b911c3c`;
 its runtime source was hardware-tested under the archived identifier
 `IIgs 9add073-776024bcfb02 plain`. Documentation changes after that build do
 not change the identity or contents of the archived executable.

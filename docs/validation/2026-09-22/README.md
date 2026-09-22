@@ -3,8 +3,8 @@
 Archived executable: LUAREVIEW, banner `IIgs 9add073-776024bcfb02 plain`.
 Runtime source commit: `c5aab9c39b0a13621ad0dee9f1a67206b91f3d11`.
 PR #13 merged into master as `b911c3c9cdc89f33b622b0cea768ef171877a1fd`.
-The temporary name identifies the tested artifact; ordinary installations
-and new distribution builds use `lua`.
+The temporary name identifies the tested artifact. For a new distribution
+build, choose `lua`.
 Built from the review working tree before committing; 9add073 is the
 parent HEAD, not the tree being claimed as the candidate. The accompanying
 manifest hashes identify the exact source/tooling inputs. These inputs
@@ -64,14 +64,15 @@ staged at `/Volumes/nas/LUA.20260922` and all copied bytes were verified.
 
 ## Preserved transfer artifacts
 
-Preserve the existing LUAPATH installation. Extract LUAREVIEW.SHK into a
-new directory and IIGSHOST.SHK alongside it using GS ShrinkIt. Check the
-archived banner above. The [hardware sequence](../../../HARDWARE_TESTING.md)
-is complete for this build; it remains the procedure for validating changes.
-LUATRACE.SHK is available if a failure needs localization. A returned shell
-prompt was reported after the hardware runs. The local checks above are
-listed separately so they are not mistaken for individually logged hardware
-coverage. A rebuild must not inherit the archived binary's identity or results.
+The transfer package supplied LUAREVIEW.SHK and IIGSHOST.SHK while preserving
+the earlier LUAPATH installation. The hardware results are tied to the
+archived executable identity above. The
+[hardware sequence](../../../HARDWARE_TESTING.md) is complete for this build;
+it remains the procedure for validating changes. LUATRACE.SHK was available
+for localization. A returned shell prompt was reported after the hardware
+runs. The local checks above are listed separately so they are not mistaken
+for individually logged hardware coverage. A rebuild must not inherit the
+archived binary's identity or results.
 
 Plain executable SHA-256:
 `5f56255a4f01b4685e59628835158f3194cc13d65cf4b09f259a6ccc9105a13d`.

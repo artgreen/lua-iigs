@@ -22,7 +22,7 @@ commit. See [preserved provenance](2026-09-21/README.md).
 Review correction: the baseline hwtest's "20 passed" includes one unsupported
 Lua-hook yield case incorrectly counted as a pass. That path was untested;
 the recorded hardware runs and clean shell returns are still valid evidence.
-The current review candidate has separate skip reporting and a C-hook test.
+The merged build has separate skip reporting and a C-hook test.
 Its diagnostic companions have hardware passes, and the user subsequently
 confirmed all outstanding runs, including the original silent tests, passed
 and returned to the shell. Original tableovf.lua took about 18 minutes and
