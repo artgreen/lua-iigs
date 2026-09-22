@@ -1,5 +1,11 @@
 # Real IIgs test results
 
+This is a chronological evidence journal. Commands, pending items, and
+artifact paths inside dated entries describe that moment in the investigation;
+they are not current installation instructions. Use the
+[hardware guide](../../HARDWARE_TESTING.md) for new testing. Local `build/` and
+NAS paths below are relative to the original project environment.
+
 Current tested build: **LUAREVIEW / `IIgs 9add073-776024bcfb02 plain`**.
 The user reports completion of the requested five warm coroutine/hwdiag2
 pairs and one post-power-cycle pair, plus additional mixed-script testing
@@ -11,7 +17,7 @@ and two post-power-cycle launches passed. Earlier "pending" entries below
 describe the state when recorded; later entries close those checks.
 Coverage is limited to the documented workloads and machine configuration.
 The baseline runtime source is commit `9add073`; its banner predates that
-commit. See [preserved provenance](docs/validation/2026-09-21/README.md).
+commit. See [preserved provenance](2026-09-21/README.md).
 
 Review correction: the baseline hwtest's "20 passed" includes one unsupported
 Lua-hook yield case incorrectly counted as a pass. That path was untested;
@@ -269,8 +275,8 @@ remain preserved. Library hosts now require explicit stack initialization.
 
 GoldenGate checks cover both interpreter variants, the library host's
 C-hook yields and size-limit errors, allocator failure injection, bridge,
-and compiler. See [candidate validation](docs/validation/2026-09-22/README.md)
-and [review disposition](docs/PR13-REVIEW.md) for coverage and limitations.
+and compiler. See [candidate validation](2026-09-22/README.md)
+and [review disposition](../PR13-REVIEW.md) for coverage and limitations.
 The historical files.lua failure remains reproducible locally.
 
 ShrinkIt archives and images are ready locally under

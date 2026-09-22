@@ -1,4 +1,9 @@
-# Hardware baseline provenance
+# Earlier tested baseline provenance, 2026-09-21
+
+This LUAPATH build is the preserved earlier baseline. The
+[September 22 record](../2026-09-22/README.md) identifies the subsequently
+validated runtime with the public host-initialization contract. Keep this
+older build as evidence, not as the default installation recommendation.
 
 The source implementing the tested baseline was committed as
 `9add073a2ea09c7a82642a08379e217b46418ba0`. It was built before that commit;

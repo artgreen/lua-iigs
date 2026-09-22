@@ -2,8 +2,8 @@
 
 This is a historical record, including superseded hypotheses, constants,
 plans, and status reports. It is **not current implementation guidance**.
-Use [CORRUPTION-ANALYSIS.md](CORRUPTION-ANALYSIS.md) for current values and
-[HARDWARE_RESULTS.md](../HARDWARE_RESULTS.md) for observed hardware results.
+Use [CORRUPTION-ANALYSIS.md](../CORRUPTION-ANALYSIS.md) for current values and
+[HARDWARE_RESULTS.md](../validation/HARDWARE_RESULTS.md) for observed hardware results.
 The September identified-build successes supersede July's unresolved
 coroutine status; they do not prove every historical root-cause hypothesis.
 

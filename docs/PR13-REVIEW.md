@@ -3,8 +3,10 @@
 This records the response to the inline stack-guard finding and the numbered
 [automated review](https://github.com/artgreen/lua-iigs/pull/13#issuecomment-5777966180).
 Validation evidence is in [the candidate record](validation/2026-09-22/README.md).
-The original LUAPATH baseline is preserved; this review candidate still needs
-hardware confirmation.
+PR #13 merged into master at `b911c3c`. The original LUAPATH baseline is
+preserved; the final LUAREVIEW build subsequently passed targeted hardware
+checks and the requested warm/cold repeatability sequence. See
+[hardware results](validation/HARDWARE_RESULTS.md) for the user-reported evidence.
 
 | Finding | Disposition |
 | --- | --- |
@@ -41,6 +43,8 @@ Additional suggestions addressed:
 - Building/testing bridge exposed its missing module declaration and an
   existing explicit-free/shutdown-GC double-free; both were corrected.
 
-Not claimed complete: real hardware validation of this candidate, the full
-upstream T C API harness, or the pre-existing files.lua I/O defect. None is
-silently represented as passing by the new targeted validation report.
+Not claimed complete: the full upstream T C API harness, resolution of the
+files.lua failure, or validation of every hardware configuration. The current
+files.lua fixture also needs investigation; see [limitations](LIMITATIONS.md).
+The local broader-suite completion group includes skipped/no-op scripts and
+helpers, as detailed in the [test guide](../tests/README.md).

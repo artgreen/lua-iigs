@@ -12,7 +12,7 @@
 /src/lua
 /src/luac
 
-# local ORCA/C 2.2.1 SDK copy (see PROPOSED_CHANGES.md / README)
+# local ORCA/C 2.2.1 SDK copy (see docs/BUILDING.md)
 /.orca-sdk-2.2.1/
 
 # test run outputs and runtime scratch dirs
@@ -23,3 +23,7 @@
 /mmtest
 /memfree
 /luac.out
+
+# Generated distribution and legacy disk-image output
+/dist/
+/images/
