@@ -205,7 +205,12 @@ static int pmain(lua_State* L)
 int main(int argc, char* argv[])
 {
  lua_State* L;
- int i=doargs(argc,argv);
+ int i;
+#ifdef LUA_USE_IIGS
+ char stackanchor;
+ luaE_setcstacktop(&stackanchor, 23808);  /* stacksize minus startup slack */
+#endif
+ i=doargs(argc,argv);
  argc-=i; argv+=i;
  if (argc<=0) usage("no input files given");
  L=luaL_newstate();

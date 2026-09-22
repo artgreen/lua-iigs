@@ -26,8 +26,8 @@
 #pragma memorymodel 1
 /*
  * The ORCA shell default stack is 4KB (bank 0). Lua's C recursion at
- * LUAI_MAXCCALLS=128 needs far more; overflow silently corrupts bank-0
- * memory. Allocate the largest stack a text-environment program can get.
+ * nested C calls need far more; overflow silently corrupts bank-0
+ * memory. Keep the stack request at the hardware-tested 24,832 bytes.
  */
 #pragma stacksize 24832
 #endif
@@ -195,6 +195,10 @@ static int docall (lua_State *L, int narg, int nres) {
 static void print_version (void) {
   lua_writestring(LUA_COPYRIGHT, strlen(LUA_COPYRIGHT));
   lua_writeline();
+#if defined(LUA_USE_IIGS) && defined(LUA_IIGS_BUILD_ID)
+  lua_writestring(LUA_IIGS_BUILD_ID, strlen(LUA_IIGS_BUILD_ID));
+  lua_writeline();
+#endif
 }
 
 
@@ -751,7 +755,8 @@ int main (int argc, char **argv) {
   status = lua_pcall(L, 2, 1, 0);  /* do the call */
   result = lua_toboolean(L, -1);  /* get result */
   report(L, status);
+  LTRACE("[M6] closing state");
   lua_close(L);
+  LTRACE("[M7] state closed; returning to shell");
   return (result && status == LUA_OK) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
-

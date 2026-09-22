@@ -4,6 +4,7 @@
 -- beacon on screen names the block that crashed. Run under the
 -- MMTRACE trace binary to also see [mm]/[M] allocator events.
 io.stdout:setvbuf("no")
+print("B0 coroutine diagnostic entered")
 local _bn = 0
 local function _B(s) _bn = _bn + 1; io.write("B", _bn, " ", s, "\n"); io.flush() end
 
@@ -1029,7 +1030,7 @@ _B("tests for coroutine API")
 -- tests for coroutine API
 if T==nil then
   (Message or print)('\n >>> testC not active: skipping coroutine API tests <<<\n')
-  print "OK"; return
+  print "OK"; print "BEACON DONE (C API harness skipped)"; return
 end
 
 print('testing coroutine API')
@@ -1222,3 +1223,4 @@ local a = {co()}
 assert(a[10] == "hi")
 
 print'OK'
+print "BEACON DONE"

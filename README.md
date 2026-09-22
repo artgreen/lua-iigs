@@ -1,6 +1,24 @@
 # lua-iigs
 Port of LUA to the Apple IIgs
 
+**Hardware status (September 2026):** a working baseline is established on
+the user's accelerated ROM 03 IIgs with 8 MB RAM. Keep the `LUAPATH` build
+identified as `IIgs b69d628-9766f6d19a8d plain`. It completed seven consecutive
+coroutine/allocation test pairs (14 launches), then both tests again after
+a full power cycle, with success messages and clean shell returns.
+
+The targeted hardware checks also cover stack overflow recovery, pattern
+matching, constants, and garbage collection. The IIgs module search path
+now supports bare relative filenames without a command-line workaround.
+This establishes a tested baseline for these workloads on this machine;
+the historical file-I/O failure and unavailable C API test harness remain
+outside the completed validation. See [HARDWARE_RESULTS.md](HARDWARE_RESULTS.md)
+for the evidence and [HARDWARE_TESTING.md](HARDWARE_TESTING.md) for rebuilding
+and reproducing the checks.
+
+The original project description and issue notes below are historical;
+they do not describe the current validation status.
+
 This project is a port the Lua programming language to the Apple IIgs platform. 
 
 Currently, Lua version 5.4.6 has been ported to the IIgs using ORCA-C.  Greater than 95% of the Lua 5.4.6 test suite

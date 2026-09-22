@@ -253,10 +253,16 @@
 #define LUA_CDIR	LUA_ROOT "lib/lua/" LUA_VDIR "/"
 
 #if !defined(LUA_PATH_DEFAULT)
+#if defined(LUA_USE_IIGS)
+/* On real GS/OS, bare relative names load where "./name" can fail.
+** Search the current directory without the Unix dot prefix. */
+#define LUA_PATH_DEFAULT "?.lua;?/init.lua"
+#else
 #define LUA_PATH_DEFAULT  \
 		LUA_LDIR"?.lua;"  LUA_LDIR"?/init.lua;" \
 		LUA_CDIR"?.lua;"  LUA_CDIR"?/init.lua;" \
 		"./?.lua;" "./?/init.lua"
+#endif
 #endif
 
 #if !defined(LUA_CPATH_DEFAULT)
@@ -825,4 +831,3 @@
 
 
 #endif
-

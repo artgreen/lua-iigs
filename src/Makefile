@@ -22,7 +22,7 @@ libluac: luac_conf luac.lib
 luac.lib: $(OBJS)
 	@echo "Making luac.lib"
 	@#rm -f $@
-	@iix makelib $@ $(ADDS) || rm -f -- $@   # we need to delete the lib file on error
+	@iix makelib $@ $(ADDS) || { rm -f -- $@; exit 1; }
 	@cp $@ $(EXE_DIR)/$@
 rmlibluac:
 	@rm -f luac.lib
@@ -34,7 +34,7 @@ liblua: lua_conf lua.lib
 lua.lib: $(OBJS)
 	@echo "Making lua.lib"
 	@#rm -f $@
-	@iix makelib $@ $(ADDS) || rm -f -- $@  # we need to delete the lib file on error
+	@iix makelib $@ $(ADDS) || { rm -f -- $@; exit 1; }
 	@cp $@ $(EXE_DIR)/$@
 	@cp lvm.a $(EXE_DIR)/lvm.a
 	@# optional: also stage into a sibling demo project if it exists
@@ -129,4 +129,4 @@ lzio.a: lzio.c lprefix.h lua.h luaconf.h llimits.h lmem.h lstate.h \
  lobject.h ltm.h lzio.h
 
 %.a:
-	iix compile $(CFLAGS) $< || rm -f -- $@
+	iix compile $(CFLAGS) $< || { rm -f -- $@; exit 1; }

@@ -14,7 +14,7 @@
 -- clean, catchable "C stack overflow" once the chain hits the platform's
 -- ~5-level limit -- no memory is corrupted.
 
-local N = tonumber(...) or 40
+local N = tonumber((...)) or 40  -- supply nil when no argument was passed
 local function gen (n)
   return coroutine.wrap(function () for i = 2, n do coroutine.yield(i) end end)
 end
