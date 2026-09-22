@@ -408,10 +408,9 @@ LUAI_FUNC void luaE_incCstack (lua_State *L);
 ** cost varies too much for the nCcalls count alone to protect it.
 ** The host records the stack top at startup; luaE_cstacklow compares
 ** the address of a local against precomputed floors. Until the host
-** calls luaE_setcstacktop the probe is disabled and only the counter
-** guard applies.
+** calls lua_iigs_initstack (see lua.h), state creation is refused.
+** Floors and error grace state are process-global, shared by all states.
 */
-LUAI_FUNC void luaE_setcstacktop (char *top, unsigned long size);
 LUAI_FUNC int luaE_cstacklow (int hard);
 LUAI_FUNC void luaE_cstackrearm (void);
 LUAI_FUNC int luaE_resumelow (void);

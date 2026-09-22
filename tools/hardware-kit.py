@@ -15,9 +15,9 @@ import shutil
 import subprocess
 import tempfile
 
+from test_support import TESTS, FAILURE, validate
+
 ROOT = Path(__file__).resolve().parents[1]
-TESTS = ("hwsmoke", "sieve", "coroutine", "cobeacon", "cstack", "pm",
-         "hwdiag2", "hwtest")
 SCRIPTS = TESTS + ("tracegc",)  # cstack requires this helper
 
 
@@ -28,7 +28,7 @@ def sha(data):
 def run(argv, cwd, env, log, timeout=300):
     with log.open("wb") as out:
         result = subprocess.run([str(a) for a in argv], cwd=cwd, env=env,
-                                stdout=out, stderr=subprocess.STDOUT,
+                                stdin=subprocess.DEVNULL, stdout=out, stderr=subprocess.STDOUT,
                                 timeout=timeout)
     if result.returncode:
         raise RuntimeError(f"Command failed ({result.returncode}); see {log}")
@@ -51,9 +51,14 @@ def main():
     for tool in ("iix", "make", args.acx):
         if not shutil.which(tool):
             parser.error(f"Required tool is missing: {tool}")
+    subprocess.run(["python3", ROOT / "tools/generate-cobeacon.py", "--check"], check=True)
     inputs = sorted([*ROOT.joinpath("src").glob("*.c"),
                      *ROOT.joinpath("src").glob("*.h"), ROOT / "src/Makefile",
-                     Path(__file__), ROOT / "HARDWARE_TESTING.md",
+                     Path(__file__), ROOT / "tools/test_support.py",
+                     ROOT / "tools/generate-cobeacon.py", ROOT / "tests/iigshost.c", ROOT / "tests/allocfail.c",
+                     ROOT / "Makefile", ROOT / "test.c", ROOT / "testiface.c",
+                     ROOT / "testiface.h", ROOT / "testbridge.c", ROOT / "bridge.lua",
+                     ROOT / "mmtest.c", ROOT / "memfree.c", ROOT / "HARDWARE_TESTING.md",
                      *(ROOT / "tests" / (t + ".lua") for t in SCRIPTS)])
     # Keep an immutable snapshot of exactly the source bytes being built.
     snapshot = {str(p.relative_to(ROOT)): p.read_bytes() for p in inputs}
@@ -103,18 +108,47 @@ def main():
         for test in TESTS:
             output = run(["iix", "--memcheck", exe, "-E", test + ".lua"],
                          testdir, env, logs / f"{variant}-{test}.log")
-            if re.search(r"MemCheck:|\bBRK\b|\bFAIL(?:ED)?\b|SOME TESTS FAILED", output):
-                raise RuntimeError(f"{variant}/{test}: diagnostic failure; see {logs}")
-            expected = {"hwsmoke": "SMOKE DONE", "sieve": "C stack overflow",
-                        "cobeacon": "BEACON DONE", "hwdiag2": "ALL DIAGNOSTICS PASSED",
-                        "hwtest": "ALL TESTS PASSED"}.get(test, "OK")
-            if expected not in output:
-                raise RuntimeError(f"{variant}/{test}: missing completion marker {expected}")
-            if variant == "trace" and "[M7] state closed" not in output:
-                raise RuntimeError(f"{variant}/{test}: missing shutdown marker")
-            results[test] = "passed (GoldenGate, not hardware)"
-            print(f"  {variant}: {test} passed", flush=True)
+            try:
+                results[test] = validate(test, output, traced=variant == "trace")
+            except ValueError as exc:
+                raise RuntimeError(f"{variant}/{test}: {exc}; see {logs}") from exc
+            print(f"  {variant}: {test} {results[test]['status']}", flush=True)
         manifest["checks"][variant] = results
+        if variant == "plain":
+            run(["make", "liblua"], stage / "src", env, logs / "library-build.log", 1200)
+            run(["iix", "compile", "-I", "-P", "-D", "+O", "iigshost.c"],
+                testdir, env, logs / "iigshost-compile.log")
+            run(["iix", "link", "iigshost", "../src/lvm", "../src/lua.lib", "KEEP=iigshost"],
+                testdir, env, logs / "iigshost-link.log")
+            output = run(["iix", "--memcheck", "iigshost"], testdir, env, logs / "iigshost.log")
+            if FAILURE.search(output) or not re.search(r"^IIGSHOST PASSED yields=\d+$", output, re.M):
+                raise RuntimeError("C-hook/embedding regression failed")
+            manifest["checks"]["iigshost"] = "passed (GoldenGate, not hardware)"
+            run(["iix", "compile", "-I", "-P", "-D", "+O", "allocfail.c"],
+                testdir, env, logs / "allocfail-compile.log")
+            run(["iix", "link", "allocfail", "../src/lvm", "../src/lua.lib", "KEEP=allocfail"],
+                testdir, env, logs / "allocfail-link.log")
+            output = run(["iix", "--memcheck", "allocfail"], testdir, env, logs / "allocfail.log")
+            if (re.search(r"MemCheck:|\bBRK\b|\bFAIL\b", output)
+                    or "ALLOCFAIL PASSED" not in output
+                    or output.count("Lua IIgs: mm=degraded") != 1):
+                raise RuntimeError("Allocator fault injection failed")
+            manifest["checks"]["allocfail"] = "bounded fallback and one warning passed"
+            for filename in ("Makefile", "test.c", "testiface.c", "testiface.h", "testbridge.c", "bridge.lua",
+                             "mmtest.c", "memfree.c"):
+                shutil.copyfile(source / filename, stage / filename)
+            run(["make", "bridge", "mmtest", "memfree"], stage, env, logs / "bridge-build.log", 1200)
+            output = run(["iix", "--memcheck", "bridge"], stage, env, logs / "bridge.log")
+            if FAILURE.search(output) or "Closing LUA state" not in output:
+                raise RuntimeError("Bridge demo failed")
+            output = run(["iix", "--memcheck", "../bridge", "cstack.lua"], testdir, env, logs / "bridge-cstack.log")
+            validate("cstack", output)
+            manifest["checks"]["bridge"] = "demo and cstack passed (GoldenGate, not hardware)"
+            output = run(["iix", "--memcheck", "mmtest"], stage, env, logs / "mmtest.log")
+            if FAILURE.search(output) or "MMTEST DONE errs=0" not in output:
+                raise RuntimeError("Standalone Memory Manager probe failed")
+            manifest["checks"]["mmtest"] = "passed (GoldenGate, not hardware)"
+            manifest["checks"]["memfree"] = "compiled only; needs real hardware tools"
         if variant == "plain":
             run(["make", "luac"], stage / "src", env, logs / "luac-build.log", 1200)
             compiler = stage / "build/luac"
@@ -130,7 +164,7 @@ def main():
             (testdir / "deep.lua").write_text("return " + "(" * 500 + "1" + ")" * 500 + "\n")
             result = subprocess.run(["iix", "--memcheck", str(compiler), "-p", "deep.lua"],
                                     cwd=testdir, env=env, stdout=subprocess.PIPE,
-                                    stderr=subprocess.STDOUT, timeout=300)
+                                    stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL, timeout=300)
             (logs / "luac-depth.log").write_bytes(result.stdout)
             output = result.stdout.decode(errors="replace")
             if (result.returncode == 0 or "C stack overflow" not in output
@@ -149,6 +183,17 @@ def main():
             work, env, logs / f"{variant}-disk-create.log")
         run([args.acx, "import", "-d", image, "--raw", "-t", "EXE", "-n", name, exe],
             work, env, logs / f"{variant}-disk-exe.log")
+        if variant == "plain":
+            host = work / "plain/tests/iigshost"
+            hostimage = package / "iigshost.po"
+            run([args.acx, "create", "--prodos", "--prodos-order", "-s", "800K",
+                 "-n", "IIGSHOST", "-d", hostimage], work, env, logs / "disk-host-create.log")
+            run([args.acx, "import", "-d", hostimage, "--raw", "-t", "EXE", "-n", "iigshost", host],
+                work, env, logs / "disk-iigshost.log")
+            exported = subprocess.check_output([args.acx, "export", "-d", str(hostimage), "--raw", "IIGSHOST"])
+            if exported != host.read_bytes():
+                raise RuntimeError("C host damaged while packaging")
+            manifest["executables"]["iigshost"] = sha(exported)
         # Import ASCII with CR line endings explicitly; do not set high bits.
         diskfiles = {t + ".lua": snapshot["tests/" + t + ".lua"] for t in SCRIPTS}
         diskfiles["readme.txt"] = snapshot["HARDWARE_TESTING.md"]

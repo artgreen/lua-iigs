@@ -124,7 +124,8 @@ void *luaM_growaux_ (lua_State *L, void *block, int nelems, int *psize,
     return block;  /* nothing to be done */
   if (size >= limit / 2) {  /* cannot double it? */
     if (l_unlikely(size >= limit))  /* cannot grow even a little? */
-      luaG_runerror(L, "too many %s (limit is %d)", what, limit);
+      /* The IIgs limit is clamped to MAX_INT; Lua's formatter has no %u. */
+      luaG_runerror(L, "too many %s (limit is %d)", what, cast_int(limit));
     size = limit;  /* still have at least one free place */
   }
   else {

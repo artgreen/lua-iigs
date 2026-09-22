@@ -5,6 +5,14 @@ The planned warm-run and cold-boot checks are complete: 14 warm launches
 and two post-power-cycle launches passed. Earlier "pending" entries below
 describe the state when recorded; the final entry closes those checks.
 Coverage is limited to the documented workloads and machine configuration.
+The baseline runtime source is commit `9add073`; its banner predates that
+commit. See [preserved provenance](docs/validation/2026-09-21/README.md).
+
+Review correction: the baseline hwtest's "20 passed" includes one unsupported
+Lua-hook yield case incorrectly counted as a pass. That path was untested;
+the recorded hardware runs and clean shell returns are still valid evidence.
+The current review candidate has separate skip reporting and a C-hook test,
+but has not yet been tested on this machine.
 
 ## 2026-09-21: traced coroutine diagnostic passes
 
@@ -241,3 +249,22 @@ shutdown, repeated launches, and cold-boot repeatability on this accelerated
 ROM 03 / 8 MB machine. It does not certify all Lua workloads, other machines,
 the unavailable C API harness, or resolution of the historically failing
 files.lua test. Preserve this build while investigating those separately.
+
+
+## 2026-09-22: review candidate prepared; hardware confirmation pending
+
+PR-review fixes are packaged as LUAREVIEW, banner
+`IIgs 9add073-776024bcfb02 plain`. This is a new executable; it does not
+inherit the LUAPATH hardware result. The original binary and checksums
+remain preserved. Library hosts now require explicit stack initialization.
+
+GoldenGate checks cover both interpreter variants, the library host's
+C-hook yields and size-limit errors, allocator failure injection, bridge,
+and compiler. See [candidate validation](docs/validation/2026-09-22/README.md)
+and [review disposition](docs/PR13-REVIEW.md) for coverage and limitations.
+The historical files.lua failure remains reproducible locally.
+
+ShrinkIt archives and images are ready locally under
+`build/hardware/20260922T145111Z-5t_54b1b/`. The NAS was not mounted, so this
+session did not copy the new candidate there. The next hardware sequence is
+listed in HARDWARE_TESTING.md; no new hardware results are claimed here.

@@ -255,8 +255,9 @@ typedef l_uint32 Instruction;
 /*
  * IIgs: this count alone cannot protect the small bank-0 stack (frame
  * cost per level varies ~150..1000+ bytes); the byte-based probe in
- * lstate.c (luaE_cstacklow) is the real guard. This stays at the stock
- * value so parser nesting depth matches stock Lua behavior.
+ * lstate.c (luaE_cstacklow) guards initialized hosts on every checked
+ * call. Restore upstream Lua 5.4's 200 from this port's former 128.
+ * Other platforms retain the upstream counter-only guard.
  */
 #define LUAI_MAXCCALLS		200
 #endif

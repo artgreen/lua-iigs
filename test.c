@@ -8,10 +8,24 @@
 #include "lualib.h"
 #include "testiface.h"
 
+#ifdef LUA_USE_IIGS
+#pragma memorymodel 1
+#pragma stacksize LUA_IIGS_STACK_SIZE
+#endif
+
 int main(int argc, char *argv[]) {
+    lua_State *L;
+#ifdef LUA_USE_IIGS
+    char stackanchor;
+    lua_iigs_initstack(&stackanchor);
+#endif
     // Initialize the LUA state
     printf("Initialize the LUA state\n");
-    lua_State *L = luaL_newstate();
+    L = luaL_newstate();
+    if (L == NULL) {
+        fprintf(stderr, "Cannot create Lua state\n");
+        return 1;
+    }
     printf("Opening libs\n");
     luaL_openlibs(L);
 
@@ -21,8 +35,8 @@ int main(int argc, char *argv[]) {
     lua_pop(L, 1);
 
     // Load and execute the LUA script
-    printf("Executing bridge.lua\n");
-    if (luaL_loadfile(L, "bridge.lua") || lua_pcall(L, 0, 0, 0)) {
+    printf("Executing %s\n", argc > 1 ? argv[1] : "bridge.lua");
+    if (luaL_loadfile(L, argc > 1 ? argv[1] : "bridge.lua") || lua_pcall(L, 0, 0, 0)) {
         fprintf(stderr, "Error running script: %s\n", lua_tostring(L, -1));
         lua_close(L);
         return 1;

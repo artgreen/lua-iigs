@@ -3,7 +3,7 @@
 
 print "testing coroutines"
 
-_iigs = true  -- skip failing tests
+_iigs = (_VERSION == "Lua (IIgs) 5.4")  -- skip failing tests
 
 local debug = require'debug'
 

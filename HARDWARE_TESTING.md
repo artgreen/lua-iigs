@@ -78,9 +78,40 @@ to give an update a unique executable/image name. Each run creates a new directo
 build/hardware with source snapshots, separate plain/trace objects, logs,
 and a package directory. It preserves the previous binaries and lua.po.
 
-The builder runs eight targeted diagnostics on each interpreter under
+The builder runs fifteen targeted diagnostics on each interpreter under
 GoldenGate with memory checking, plus a luac bytecode roundtrip and an
-excessive-parser-nesting test. It refuses
+excessive-parser-nesting test. It also checks the library host with C-hook
+yields and array limits, allocator fault injection, the bridge, and mmtest.
+It compiles memfree but does not run that hardware-only tool. It refuses
 to package failed runs, records source/compiler hashes, and verifies each
 disk's executable and text files by exporting and comparing them. See manifest.json and
 SHA256SUMS beside the images. GoldenGate results do not certify real hardware.
+
+
+## PR-review candidate (hardware validation pending)
+
+Preserve LUAPATH and its files. Build the new candidate using
+`python3 tools/hardware-kit.py --plain-name luareview`; its source digest
+and banner differ from the baseline. A separate iigshost.po image contains
+the IIGSHOST executable (keeping all transfer images at 800 KB). Transfer via a ProDOS image or ShrinkIt archive to keep
+EXE/TXT metadata intact. Do not overwrite the known-good installation.
+
+After confirming the new `luareview -E -v` build ID, run hwsmoke.lua,
+mmalloc.lua, tableovf.lua, hwtest.lua, and cstack.lua with that executable,
+and run `iigshost` directly. MMALLOC PASSED and TABLEOVF PASSED are required;
+hwtest now says HWTEST PASSED WITH SKIPS for the unsupported Lua hook.
+IIGSHOST PASSED verifies the yielding C-hook path separately. Every command
+must return to the shell with no screen corruption. Then repeat the
+coroutine/hwdiag2 pair and one cold-boot pair for this new candidate.
+
+The version output includes `IIgs mm=untested/ok/degraded/disabled`.
+Untested is normal before any large allocation; it does not run a probe.
+A degraded warning is always printed if the startup MM probes fail. Stop
+and report it; do not accept that run as validating the hybrid allocator.
+The traced mmalloc test must show `[mm] selftest state=1`; smaller tests
+such as sieve need not initialize the MM path. An ok status certifies the
+small startup probe, not every allocation size or hardware configuration.
+
+The source-only library has a required initialization contract described
+in docs/CORRUPTION-ANALYSIS.md. Existing embedders must request the larger
+stack and initialize its guard before creating a state.

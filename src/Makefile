@@ -22,6 +22,7 @@ libluac: luac_conf luac.lib
 luac.lib: $(OBJS)
 	@echo "Making luac.lib"
 	@#rm -f $@
+	@# Fail the build and discard a partial library on compiler/tool failure.
 	@iix makelib $@ $(ADDS) || { rm -f -- $@; exit 1; }
 	@cp $@ $(EXE_DIR)/$@
 rmlibluac:
@@ -34,13 +35,14 @@ liblua: lua_conf lua.lib
 lua.lib: $(OBJS)
 	@echo "Making lua.lib"
 	@#rm -f $@
+	@# Fail the build and discard a partial library on compiler/tool failure.
 	@iix makelib $@ $(ADDS) || { rm -f -- $@; exit 1; }
 	@cp $@ $(EXE_DIR)/$@
 	@cp lvm.a $(EXE_DIR)/lvm.a
 	@# optional: also stage into a sibling demo project if it exists
-	@[ -d ../../../luagsdemo/lib ] && cp $@ ../../../luagsdemo/lib/ || true
+	@if [ -d ../../../luagsdemo/lib ]; then cp $@ ../../../luagsdemo/lib/; fi
 lua_conf:
-ifeq ($(shell grep "LUAC" parseconf.h),)
+ifeq ($(shell grep -s "LUAC" parseconf.h),)
 else
 	@echo "Switching to LUA build"
 	@echo '#define BUILD_IS_LUA' > parseconf.h
@@ -51,7 +53,7 @@ lua: lua_conf lua.a lvm.a $(OBJS)
 	@iix link lua.a lvm $(OBJS) KEEP=$@
 	@cp $@ $(EXE_DIR)
 luac_conf:
-ifeq ($(shell grep LUAC parseconf.h),)
+ifeq ($(shell grep -s LUAC parseconf.h),)
 	@echo "Switching to LUAC build"
 	@echo '#define BUILD_IS_LUAC' > parseconf.h
 	@# make sure new library gets built

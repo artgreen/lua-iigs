@@ -2,7 +2,7 @@
 -- See Copyright Notice in file all.lua
 
 print("testing numbers and math lib")
-_iigs = true -- used to skip failing tests and set sizes
+_iigs = (_VERSION == "Lua (IIgs) 5.4") -- used to skip failing tests and set sizes
 local minint <const> = math.mininteger
 local maxint <const> = math.maxinteger
 

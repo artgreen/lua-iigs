@@ -25,11 +25,11 @@
 #pragma lint -1
 #pragma memorymodel 1
 /*
- * The ORCA shell default stack is 4KB (bank 0). Lua's C recursion at
- * nested C calls need far more; overflow silently corrupts bank-0
+ * The ORCA shell default stack is 4KB (bank 0). Lua's nested C calls
+ * need far more; overflow silently corrupts bank-0
  * memory. Keep the stack request at the hardware-tested 24,832 bytes.
  */
-#pragma stacksize 24832
+#pragma stacksize LUA_IIGS_STACK_SIZE
 #endif
 
 #if defined(LUA_IIGS_MMTRACE)
@@ -197,6 +197,11 @@ static void print_version (void) {
   lua_writeline();
 #if defined(LUA_USE_IIGS) && defined(LUA_IIGS_BUILD_ID)
   lua_writestring(LUA_IIGS_BUILD_ID, strlen(LUA_IIGS_BUILD_ID));
+  lua_writeline();
+#endif
+#if defined(LUA_USE_IIGS)
+  lua_writestring("IIgs mm=", 8);
+  lua_writestring(luaL_iigsmmstatus(), strlen(luaL_iigsmmstatus()));
   lua_writeline();
 #endif
 }
@@ -728,18 +733,13 @@ static int pmain (lua_State *L) {
 }
 
 
-#ifdef LUA_USE_IIGS
-/* defined in lstate.c: byte-based C-stack guard floors */
-extern void luaE_setcstacktop (char *top, unsigned long size);
-#endif
-
 int main (int argc, char **argv) {
   int status, result;
   lua_State *L;
 #ifdef LUA_USE_IIGS
   char stackanchor;
   /* #pragma stacksize above, minus slack used before main runs */
-  luaE_setcstacktop(&stackanchor, 23808);
+  lua_iigs_initstack(&stackanchor);
 #endif
   LTRACE("[M1] main");
   L = luaL_newstate();  /* create state */

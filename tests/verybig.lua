@@ -1,7 +1,7 @@
 -- $Id: testes/verybig.lua $
 -- See Copyright Notice in file all.lua
 
-_iigs = true  -- used to skip tests impossible on 16-bit int
+_iigs = (_VERSION == "Lua (IIgs) 5.4")  -- used to skip tests impossible on 16-bit int
 
 print "testing RK"
 

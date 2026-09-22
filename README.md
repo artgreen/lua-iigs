@@ -13,8 +13,13 @@ now supports bare relative filenames without a command-line workaround.
 This establishes a tested baseline for these workloads on this machine;
 the historical file-I/O failure and unavailable C API test harness remain
 outside the completed validation. See [HARDWARE_RESULTS.md](HARDWARE_RESULTS.md)
-for the evidence and [HARDWARE_TESTING.md](HARDWARE_TESTING.md) for rebuilding
+for the evidence, [baseline provenance](docs/validation/2026-09-21/README.md),
+and [HARDWARE_TESTING.md](HARDWARE_TESTING.md) for rebuilding
 and reproducing the checks.
+
+The PR-review candidate adds a required initialization call for library
+hosts, explicit allocator status, and stronger tests. It is **not yet
+hardware-validated**. See [current implementation notes](docs/CORRUPTION-ANALYSIS.md).
 
 The original project description and issue notes below are historical;
 they do not describe the current validation status.

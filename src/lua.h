@@ -60,6 +60,16 @@
 
 typedef struct lua_State lua_State;
 
+#if defined(LUA_USE_IIGS)
+/* IIgs host contract: request #pragma stacksize LUA_IIGS_STACK_SIZE,
+** then pass the address of a local in main, before creating any state.
+** The anchor frame must outlive all Lua calls. Floors are process-global,
+** shared by all states/coroutines; do not reinitialize from a nested call
+** or use these states on a different native stack. lua_newstate returns
+** NULL until initialized. The library cannot enlarge the host stack. */
+LUA_API void lua_iigs_initstack (char *top);
+#endif
+
 
 /*
 ** basic types

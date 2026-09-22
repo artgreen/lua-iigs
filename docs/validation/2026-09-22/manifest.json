@@ -1,0 +1,312 @@
+{
+  "id": "9add073-776024bcfb02",
+  "commit": "9add073",
+  "utc": "20260922T145111Z",
+  "plain_name": "luareview",
+  "source_sha256": {
+    "HARDWARE_TESTING.md": "742db1dc32558f8616e2c5aa731dee25b6cfa8222cac90876b2de22075cf4b50",
+    "Makefile": "6adc52520fc08f4c93983499cc38de41ba44edc278cdabef9572aa9c5b8669b1",
+    "bridge.lua": "dc47d563f8ec3d85853347d02620f0f85afab4d37d81836fa55f8b0ae4006eac",
+    "memfree.c": "fed1ca980e9c311d26c09913b878256b9f57a7efb680bb57d7744fb257856b2c",
+    "mmtest.c": "9924d43d95d982673fb808c3af6b5c60b10170f163d1e2ce7da20e6bc76bea97",
+    "src/Makefile": "b663302b21b58c3d1c406c0bf13812168bf5234c8f3f1038ff24f9e788f2e5f2",
+    "src/lapi.c": "aa8bd25af42c07f3c2a96af394b5b39d3331782fef8f15ba4394dc5828a23c9d",
+    "src/lapi.h": "9522209670086adfbb11379416078a7f4dafe154043e320cd435fa1811aaabfb",
+    "src/lauxlib.c": "38e834f9c7b3e60fbc7832db08e213ee267bc6cd68bf6ba9d2ec57f05c8b0ea9",
+    "src/lauxlib.h": "be6918d323556036adf1f6be20e2e2dd8e27ba88194d30559d49310f050b5928",
+    "src/lbaselib.c": "250a2fc264e2b98e713418373f3d90b9818562aa237bbb2937b1ae9696b84a4b",
+    "src/lcode.c": "40473a697c92978ed187ca5133ea1b18a9c98035f9bed6521eda99db7d0e70fb",
+    "src/lcode.h": "40f6a6453461aef8f31b61a4a6698862578b74f8b11a084708336923d7808e18",
+    "src/lcorolib.c": "0588318e3fcf481e5e4186fd7ebb4b7ff6ddb88689ff4f0624af767446d1821a",
+    "src/lctype.c": "418b28ce1f89b55391ef5cc72433c3e9c6222a3da1f835b18c46548c09962ef2",
+    "src/lctype.h": "c800311872ecba642f6d013b290eda83ba6cd8df8061e25cdca1dd4adcbed8b5",
+    "src/ldblib.c": "fdfadbfd97bed9f8c02abdc25401d9839e5cd0c96e83170c058d39baf503c046",
+    "src/ldebug.c": "1755599e83a814829844544df17e172281a85cfbcb5e93bbaae825ce08eecb83",
+    "src/ldebug.h": "e2c04610e4ba14f7ed615ba89ce2eeb7cc1aa90e128a5103416cd0eb32423dc5",
+    "src/ldo.c": "26fce63cac76d3ee053853546a29d9fe13111f9f93bb1b21ba78315cb2d2acc0",
+    "src/ldo.h": "718cc0c55d3f9ae09047adf82dad8200e7143649726fca1fc86a7b027a209058",
+    "src/ldump.c": "8396d46122973d978697f762340a58923f5aff52e943acce5721968f8ea68a1a",
+    "src/lfunc.c": "6311125473beaacafaf52988a3b869ff3e705f9a77e21facdfd27d652ebcfdaf",
+    "src/lfunc.h": "81dc02d55ae8000461ab90bb9689d2600ba51f2ea9ac9fb019386995c07e3e4a",
+    "src/lgc.c": "5093a4364319f66739d8e88c8cc2c07fc2fd95e14f5cc88144468a9bde583c7d",
+    "src/lgc.h": "c83d3b8e31345c0aacd37442954a7f2434312ee48f98a8b9ae4fc8aad26d0c99",
+    "src/linit.c": "07e516b679b48a66a8fddb5fc16a449c3fbe31fb2745e296dc4b197dac551e92",
+    "src/liolib.c": "dc50c6c9e80d576dfe937919b1bc7beb022800c88212729e23c5fbb5f2fb0410",
+    "src/ljumptab.h": "6c3e9858b9dad03ccd61445ab0bff0eb6ddfa5e731e044f93350fe6c6b2ad8d5",
+    "src/llex.c": "30b95c245d873a2c096248705dbe79dc48f72d9df164d522b2966f8d29823f04",
+    "src/llex.h": "5ce0302528260ed6a40ec3ebf5e27d3bc108242d9dca57e8cdbe80fe34e13410",
+    "src/llimits.h": "03245e293df500cc76f6fcfdac2816184c0ac12af26e6a60cded30b21c011ffb",
+    "src/lmathlib.c": "bdd14dc8612cab00513a41ff3506437e6606bce687c832d5249f3e7b615053d5",
+    "src/lmem.c": "5fde30f200de2838cbbec0a1b3d5a8b6501e57cc27e9e3752f2d72d3a071f13a",
+    "src/lmem.h": "7c4f409d629d9dfe6e9b18515f810fbf10ace677e098a1df077b762b1d0f1e0f",
+    "src/loadlib.c": "5bbb6e0f7a392676c8615e7d6d0b9d8419440ed3171ba3d510e9291490aaa46b",
+    "src/lobject.c": "4a5d01f5ff6381ea97dc4f6784af0b3c8080d279e6cfe5a9e9ca7b45beb941f0",
+    "src/lobject.h": "bfb60c7515f54e4e181c0418998ed2d4fb73436255ffe86c0050928b5153183f",
+    "src/lopcodes.c": "bb5507736fe208f4e28f7123e245a6d1ef02cf4bcfc445be356d5227415efe8b",
+    "src/lopcodes.h": "075c74184a89416b62318d9ccf3e6cfb1ed971bc12c0594a0669b0724e319270",
+    "src/lopnames.h": "fbdbebc96b136efc6165cba1ac2b311b0c52413aaef59ae9ec750748f13c9e9a",
+    "src/loslib.c": "94bef32e6190f144e25ac4c810c8dd39a841a10b204458b7d99bb43257d0a51e",
+    "src/lparser.c": "79019b12de4caf41efa96bc2eda20b02f581704ab0a34d73d929a3ed00276b44",
+    "src/lparser.h": "68c34ef2d6e5a227f7cff18436a42c6739b1470ce12f059f168d9bb69fc8d49c",
+    "src/lprefix.h": "626785d4eda75e9435f0ac21a780ae3b11f8b27dc36934e637a5c2305f906531",
+    "src/lstate.c": "0b7b6cbcd507e38cafa7709b66057aec3c841225976fce8e864d72d7d1bca731",
+    "src/lstate.h": "39587b3a4dce0a2e014d1aa71baab2d5a08a01ad016dd9a102a238f56917be27",
+    "src/lstring.c": "f943d04bac037d30e34ccba85a8280fe46bae86fce694d5e79fb7a69531b2e06",
+    "src/lstring.h": "a8cb0d737276f6a41071a0776ee1d8aa13cf02fa7c79ea096d202b14ea792e31",
+    "src/lstrlib.c": "8579d77843515ec486824587504301d70b85645b5c8c6c3867f0649339500026",
+    "src/ltable.c": "1dedb6e492739776389bafd0d7461bf2dd30a73ebcddb0e9c13fcca8f81b7962",
+    "src/ltable.h": "6f90dc1475f1ebed6e67e42c51682fa30df0147d8f723a7435313f88540a157e",
+    "src/ltablib.c": "675c165104a7de482bcede0f9dc628522f6e1a33fab3cd037f567aafe9230182",
+    "src/ltm.c": "ceeb9b38be7c25e80017b7de9897ec44d14f8247fd0a37d5cbecf18b1364725d",
+    "src/ltm.h": "730b681b5f13fd2519fef9e418423097dda7843466fa524fa7a5b718d3af4802",
+    "src/lua.c": "6f0a91aff2aa0e1b84d7b905719cbff524746a58d1a9537620299963bc3a1cb0",
+    "src/lua.h": "7b3b925370ba76e670e2ed518333b7da84722a12e52c6e0e007230b6e74038db",
+    "src/luac.c": "3a5b6e0de4496565cc5a336d680baa82a78485f905ad2c43270af5b0e8132c89",
+    "src/luaconf.h": "292d3718ceee0742f11c805567ff50164c6d82f3e6c497f9fdd94e4089b7e901",
+    "src/lualib.h": "4ea0f67d3e467f5d6a327616e22a3c2da8e03d47a3c3660916275f2842f521ea",
+    "src/lundump.c": "0f752c40d3364d985e104299009c81db12113078c22fdb3eac92cfe8cde7907e",
+    "src/lundump.h": "746551630d8678ae31a999bf9318003d9329388b7cd9d3fa1cdc725ffc9dc2ee",
+    "src/lutf8lib.c": "2956796c7efcb3a678ca68f93db3c7ac2fb9c440b0e083a9ff9f47b1555d82ad",
+    "src/lvm.c": "944087909f7c2103a422e451c271640fd922d309f0b6788315e6438ed20aa4fe",
+    "src/lvm.h": "aba601b887236d5e135392e0c49370df3b5a9ac5c66ab2d44156b3244f2dcef3",
+    "src/lzio.c": "a0a367e76396436294e9a2746a2131115858802fc3ed0dd63f13579bb21c52b6",
+    "src/lzio.h": "a0b0b53ae93bcaa712e88c2258cecc122c6c35acccfbf6731e44b151c36d3508",
+    "src/parseconf.h": "de5d74563e8fac9cee5f21cd62ebbd50c62c8fd494f751014faef72f86ae3a12",
+    "test.c": "b651fc2c323cf0650625d6b3584970e8d10553e99b0ee6888904bbc90af2e2c5",
+    "testbridge.c": "4f0d5b7a75959b6a0fa06e7e8249d2837f0dd6edfd83d06c1eef1428dc77136b",
+    "testiface.c": "c0f2444b4f701deaaee5f8efd173a6f406df8c09b4d3c67346c10649f53dfa2f",
+    "testiface.h": "6c43125d9640f0a3595d75192495c1094ae04990887a02738b94830096983a69",
+    "tests/allocfail.c": "9a98f04c05e78b7494cba001fc58a04b2007e5dbe5bcdaa9c2e59a20d5e906a9",
+    "tests/cobeacon.lua": "c06065b8919cd65e21eb7029183f9228a523e10a13913b5ad1da2fd6cf9c0e25",
+    "tests/coroutine.lua": "0c825e091e0b6f12b3d9b069664f5636b09eb39823b9c794b207171e3bbced92",
+    "tests/cstack.lua": "626adc09f79218d3265c57cae83b54ececd693c77f84b09cf28e9a016c63abce",
+    "tests/errors.lua": "27ab58edcda2fb4d6e0c1e82f673b34d86a576cf704a18cc914614dbcc29db77",
+    "tests/events.lua": "b847a6643d8e52cd7a23b0fae0898d746f378514186b3df8d21cfdcccbd666d3",
+    "tests/hookyield.lua": "bd304940c7c056c9c334876b1f6cb8aeeff5397306afaeb180972b728fb4f885",
+    "tests/hwdiag2.lua": "c287c4beaab34675194758cf540bb972ed6cf3a93ede65faffec3b2f795b0954",
+    "tests/hwsmoke.lua": "a67e43fdd51285e68483cff99d7ffddad2c6de347cae3373a65245d63924a7c3",
+    "tests/hwtest.lua": "4340d5f5266d25f64677fcf0d6ad994bb24d8881a761a9f0809c6f0b9415f61b",
+    "tests/iigshost.c": "52445774b95e0b87e68a0fa48df7bf62e9325e0e6b7f33d37139b7daf71a188e",
+    "tests/math.lua": "3a77d854a5e12ac3ed6743819ee203f9a235ee6107860da2b81120bd5aeb3ac7",
+    "tests/mmalloc.lua": "32b21d537244cdfa01a76456260801b0e51c72868f3fdc0d79a962900aa35b58",
+    "tests/pm.lua": "d812341508381ec8f0f74c366508f17541193e82c15ad7ac59cf8236c41ccac7",
+    "tests/sieve.lua": "edc19160c2ee359af6a8178d717e4d15bc2afe520671562beed37e82efdd746e",
+    "tests/tableovf.lua": "272e07bcd8298f78fc4c055b639faca9ebc53413466eb2355b62591386727726",
+    "tests/tracegc.lua": "cab25cde8d0c3c944c583383ad9b1c10e1d4f023f547f84239421bcc567edd55",
+    "tests/verybig.lua": "41b6ebe34c9bba0834e290fd32353052c1b4010816e0b541d491e76c6f1b5982",
+    "tools/generate-cobeacon.py": "bc46e2b3094428092289841fff4a42ef88428d4230cd5645f06b78fadd9506d4",
+    "tools/hardware-kit.py": "818123f08d70afbb776827363ee3f5cfb3344af8953affc65f20135027128a7b",
+    "tools/test_support.py": "7d7b233c224d55af3be9b6ac8239f4d79718f760eef793996547cdbaf80e68d2"
+  },
+  "sdk": "/Users/green/projects/lua-iigs/.orca-sdk-2.2.1",
+  "compiler_sha256": {
+    "Asm65816": "407950e77ed1f74bb1e0ac726bf2b2dc85e80225dbf8e49d307b3930e4d38329",
+    "BASIC": "e948f165bffc51534c25abc1454f59bcef70a97e672fa9ee47a0cafb4d62b1b1",
+    "IBASIC": "fa5686888fb097ff82619da74982d61d7aba16386ef80e924efc33cb3dcd7301",
+    "Linker": "77861874847c6f40e68962beec9dab7996bd2d0a00586dfe846b13b00f74296e",
+    "Modula2": "ddc4bcec62b6facbb68ddaa7963eb4101290bdaec722d9148759070d45e21df6",
+    "Pascal": "cbf75cacb42c018eae350a14139fdec011608990bcfc3f94b610149016ffb664",
+    "Rez": "f7865bb6fea497db40745700b2a914f315b844292f63c5effec528cdf0cef019",
+    "cc": "f0254f55109ae41d56e0b08881baf607a93a6a6ffdde90839f5c3d57d5b78680"
+  },
+  "executables": {
+    "plain": "5f56255a4f01b4685e59628835158f3194cc13d65cf4b09f259a6ccc9105a13d",
+    "trace": "349d2d4e59796df768565d16322050748fae40bb4e78f90a4049faf878673922",
+    "iigshost": "f52f9200d765d6cc300d328b57ceae9996fde5b4348d4b24fc9eb8fef46a96eb"
+  },
+  "checks": {
+    "plain": {
+      "hwsmoke": {
+        "status": "passed",
+        "environment": "GoldenGate, not hardware",
+        "skips": []
+      },
+      "sieve": {
+        "status": "passed",
+        "environment": "GoldenGate, not hardware",
+        "skips": []
+      },
+      "coroutine": {
+        "status": "passed with skips",
+        "environment": "GoldenGate, not hardware",
+        "skips": [
+          ">>> testC not active: skipping coroutine API tests <<<",
+          ">>> testC not active: skipping coroutine API tests <<<"
+        ]
+      },
+      "cobeacon": {
+        "status": "passed with skips",
+        "environment": "GoldenGate, not hardware",
+        "skips": [
+          ">>> testC not active: skipping coroutine API tests <<<",
+          ">>> testC not active: skipping coroutine API tests <<<",
+          "BEACON DONE (C API harness skipped)"
+        ]
+      },
+      "cstack": {
+        "status": "passed",
+        "environment": "GoldenGate, not hardware",
+        "skips": []
+      },
+      "pm": {
+        "status": "passed",
+        "environment": "GoldenGate, not hardware",
+        "skips": []
+      },
+      "hwdiag2": {
+        "status": "passed",
+        "environment": "GoldenGate, not hardware",
+        "skips": []
+      },
+      "hwtest": {
+        "status": "passed with skips",
+        "environment": "GoldenGate, not hardware",
+        "skips": [
+          "SKIP Lua hook cannot yield; requires the C-hook host test",
+          "=== 19 passed, 0 failed, 1 skipped ==="
+        ]
+      },
+      "hookyield": {
+        "status": "passed",
+        "environment": "GoldenGate, not hardware",
+        "skips": []
+      },
+      "mmalloc": {
+        "status": "passed",
+        "environment": "GoldenGate, not hardware",
+        "skips": []
+      },
+      "tableovf": {
+        "status": "passed",
+        "environment": "GoldenGate, not hardware",
+        "skips": []
+      },
+      "errors": {
+        "status": "passed with skips",
+        "environment": "GoldenGate, not hardware",
+        "skips": [
+          ">>> testC not active: skipping memory message test <<<"
+        ]
+      },
+      "events": {
+        "status": "passed with skips",
+        "environment": "GoldenGate, not hardware",
+        "skips": [
+          ">>> testC not active: skipping tests for userdata <<<"
+        ]
+      },
+      "math": {
+        "status": "passed",
+        "environment": "GoldenGate, not hardware",
+        "skips": []
+      },
+      "verybig": {
+        "status": "passed with skips",
+        "environment": "GoldenGate, not hardware",
+        "skips": [
+          "(>64k programs: skipped on 16-bit int)"
+        ]
+      }
+    },
+    "iigshost": "passed (GoldenGate, not hardware)",
+    "allocfail": "bounded fallback and one warning passed",
+    "bridge": "demo and cstack passed (GoldenGate, not hardware)",
+    "mmtest": "passed (GoldenGate, not hardware)",
+    "memfree": "compiled only; needs real hardware tools",
+    "luac-roundtrip": "passed",
+    "luac-depth": "clean C stack overflow, no corruption",
+    "trace": {
+      "hwsmoke": {
+        "status": "passed",
+        "environment": "GoldenGate, not hardware",
+        "skips": []
+      },
+      "sieve": {
+        "status": "passed",
+        "environment": "GoldenGate, not hardware",
+        "skips": []
+      },
+      "coroutine": {
+        "status": "passed with skips",
+        "environment": "GoldenGate, not hardware",
+        "skips": [
+          ">>> testC not active: skipping coroutine API tests <<<",
+          ">>> testC not active: skipping coroutine API tests <<<"
+        ]
+      },
+      "cobeacon": {
+        "status": "passed with skips",
+        "environment": "GoldenGate, not hardware",
+        "skips": [
+          ">>> testC not active: skipping coroutine API tests <<<",
+          ">>> testC not active: skipping coroutine API tests <<<",
+          "BEACON DONE (C API harness skipped)"
+        ]
+      },
+      "cstack": {
+        "status": "passed",
+        "environment": "GoldenGate, not hardware",
+        "skips": []
+      },
+      "pm": {
+        "status": "passed",
+        "environment": "GoldenGate, not hardware",
+        "skips": []
+      },
+      "hwdiag2": {
+        "status": "passed",
+        "environment": "GoldenGate, not hardware",
+        "skips": []
+      },
+      "hwtest": {
+        "status": "passed with skips",
+        "environment": "GoldenGate, not hardware",
+        "skips": [
+          "SKIP Lua hook cannot yield; requires the C-hook host test",
+          "=== 19 passed, 0 failed, 1 skipped ==="
+        ]
+      },
+      "hookyield": {
+        "status": "passed",
+        "environment": "GoldenGate, not hardware",
+        "skips": []
+      },
+      "mmalloc": {
+        "status": "passed",
+        "environment": "GoldenGate, not hardware",
+        "skips": []
+      },
+      "tableovf": {
+        "status": "passed",
+        "environment": "GoldenGate, not hardware",
+        "skips": []
+      },
+      "errors": {
+        "status": "passed with skips",
+        "environment": "GoldenGate, not hardware",
+        "skips": [
+          ">>> testC not active: skipping memory message test <<<"
+        ]
+      },
+      "events": {
+        "status": "passed with skips",
+        "environment": "GoldenGate, not hardware",
+        "skips": [
+          ">>> testC not active: skipping tests for userdata <<<"
+        ]
+      },
+      "math": {
+        "status": "passed",
+        "environment": "GoldenGate, not hardware",
+        "skips": []
+      },
+      "verybig": {
+        "status": "passed with skips",
+        "environment": "GoldenGate, not hardware",
+        "skips": [
+          "(>64k programs: skipped on 16-bit int)"
+        ]
+      }
+    }
+  }
+}

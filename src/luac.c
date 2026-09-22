@@ -29,7 +29,7 @@
 #include "parseconf.h"
 #pragma memorymodel 1
 /* parser recursion needs far more than the 4KB default (see lua.c) */
-#pragma stacksize 24832
+#pragma stacksize LUA_IIGS_STACK_SIZE
 #endif
 #ifdef LUA_IIGS_BUILD_S16
     #error "LUAC isn't S16 capable (no commandline)"
@@ -208,7 +208,7 @@ int main(int argc, char* argv[])
  int i;
 #ifdef LUA_USE_IIGS
  char stackanchor;
- luaE_setcstacktop(&stackanchor, 23808);  /* stacksize minus startup slack */
+ lua_iigs_initstack(&stackanchor);  /* stacksize minus startup slack */
 #endif
  i=doargs(argc,argv);
  argc-=i; argv+=i;

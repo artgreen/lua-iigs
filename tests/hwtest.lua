@@ -1,12 +1,12 @@
--- hwtest.lua -- proves the Apple IIgs corruption fixes on real hardware.
+-- hwtest.lua -- targeted checks for the Apple IIgs corruption fixes.
 --
--- Self-verifying: every check has a known answer that is WRONG (or that
--- crashes/hangs the machine) on the unfixed build, so a clean run that
--- prints "ALL TESTS PASSED" is real proof. No memcheck needed.
+-- Reports assertions and unsupported coverage separately. A clean run is
+-- evidence for these workloads only; the C-hook yield path is tested by
+-- tests/iigshost.c, not by a Lua hook.
 --
 --   lua hwtest.lua        (or run it from the REPL: dofile"hwtest.lua")
 
-local pass, fail = 0, 0
+local pass, fail, skipped = 0, 0, 0
 local function check(name, cond, detail)
   if cond then
     pass = pass + 1
@@ -57,11 +57,13 @@ do
   local depth = 0
   local function deep()
     depth = depth + 1
-    pcall(deep)         -- recurse through a C boundary each level
+    local ok, msg = pcall(deep)  -- recurse through a C boundary each level
+    if not ok then error(msg, 0) end
   end
-  pcall(deep)
-  -- Reaching this line at all means no crash/corruption occurred.
-  check("survived deep recursion", true)
+  local ok, msg = pcall(deep)
+  check("C-boundary recursion reports stack overflow",
+        not ok and type(msg) == "string" and
+        msg:find("C stack overflow", 1, true) ~= nil, msg)
   check("recursed several levels then stopped", depth >= 5, depth)
   -- Canary work after the near-overflow must be perfect.
   local s = 0
@@ -114,14 +116,16 @@ do
     return s
   end)
   debug.sethook(co2, function() coroutine.yield() end, "", 40)
-  local resumes, final, rok = 0, nil, true
+  local resumes, final, rok, unsupported = 0, nil, true, false
   while true do
     local o, val = coroutine.resume(co2)
     if not o then
       -- If this build forbids yielding from a hook, that's fine: the
       -- corrupting path simply isn't reachable here.
       if type(val) == "string" and val:find("C%-call boundary") then
-        print("  note yield-from-hook not supported (path unreachable)")
+        unsupported = true
+        skipped = skipped + 1
+        print("  SKIP Lua hook cannot yield; requires the C-hook host test")
       else
         rok = false; final = val
       end
@@ -131,8 +135,8 @@ do
     if coroutine.status(co2) == "dead" then final = val; break end
     if resumes > 100000 then rok = false; break end
   end
-  check("hook-yield resumes cleanly", rok, final)
-  if resumes > 1 then
+  if not unsupported then
+    check("hook-yield resumes cleanly", rok and resumes > 1, final)
     check("result correct after hook yields", final == 2001000, final)
   end
 end
@@ -182,13 +186,16 @@ do
   check("3000 interned strings", c == 3000, c)
 
   collectgarbage()                       -- exercise the GC
-  check("survived a full GC", true)
+  check("live objects intact after full GC",
+        t[5000] == 5000 and h.key2000 == 2000 and seen["3000x"] == true)
 end
 
 --------------------------------------------------------------------
-print(string.format("=== %d passed, %d failed ===", pass, fail))
-if fail == 0 then
-  print("ALL TESTS PASSED")
+print(string.format("=== %d passed, %d failed, %d skipped ===", pass, fail, skipped))
+if fail > 0 then
+  error("SOME TESTS FAILED", 0)
+elseif skipped > 0 then
+  print("HWTEST PASSED WITH SKIPS")
 else
-  print("SOME TESTS FAILED")
+  print("ALL TESTS PASSED")
 end

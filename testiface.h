@@ -14,6 +14,8 @@ typedef struct {
     size_t size;
 } Collection;
 
+int luaopen_test_iface(lua_State *L);
+
 // Function to create a new collection object
 Collection *newCollection(size_t size);
 

@@ -1,7 +1,7 @@
 -- $Id: testes/events.lua $
 -- See Copyright Notice in file all.lua
 
-_iigs = true  -- used to scale depths to the 65816's small C stack
+_iigs = (_VERSION == "Lua (IIgs) 5.4")  -- used to scale depths to the 65816's small C stack
 
 print('testing metatables')
 

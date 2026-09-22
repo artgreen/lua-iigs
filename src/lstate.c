@@ -162,21 +162,14 @@ void luaE_shrinkCI (lua_State *L) {
 }
 
 
-/*
-** Called when 'getCcalls(L)' larger or equal to LUAI_MAXCCALLS.
-** If equal, raises an overflow error. If value is larger than
-** LUAI_MAXCCALLS (which means it is handling an overflow) but
-** not much larger, does not report an error (to allow overflow
-** handling to work).
-*/
 #if defined(LUA_USE_IIGS)
 
 static char *cstacksoft = NULL;  /* raise "C stack overflow" below this */
 static char *cstackhard = NULL;  /* throw LUA_ERRERR below this */
 static int cstackinerr = 0;      /* soft overflow already reported? */
 
-void luaE_setcstacktop (char *top, unsigned long size) {
-  char *base = top - size;  /* approximate bottom of the stack segment */
+LUA_API void lua_iigs_initstack (char *top) {
+  char *base = top - LUA_IIGS_STACK_USABLE;  /* approximate bottom of the stack segment */
   /* Margins reserve room not only for our own error handling but for
   ** real-hardware INTERRUPTS: IRQ handlers (heartbeat, ADB, AppleTalk)
   ** push onto whatever stack is live, so riding near the segment bottom
@@ -245,6 +238,9 @@ int luaE_resumelow (void) {
 #endif
 
 
+/* Called by either the C-call counter or the IIgs byte probe. The
+** counter grace window and byte-probe grace flag allow error handling;
+** the IIgs hard floor always takes precedence. */
 void luaE_checkcstack (lua_State *L) {
 #if defined(LUA_USE_IIGS)
   if (luaE_cstacklow(1))
@@ -455,7 +451,11 @@ LUA_API lua_State *lua_newstate (lua_Alloc f, void *ud) {
   int i;
   lua_State *L;
   global_State *g;
-  LG *l = cast(LG *, (*f)(ud, NULL, LUA_TTHREAD, sizeof(LG)));
+  LG *l;
+#if defined(LUA_USE_IIGS)
+  if (cstacksoft == NULL) return NULL;  /* host has not armed its guard */
+#endif
+  l = cast(LG *, (*f)(ud, NULL, LUA_TTHREAD, sizeof(LG)));
   if (l == NULL) return NULL;
   L = &l->l.l;
   g = &l->g;

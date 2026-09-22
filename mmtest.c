@@ -101,6 +101,7 @@ int main (void) {
   pc = (char *) malloc(20000L);
   sayx("malloc", (unsigned long) pc);
   if (pc != NULL) fillcheck("C", pc, 20000L, 0x33);
+  else errs++;
   if (pa != NULL) recheck("A", pa, 16388L, 0xA5);
   if (pb != NULL) recheck("B", pb, 16388L, 0x5A);
 
@@ -117,6 +118,7 @@ int main (void) {
   if (a != NULL) {
     say("T6 SetHandleSize shrink A to 8K");
     SetHandleSize(8196L, a);
+    if (toolerror()) errs++;
     printf("  toolerr=%04X\n", toolerror()); fflush(stdout);
     recheck("A(8K)", pa, 8196L, 0xA5);
     if (pb != NULL) recheck("B", pb, 16388L, 0x5A);
@@ -124,14 +126,18 @@ int main (void) {
 
   say("T7 DisposeHandle A, B, BIG");
   if (a != NULL) { DisposeHandle(a);
+    if (toolerror()) errs++;
     printf("  A toolerr=%04X\n", toolerror()); fflush(stdout); }
   if (b != NULL) { DisposeHandle(b);
+    if (toolerror()) errs++;
     printf("  B toolerr=%04X\n", toolerror()); fflush(stdout); }
   if (big != NULL) { DisposeHandle(big);
+    if (toolerror()) errs++;
     printf("  BIG toolerr=%04X\n", toolerror()); fflush(stdout); }
   if (pc != NULL) recheck("C", pc, 20000L, 0x33);
 
+  free(pc);
   printf("MMTEST DONE errs=%d\n", errs);
   fflush(stdout);
-  return 0;
+  return errs ? EXIT_FAILURE : EXIT_SUCCESS;
 }

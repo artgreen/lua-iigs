@@ -98,6 +98,12 @@ LUALIB_API int (luaL_loadbufferx) (lua_State *L, const char *buff, size_t sz,
                                    const char *name, const char *mode);
 LUALIB_API int (luaL_loadstring) (lua_State *L, const char *s);
 
+#if defined(LUA_USE_IIGS)
+/* Read-only status: untested, ok, degraded, or disabled. "ok" means the
+** small attribute probe succeeded, not that all allocation sizes passed. */
+LUALIB_API const char *luaL_iigsmmstatus (void);
+#endif
+
 LUALIB_API lua_State *(luaL_newstate) (void);
 
 LUALIB_API lua_Integer (luaL_len) (lua_State *L, int idx);

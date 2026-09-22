@@ -41,6 +41,15 @@
 */
 #define LUA_USE_IIGS
 
+#if defined(LUA_USE_IIGS)
+/* Keep the hardware-tested bank-0 segment and startup allowance together.
+** Every executable hosting Lua must request this stack size and call
+** lua_iigs_initstack from main before creating any Lua state. */
+#define LUA_IIGS_STACK_SIZE 24832
+#define LUA_IIGS_STACK_SLACK 1024
+#define LUA_IIGS_STACK_USABLE (LUA_IIGS_STACK_SIZE - LUA_IIGS_STACK_SLACK)
+#endif
+
 /*
 @@ LUA_NO_PARSER disables the text parser and lexer for LUA
 */
@@ -255,7 +264,10 @@
 #if !defined(LUA_PATH_DEFAULT)
 #if defined(LUA_USE_IIGS)
 /* On real GS/OS, bare relative names load where "./name" can fail.
-** Search the current directory without the Unix dot prefix. */
+** The underlying GS/OS/stdio cause remains unproven. Search the current
+** directory without the Unix dot prefix; the Unix LUA_LDIR/LUA_CDIR
+** locations are intentionally omitted on IIgs. Set LUA_PATH or
+** package.path explicitly for an installation with shared modules. */
 #define LUA_PATH_DEFAULT "?.lua;?/init.lua"
 #else
 #define LUA_PATH_DEFAULT  \

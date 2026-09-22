@@ -1069,7 +1069,11 @@ static volatile int mmtrace_on = 1;
 #endif
 
 #define MMA_HDR   4      /* header: the block's Handle, or NULL for malloc */
-#define MMA_BIG   16384  /* blocks this size or larger bypass the C heap */
+/* Conservative cutoff below the observed ~32KB failure region, not a
+** measured failure threshold. Keep this margin until hardware evidence
+** supports changing it. The small probe checks MM attributes/placement;
+** tests/mmalloc.lua separately checks >32KB and cross-bank payloads. */
+#define MMA_BIG   16384
 #define MMA_LIBC_MAX 30000  /* if the MM path is unusable, the C heap is
                                still trusted below the ~32KB hardware bug */
 
@@ -1081,7 +1085,18 @@ static int mma_badptr (char *p) {
 }
 
 static Word mma_attr = 0;     /* attribute set proven by the self-test */
-static int mma_state = 0;     /* 0 = untested, 1 = usable, -1 = broken */
+static int mma_state = 0;     /* 0 = untested, 1 = usable, -1 = unavailable */
+static const char *mma_reason = "none";
+
+LUALIB_API const char *luaL_iigsmmstatus (void) {
+  return mma_state > 0 ? "ok" : mma_state < 0 ? "degraded" : "untested";
+}
+
+static int mma_reject (const char *reason) {
+  mma_reason = reason;
+  MMTRACE1("[mm] probe rejected: %s", reason);
+  return 0;
+}
 
 /*
 ** Allocate one probe block with 'attr', validate the handle, the
@@ -1096,14 +1111,16 @@ static int mma_probe (Word attr) {
   h = NewHandle((long)(MMA_BIG + MMA_HDR), userid(), attr, NULL);
   MMTRACE2("[mm] probe err=%04X h=%08lX", toolerror(), (unsigned long) h);
   if (toolerror() || h == NULL)
-    return 0;
+    return mma_reject("NewHandle failed");
   CheckHandle(h);
   if (toolerror())
-    return 0;                 /* bogus handle: do not touch or dispose */
+    /* Deliberately retain an unvalidated handle: disposing it may damage
+    ** unrelated memory. At most three startup probes can take this path. */
+    return mma_reject("CheckHandle rejected handle (not disposed)");
   p = (char *) *h;
   if (mma_badptr(p)) {
     DisposeHandle(h);
-    return 0;
+    return mma_reject("block in reserved bank");
   }
   *(Handle *) p = h;          /* header slot */
   p[MMA_HDR] = (char) 0xA5;   /* pattern at both ends and the middle */
@@ -1114,11 +1131,11 @@ static int mma_probe (Word attr) {
       p[MMA_BIG / 2] != (char) 0x5A ||
       p[MMA_BIG + MMA_HDR - 1] != (char) 0xC3) {
     DisposeHandle(h);
-    return 0;
+    return mma_reject("probe pattern mismatch");
   }
   DisposeHandle(h);
   if (toolerror())
-    return 0;
+    return mma_reject("DisposeHandle failed");
   return 1;
 }
 
@@ -1136,7 +1153,10 @@ static void mma_selftest (void) {
       return;
     }
   }
-  mma_state = -1;   /* MM path unusable: stay on the C heap (bounded) */
+  mma_state = -1;   /* MM path unavailable: bounded C-heap fallback only */
+  fprintf(stderr, "Lua IIgs: mm=degraded (%s); C-heap fallback limited to <30000 bytes\n",
+          mma_reason);
+  fflush(stderr);
 }
 
 static void *mma_new (size_t nsize) {  /* Memory Manager block */
@@ -1180,13 +1200,13 @@ static void *libc_new (size_t nsize) {  /* C-heap block (suballocated) */
 static void *any_new (size_t nsize) {
   if (nsize >= MMA_BIG) {
     void *p = mma_new(nsize);
-    if (p == NULL && mma_state < 0 && nsize < MMA_LIBC_MAX)
+    if (p == NULL && nsize < MMA_LIBC_MAX)
       p = libc_new(nsize);   /* MM path unusable: C heap is safe < ~30KB */
     return p;                /* beyond that: clean out-of-memory error */
   }
   else {
     void *p = libc_new(nsize);
-    if (p == NULL && mma_state > 0)
+    if (p == NULL && mma_state >= 0)
       p = mma_new(nsize);    /* small block, C heap exhausted: try the MM */
     return p;
   }
@@ -1217,7 +1237,11 @@ static void *l_alloc (void *ud, void *ptr, size_t osize, size_t nsize) {
     if (h != NULL) {
       MMTRACE2("[mm] shrink h=%08lX to %lu", (unsigned long) h,
                (unsigned long) nsize);
-      SetHandleSize((long)(nsize + MMA_HDR), h);  /* trim tail; ignore error */
+      SetHandleSize((long)(nsize + MMA_HDR), h);
+      /* Lua's shrink contract cannot fail. On MM failure retain the
+      ** larger physical block; Lua accounts only for the requested size. */
+      if (toolerror())
+        MMTRACE1("[mm] shrink retained old size, err=%04X", toolerror());
     }
     return ptr;
   }
@@ -1247,6 +1271,13 @@ static void *l_alloc (void *ud, void *ptr, size_t osize, size_t nsize) {
     return realloc(ptr, nsize);
 }
 
+#endif
+
+
+#if defined(LUA_USE_IIGS) && defined(LUA_IIGS_NO_MMALLOC)
+LUALIB_API const char *luaL_iigsmmstatus (void) {
+  return "disabled";
+}
 #endif
 
 

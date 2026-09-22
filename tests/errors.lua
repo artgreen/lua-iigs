@@ -3,7 +3,7 @@
 
 print("testing errors")
 
-_iigs = true -- used to skip failing tests
+_iigs = (_VERSION == "Lua (IIgs) 5.4") -- used to skip failing tests
 
 local debug = require"debug"
 
@@ -625,7 +625,7 @@ end
 
 -- testing syntax limits
 
--- _iigs: the 65816 bank-0 C stack (32K max) cannot hold 100 levels of
+-- _iigs: the 65816 bank-0 C stack (24,832-byte segment) cannot hold 100 levels of
 -- parser recursion for the heavier constructs; 25 levels is the
 -- guaranteed-safe depth on this platform.
 local replevels = _iigs and 25 or 100

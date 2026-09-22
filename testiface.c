@@ -21,7 +21,10 @@ int l_newCollection(lua_State *L) {
 // Lua function to free a collection object
 int l_freeCollection(lua_State *L) {
     Collection **collection = (Collection **)luaL_checkudata(L, 1, "test_iface.collection");
-    freeCollection(*collection);
+    if (*collection != NULL) {
+        freeCollection(*collection);
+        *collection = NULL;  /* explicit free followed by __gc is harmless */
+    }
     return 0;
 }
 
