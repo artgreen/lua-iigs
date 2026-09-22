@@ -41,6 +41,15 @@
 */
 #define LUA_USE_IIGS
 
+#if defined(LUA_USE_IIGS)
+/* Keep the hardware-tested bank-0 segment and startup allowance together.
+** Every executable hosting Lua must request this stack size and call
+** lua_iigs_initstack from main before creating any Lua state. */
+#define LUA_IIGS_STACK_SIZE 24832
+#define LUA_IIGS_STACK_SLACK 1024
+#define LUA_IIGS_STACK_USABLE (LUA_IIGS_STACK_SIZE - LUA_IIGS_STACK_SLACK)
+#endif
+
 /*
 @@ LUA_NO_PARSER disables the text parser and lexer for LUA
 */
@@ -253,10 +262,19 @@
 #define LUA_CDIR	LUA_ROOT "lib/lua/" LUA_VDIR "/"
 
 #if !defined(LUA_PATH_DEFAULT)
+#if defined(LUA_USE_IIGS)
+/* On real GS/OS, bare relative names load where "./name" can fail.
+** The underlying GS/OS/stdio cause remains unproven. Search the current
+** directory without the Unix dot prefix; the Unix LUA_LDIR/LUA_CDIR
+** locations are intentionally omitted on IIgs. Set LUA_PATH or
+** package.path explicitly for an installation with shared modules. */
+#define LUA_PATH_DEFAULT "?.lua;?/init.lua"
+#else
 #define LUA_PATH_DEFAULT  \
 		LUA_LDIR"?.lua;"  LUA_LDIR"?/init.lua;" \
 		LUA_CDIR"?.lua;"  LUA_CDIR"?/init.lua;" \
 		"./?.lua;" "./?/init.lua"
+#endif
 #endif
 
 #if !defined(LUA_CPATH_DEFAULT)
@@ -788,7 +806,17 @@
 @@ LUAL_BUFFERSIZE is the initial buffer size used by the lauxlib
 ** buffer system.
 */
+#if defined(LUA_USE_IIGS)
+/*
+** luaL_Buffer lives on the C stack; the default sizing formula gives
+** 640 bytes here (4-byte pointers, 10-byte SANE lua_Number), which
+** multiplies dangerously under recursion (e.g. recursive gsub) on the
+** small bank-0 stack. Keep it modest.
+*/
+#define LUAL_BUFFERSIZE   256
+#else
 #define LUAL_BUFFERSIZE   ((int)(16 * sizeof(void*) * sizeof(lua_Number)))
+#endif
 
 
 /*
@@ -815,4 +843,3 @@
 
 
 #endif
-

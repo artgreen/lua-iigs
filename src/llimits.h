@@ -252,7 +252,14 @@ typedef l_uint32 Instruction;
 ** the size of the C stack.)
 */
 #if !defined(LUAI_MAXCCALLS)
-#define LUAI_MAXCCALLS		128
+/*
+ * IIgs: this count alone cannot protect the small bank-0 stack (frame
+ * cost per level varies ~150..1000+ bytes); the byte-based probe in
+ * lstate.c (luaE_cstacklow) guards initialized hosts on every checked
+ * call. Restore upstream Lua 5.4's 200 from this port's former 128.
+ * Other platforms retain the upstream counter-only guard.
+ */
+#define LUAI_MAXCCALLS		200
 #endif
 
 

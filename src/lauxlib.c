@@ -684,8 +684,15 @@ LUALIB_API int luaL_ref (lua_State *L, int t) {
     lua_rawgeti(L, t, ref);  /* remove it from list */
     lua_rawseti(L, t, freelist);  /* (t[freelist] = t[ref]) */
   }
-  else  /* no free elements */
+  else {  /* no free elements */
+#ifdef LUA_USE_IIGS
+    /* 16-bit int: past INT_MAX live refs the cast below would wrap and
+       silently alias/overwrite existing references */
+    if (lua_rawlen(L, t) >= (lua_Unsigned)INT_MAX)
+      return luaL_error(L, "too many references");
+#endif
     ref = (int)lua_rawlen(L, t) + 1;  /* get a new reference */
+  }
   lua_rawseti(L, t, ref);
   return ref;
 }
@@ -1019,6 +1026,241 @@ LUALIB_API const char *luaL_gsub (lua_State *L, const char *s,
 }
 
 
+#if defined(LUA_USE_IIGS) && !defined(LUA_IIGS_NO_MMALLOC)
+
+#include <memory.h>
+#include <orca.h>
+
+/*
+** Allocator on raw Memory Manager handles, bypassing ORCALib
+** malloc/realloc. On real hardware, blocks above 32KB obtained through
+** the C heap were observed aliasing other live memory (deterministic
+** internal-value corruption plus stomps into the bank-0/E1 text pages);
+** GoldenGate reimplements the Memory Manager natively and cannot
+** reproduce that divergence. Lua's frealloc contract hands us the old
+** block size on every call, so no C-heap bookkeeping is needed: each
+** block stores its own Handle in a small header, grows are a fresh
+** NewHandle plus an explicit byte copy (large memory model handles bank
+** crossings in compiled code), and shrinks stay in place. Define
+** LUA_IIGS_NO_MMALLOC to fall back to the C library allocator.
+*/
+
+/*
+** LUA_IIGS_MMTRACE: print every Memory-Manager-path event and every
+** large allocation to stderr, flushed, for on-hardware tracing. The
+** last line on screen before a crash names the exact operation.
+*/
+#if defined(LUA_IIGS_MMTRACE)
+#include <stdio.h>
+#if defined(LUA_IIGS_MMTRACE_SILENT)
+/* code layout of the traced build, but no output/stdio side effects:
+   used to bisect a hardware heisenbug that tracks build layout */
+static volatile int mmtrace_on = 0;
+#else
+static volatile int mmtrace_on = 1;
+#endif
+#define MMTRACE1(fmt,a)     do { if (mmtrace_on) { fprintf(stderr, fmt "\n", a); fflush(stderr); } } while (0)
+#define MMTRACE2(fmt,a,b)   do { if (mmtrace_on) { fprintf(stderr, fmt "\n", a, b); fflush(stderr); } } while (0)
+#define MMTRACE3(fmt,a,b,c) do { if (mmtrace_on) { fprintf(stderr, fmt "\n", a, b, c); fflush(stderr); } } while (0)
+#else
+#define MMTRACE1(fmt,a)     ((void)0)
+#define MMTRACE2(fmt,a,b)   ((void)0)
+#define MMTRACE3(fmt,a,b,c) ((void)0)
+#endif
+
+#define MMA_HDR   4      /* header: the block's Handle, or NULL for malloc */
+/* Conservative cutoff below the observed ~32KB failure region, not a
+** measured failure threshold. Keep this margin until hardware evidence
+** supports changing it. The small probe checks MM attributes/placement;
+** tests/mmalloc.lua separately checks >32KB and cross-bank payloads. */
+#define MMA_BIG   16384
+#define MMA_LIBC_MAX 30000  /* if the MM path is unusable, the C heap is
+                               still trusted below the ~32KB hardware bug */
+
+/* is a block pointer in acceptable memory? (attrNoSpec must keep us out
+** of banks 0/1/E0/E1; if the real MM ignores that, refuse the block) */
+static int mma_badptr (char *p) {
+  unsigned int bank = (unsigned int)((unsigned long)p >> 16);
+  return (p == NULL || bank < 2 || bank == 0xE0u || bank == 0xE1u);
+}
+
+static Word mma_attr = 0;     /* attribute set proven by the self-test */
+static int mma_state = 0;     /* 0 = untested, 1 = usable, -1 = unavailable */
+static const char *mma_reason = "none";
+
+LUALIB_API const char *luaL_iigsmmstatus (void) {
+  return mma_state > 0 ? "ok" : mma_state < 0 ? "degraded" : "untested";
+}
+
+static int mma_reject (const char *reason) {
+  mma_reason = reason;
+  MMTRACE1("[mm] probe rejected: %s", reason);
+  return 0;
+}
+
+/*
+** Allocate one probe block with 'attr', validate the handle, the
+** block's bank, and end-to-end pattern writes, then free it. The real
+** MM diverges from GoldenGate's native reimplementation in ways we
+** could not fully characterize, so nothing is trusted untested.
+*/
+static int mma_probe (Word attr) {
+  Handle h;
+  char *p;
+  MMTRACE1("[mm] probe attr=%04X", attr);
+  h = NewHandle((long)(MMA_BIG + MMA_HDR), userid(), attr, NULL);
+  MMTRACE2("[mm] probe err=%04X h=%08lX", toolerror(), (unsigned long) h);
+  if (toolerror() || h == NULL)
+    return mma_reject("NewHandle failed");
+  CheckHandle(h);
+  if (toolerror())
+    /* Deliberately retain an unvalidated handle: disposing it may damage
+    ** unrelated memory. At most three startup probes can take this path. */
+    return mma_reject("CheckHandle rejected handle (not disposed)");
+  p = (char *) *h;
+  if (mma_badptr(p)) {
+    DisposeHandle(h);
+    return mma_reject("block in reserved bank");
+  }
+  *(Handle *) p = h;          /* header slot */
+  p[MMA_HDR] = (char) 0xA5;   /* pattern at both ends and the middle */
+  p[MMA_BIG / 2] = (char) 0x5A;
+  p[MMA_BIG + MMA_HDR - 1] = (char) 0xC3;
+  if (*(Handle *) p != h ||
+      p[MMA_HDR] != (char) 0xA5 ||
+      p[MMA_BIG / 2] != (char) 0x5A ||
+      p[MMA_BIG + MMA_HDR - 1] != (char) 0xC3) {
+    DisposeHandle(h);
+    return mma_reject("probe pattern mismatch");
+  }
+  DisposeHandle(h);
+  if (toolerror())
+    return mma_reject("DisposeHandle failed");
+  return 1;
+}
+
+static void mma_selftest (void) {
+  static const Word tries[] = {
+    attrLocked | attrFixed | attrNoSpec | attrNoCross,
+    attrLocked | attrFixed | attrNoSpec,
+    attrLocked | attrNoSpec
+  };
+  int i;
+  for (i = 0; i < 3; i++) {
+    if (mma_probe(tries[i])) {
+      mma_attr = tries[i];
+      mma_state = 1;
+      return;
+    }
+  }
+  mma_state = -1;   /* MM path unavailable: bounded C-heap fallback only */
+  fprintf(stderr, "Lua IIgs: mm=degraded (%s); C-heap fallback limited to <30000 bytes\n",
+          mma_reason);
+  fflush(stderr);
+}
+
+static void *mma_new (size_t nsize) {  /* Memory Manager block */
+  char *p;
+  Handle h;
+  Word attr;
+  if (mma_state == 0) {
+    mma_selftest();
+    MMTRACE2("[mm] selftest state=%d attr=%04X", mma_state, mma_attr);
+  }
+  if (mma_state < 0)
+    return NULL;
+  attr = mma_attr;
+  if (nsize + MMA_HDR > 0xFFFFul)
+    attr = (Word)(attr & (Word)~attrNoCross);  /* cannot fit in one bank */
+  MMTRACE2("[mm] new %lu attr=%04X", (unsigned long) nsize, attr);
+  h = NewHandle((long)(nsize + MMA_HDR), userid(), attr, NULL);
+  if (toolerror() || h == NULL) {
+    MMTRACE1("[mm] new FAILED err=%04X", toolerror());
+    return NULL;
+  }
+  p = (char *) *h;
+  MMTRACE2("[mm] new ok h=%08lX p=%08lX", (unsigned long) h, (unsigned long) p);
+  if (mma_badptr(p)) {
+    MMTRACE1("[mm] new BADBANK p=%08lX", (unsigned long) p);
+    DisposeHandle(h);
+    return NULL;
+  }
+  *(Handle *) p = h;
+  return p + MMA_HDR;
+}
+
+static void *libc_new (size_t nsize) {  /* C-heap block (suballocated) */
+  char *p = (char *) malloc(nsize + MMA_HDR);
+  if (p == NULL)
+    return NULL;
+  *(Handle *) p = NULL;
+  return p + MMA_HDR;
+}
+
+static void *any_new (size_t nsize) {
+  if (nsize >= MMA_BIG) {
+    void *p = mma_new(nsize);
+    if (p == NULL && nsize < MMA_LIBC_MAX)
+      p = libc_new(nsize);   /* MM path unusable: C heap is safe < ~30KB */
+    return p;                /* beyond that: clean out-of-memory error */
+  }
+  else {
+    void *p = libc_new(nsize);
+    if (p == NULL && mma_state >= 0)
+      p = mma_new(nsize);    /* small block, C heap exhausted: try the MM */
+    return p;
+  }
+}
+
+static void any_free (void *ptr) {
+  char *p = (char *) ptr - MMA_HDR;
+  Handle h = *(Handle *) p;
+  if (h != NULL) {
+    MMTRACE1("[mm] free h=%08lX", (unsigned long) h);
+    DisposeHandle(h);
+  }
+  else
+    free(p);
+}
+
+static void *l_alloc (void *ud, void *ptr, size_t osize, size_t nsize) {
+  (void)ud;
+  if (nsize == 0) {
+    if (ptr != NULL)
+      any_free(ptr);
+    return NULL;
+  }
+  else if (ptr == NULL)
+    return any_new(nsize);
+  else if (nsize <= osize) {  /* shrink: keep the block (must not fail) */
+    Handle h = *(Handle *) ((char *) ptr - MMA_HDR);
+    if (h != NULL) {
+      MMTRACE2("[mm] shrink h=%08lX to %lu", (unsigned long) h,
+               (unsigned long) nsize);
+      SetHandleSize((long)(nsize + MMA_HDR), h);
+      /* Lua's shrink contract cannot fail. On MM failure retain the
+      ** larger physical block; Lua accounts only for the requested size. */
+      if (toolerror())
+        MMTRACE1("[mm] shrink retained old size, err=%04X", toolerror());
+    }
+    return ptr;
+  }
+  else {  /* grow: fresh block (classed by new size) + explicit copy */
+    void *np = any_new(nsize);
+    if (np != NULL) {
+      size_t i;
+      char *d = (char *) np;
+      const char *s = (const char *) ptr;
+      for (i = 0; i < osize; i++)
+        d[i] = s[i];
+      any_free(ptr);
+    }
+    return np;
+  }
+}
+
+#else
+
 static void *l_alloc (void *ud, void *ptr, size_t osize, size_t nsize) {
   (void)ud; (void)osize;  /* not used */
   if (nsize == 0) {
@@ -1028,6 +1270,15 @@ static void *l_alloc (void *ud, void *ptr, size_t osize, size_t nsize) {
   else
     return realloc(ptr, nsize);
 }
+
+#endif
+
+
+#if defined(LUA_USE_IIGS) && defined(LUA_IIGS_NO_MMALLOC)
+LUALIB_API const char *luaL_iigsmmstatus (void) {
+  return "disabled";
+}
+#endif
 
 
 static int panic (lua_State *L) {

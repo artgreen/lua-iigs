@@ -264,6 +264,20 @@ static int math_type (lua_State *L) {
 #define FIGS	64
 #endif
 
+#if defined(LUA_USE_IIGS) && FIGS > 53
+/*
+** SANE extended has a 64-bit mantissa, but GoldenGate's SANE emulation
+** computes at host-double (53-bit) precision, so 64-bit random
+** mantissas carry "extra bits" there (visible in math.lua's random
+** tests). 53 bits are exact under both real SANE and the emulator, and
+** match every double-based Lua. (tests/math.lua clamps its 'randbits'
+** to 53 under _iigs to stay consistent on real hardware, where
+** floatbits probes as 64.)
+*/
+#undef FIGS
+#define FIGS	53
+#endif
+
 
 /*
 ** LUA_RAND32 forces the use of 32-bit integers in the implementation

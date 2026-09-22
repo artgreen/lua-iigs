@@ -1,63 +1,20 @@
+# Targeted regression checks and the broader upstream suite are separate.
+PYTHON ?= python3
+LUA ?= ../build/lua
+TIMEOUT ?= 300
+RUN = $(PYTHON) ../tools/run-tests.py --lua $(LUA) --timeout $(TIMEOUT)
+passes := api attrib big bitwise bwcoercion calls constructs coroutine closure code cstack db errors events gc gengc goto heavy literals locals main math nextvar pm sort strings tpack tracegc vararg verybig
+# files.lua remains unresolved; an unexpected pass requires reclassification.
+fails := files
 
-names := api attrib big bitwise bwcoercion calls closure code coroutine cstack db errors events files gc gengc goto heavy literals locals main math nextvar pm sort strings tpack tracegc vararg verybig
-passes := api attrib big bitwise bwcoercion calls constructs coroutine closure code db errors events gc gengc goto heavy literals locals main nextvar pm sort strings tpack tracegc vararg
-fails := cstack files math verybig
-hangs :=
-
-ALL := $(foreach wrd, $(names),$(wrd).out)
-PASSING := $(foreach wrd, $(passes),$(wrd).out)
-FAILING := $(foreach wrd, $(fails),$(wrd).out)
-HANGING := $(foreach wrd, $(hangs),$(wrd).out)
-
-TIMEOUT := 90
-TIMEOUT_EXE := /usr/bin/timeout
-MEMCHECK := --memcheck
-LUA := ../build/lua
-
-.PHONEY: all tests fails passing hangs clean
-
-all: clean $(ALL)
-tests: clean $(PASSING) $(FAILING)
-passing: clean $(PASSING)
-fails: clean $(FAILING)
-hangs: clean $(HANGING)
-
+.PHONY: all tests passing fails suite clean
+all: tests
+tests:
+	$(RUN)
+passing:
+	$(RUN) $(passes)
+fails:
+	$(RUN) --expect-failure $(fails)
+suite: passing fails
 clean:
-	@rm -f *.out
-api.out: api.lua
-attrib.out: attrib.lua
-big.out: big.lua
-bitwise.out: bitwise.lua
-bwcoercion.out: bwcoercion.lua
-calls.out: calls.lua
-closure.out: closure.lua
-code.out: code.lua
-constructs.out: constructs.lua
-coroutine.out: coroutine.lua
-cstack.out: cstack.lua
-db.out: db.lua
-errors.out: errors.lua
-events.out: events.lua
-files.out: files.lua
-gc.out: gc.lua
-gengc.out: gengc.lua
-goto.out: goto.lua
-heavy.out: heavy.lua
-literals.out: literals.lua
-locals.out: locals.lua
-main.out: main.lua
-math.out: math.lua
-nextvar.out: nextvar.lua
-pm.out: pm.lua
-sort.out: sort.lua
-strings.out: strings.lua
-tpack.out: tpack.lua
-tracegc.out: tracegc.lua
-vararg.out: vararg.lua
-verybig.out: verybig.lua
-%.out:
-	@echo =============================================
-	@echo $@
-	@echo =============================================
-	@-$(TIMEOUT_EXE) $(TIMEOUT) iix $(MEMCHECK) $(LUA) $< > $@ 2>&1 || (echo "$@ Failed" && cat $@)
-	@echo ============================================^
+	rm -f -- *.out

@@ -1,4 +1,9 @@
 
+# ORCA/C 2.2.x required; default to the repo-local SDK (see src/Makefile)
+ifneq (,$(wildcard $(CURDIR)/.orca-sdk-2.2.1))
+export GOLDEN_GATE ?= $(CURDIR)/.orca-sdk-2.2.1
+endif
+
 # apple commander
 AC := ac
 # nulib2 for shrinkit
@@ -22,13 +27,13 @@ DSK_DIR := images
 # compiler flags
 CFLAGS := -I -P -D +O
 
-.PHONY: all testdisk luadisk clean cleanluacout cleandisk minitest bridgedisk release cleanrelease disks
+.PHONY: lua liblua luac all testdisk luadisk clean cleanluacout cleandisk minitest bridgedisk release cleanrelease disks
 
-bridge: test.a testiface.a testbridge.a
+bridge: test.a testiface.a testbridge.a liblua
 	iix link test testiface testbridge $(SRC_DIR)/lvm $(SRC_DIR)/lua.lib KEEP=$@
-test.a: test.c
-test_iface.a: testiface.c
-test_bridge.a: testbridge.c
+test.a: test.c testiface.h src/lua.h src/luaconf.h
+testiface.a: testiface.c testiface.h src/lua.h src/luaconf.h
+testbridge.a: testbridge.c testiface.h src/lua.h src/luaconf.h
 
 lua: | $(EXE_DIR)
 	+$(MAKE) -C src lua
@@ -100,3 +105,11 @@ $(DSK_DIR):
 
 %.a:
 	iix compile $(CFLAGS) $<
+
+# Standalone hardware probes (memfree requires the real Memory Manager).
+mmtest: mmtest.a
+	iix link mmtest KEEP=$@
+memfree: memfree.a
+	iix link memfree KEEP=$@
+mmtest.a: mmtest.c
+memfree.a: memfree.c

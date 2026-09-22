@@ -2,7 +2,7 @@
 -- See Copyright Notice in file all.lua
 
 print("testing numbers and math lib")
-_iigs = true -- used to skip failing tests and set sizes
+_iigs = (_VERSION == "Lua (IIgs) 5.4") -- used to skip failing tests and set sizes
 local minint <const> = math.mininteger
 local maxint <const> = math.maxinteger
 
@@ -860,7 +860,10 @@ do
 end
 
 do   -- test random for floats
-  local randbits = math.min(floatbits, 64)   -- at most 64 random bits
+  -- _iigs: lmathlib clamps FIGS to 53 (GoldenGate's SANE emulation is
+  -- 53-bit; real SANE would probe floatbits == 64 but random() still
+  -- yields 53 mantissa bits)
+  local randbits = math.min(floatbits, _iigs and 53 or 64)
   local mult = 2^randbits      -- to make random float into an integral
   local counts = {}    -- counts for bits
   for i = 1, randbits do counts[i] = 0 end

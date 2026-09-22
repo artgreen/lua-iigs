@@ -162,14 +162,95 @@ void luaE_shrinkCI (lua_State *L) {
 }
 
 
+#if defined(LUA_USE_IIGS)
+
+static char *cstacksoft = NULL;  /* raise "C stack overflow" below this */
+static char *cstackhard = NULL;  /* throw LUA_ERRERR below this */
+static int cstackinerr = 0;      /* soft overflow already reported? */
+
+LUA_API void lua_iigs_initstack (char *top) {
+  char *base = top - LUA_IIGS_STACK_USABLE;  /* approximate bottom of the stack segment */
+  /* Margins reserve room not only for our own error handling but for
+  ** real-hardware INTERRUPTS: IRQ handlers (heartbeat, ADB, AppleTalk)
+  ** push onto whatever stack is live, so riding near the segment bottom
+  ** with thin margins lets an IRQ punch through the base into adjacent
+  ** bank-0 memory (observed on hardware as null bytes sweeping the
+  ** $0400 text page during guard-riding workloads; emulators without
+  ** interrupts never show this). SANE's direct page also sits at the
+  ** segment bottom. */
+  /* The HARD floor is the real interrupt-underflow protection (last-ditch
+  ** headroom kept below SP at all times); the SOFT floor only reserves
+  ** room to build the catchable overflow error + traceback. Widening the
+  ** soft floor too far strangles legitimate deep recursion (e.g. pm.lua's
+  ** recursive-gsub nest), so keep the hard floor generous for IRQs but
+  ** the soft floor only as large as error handling needs. */
+  cstackhard = base + 4096;   /* IRQ headroom + throw/panic machinery */
+  cstacksoft = base + 7168;   /* error object + traceback */
+}
+
 /*
-** Called when 'getCcalls(L)' larger or equal to LUAI_MAXCCALLS.
-** If equal, raises an overflow error. If value is larger than
-** LUAI_MAXCCALLS (which means it is handling an overflow) but
-** not much larger, does not report an error (to allow overflow
-** handling to work).
+** Once a soft overflow has been raised, error handling (message
+** handler, traceback) runs while the stack is still below the soft
+** floor; suppress further soft reports until the stack recovers, or
+** the handler call would re-raise forever and escalate to LUA_ERRERR
+** (mirrors the LUAI_MAXCCALLS/10*11 grace window of the counter guard).
+** The hard floor stays armed throughout.
 */
+int luaE_cstacklow (int hard) {
+  char probe;
+  if (hard)
+    return cstackhard != NULL && &probe <= cstackhard;
+  if (cstacksoft == NULL)
+    return 0;
+  if (&probe > cstacksoft) {
+    cstackinerr = 0;  /* stack recovered; re-arm the soft check */
+    return 0;
+  }
+  if (&probe <= cstackhard)
+    return 1;  /* always escalate: luaE_checkcstack throws LUA_ERRERR */
+  if (cstackinerr)
+    return 0;  /* grace zone: let error handling run */
+  cstackinerr = 1;
+  return 1;
+}
+
+/* called when a protected call catches an error: the error was
+** delivered, so the soft check may report a fresh overflow again */
+void luaE_cstackrearm (void) {
+  cstackinerr = 0;
+}
+
+/*
+** Stateless soft-floor probe for lua_resume. Coroutine CONTINUATION
+** resumes run through unroll(), not ccall(), so they never hit the
+** luaE_cstackover guard; a chain of chained coroutines (e.g. the prime
+** sieve of coroutine filters) descends the shared C stack unchecked and
+** overruns the segment into other bank-0 memory. lua_resume is the one
+** choke point every resume passes through, so check the floor there.
+** Stateless (no grace flag): a breach returns a clean, catchable failed
+** resume rather than entering error-handling.
+*/
+int luaE_resumelow (void) {
+  char probe;
+  return cstacksoft != NULL && &probe <= cstacksoft;
+}
+
+#endif
+
+
+/* Called by either the C-call counter or the IIgs byte probe. The
+** counter grace window and byte-probe grace flag allow error handling;
+** the IIgs hard floor always takes precedence. */
 void luaE_checkcstack (lua_State *L) {
+#if defined(LUA_USE_IIGS)
+  if (luaE_cstacklow(1))
+    luaD_throw(L, LUA_ERRERR);  /* no stack left even for error handling */
+  if (getCcalls(L) < LUAI_MAXCCALLS) {
+    /* reached only when the byte probe fired (see luaE_cstackover);
+       the probe armed its grace flag, so raise the error here */
+    luaG_runerror(L, "C stack overflow");
+  }
+#endif
   if (getCcalls(L) == LUAI_MAXCCALLS)
     luaG_runerror(L, "C stack overflow");
   else if (getCcalls(L) >= (LUAI_MAXCCALLS / 10 * 11))
@@ -179,7 +260,7 @@ void luaE_checkcstack (lua_State *L) {
 
 LUAI_FUNC void luaE_incCstack (lua_State *L) {
   L->nCcalls++;
-  if (l_unlikely(getCcalls(L) >= LUAI_MAXCCALLS))
+  if (l_unlikely(luaE_cstackover(L)))
     luaE_checkcstack(L);
 }
 
@@ -370,7 +451,11 @@ LUA_API lua_State *lua_newstate (lua_Alloc f, void *ud) {
   int i;
   lua_State *L;
   global_State *g;
-  LG *l = cast(LG *, (*f)(ud, NULL, LUA_TTHREAD, sizeof(LG)));
+  LG *l;
+#if defined(LUA_USE_IIGS)
+  if (cstacksoft == NULL) return NULL;  /* host has not armed its guard */
+#endif
+  l = cast(LG *, (*f)(ud, NULL, LUA_TTHREAD, sizeof(LG)));
   if (l == NULL) return NULL;
   L = &l->l.l;
   g = &l->g;

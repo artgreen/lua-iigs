@@ -24,6 +24,23 @@
 #include "parseconf.h"
 #pragma lint -1
 #pragma memorymodel 1
+/*
+ * The ORCA shell default stack is 4KB (bank 0). Lua's nested C calls
+ * need far more; overflow silently corrupts bank-0
+ * memory. Keep the stack request at the hardware-tested 24,832 bytes.
+ */
+#pragma stacksize LUA_IIGS_STACK_SIZE
+#endif
+
+#if defined(LUA_IIGS_MMTRACE)
+#if defined(LUA_IIGS_MMTRACE_SILENT)
+static volatile int ltrace_on = 0;  /* traced layout, no output */
+#else
+static volatile int ltrace_on = 1;
+#endif
+#define LTRACE(s)  do { if (ltrace_on) { fprintf(stderr, "%s\n", s); fflush(stderr); } } while (0)
+#else
+#define LTRACE(s)  ((void)0)
 #endif
 
 #if !defined(LUA_PROGNAME)
@@ -178,6 +195,15 @@ static int docall (lua_State *L, int narg, int nres) {
 static void print_version (void) {
   lua_writestring(LUA_COPYRIGHT, strlen(LUA_COPYRIGHT));
   lua_writeline();
+#if defined(LUA_USE_IIGS) && defined(LUA_IIGS_BUILD_ID)
+  lua_writestring(LUA_IIGS_BUILD_ID, strlen(LUA_IIGS_BUILD_ID));
+  lua_writeline();
+#endif
+#if defined(LUA_USE_IIGS)
+  lua_writestring("IIgs mm=", 8);
+  lua_writestring(luaL_iigsmmstatus(), strlen(luaL_iigsmmstatus()));
+  lua_writeline();
+#endif
 }
 
 
@@ -262,8 +288,10 @@ static int handle_script (lua_State *L, char **argv) {
   if (strcmp(fname, "-") == 0 && strcmp(argv[-1], "--") != 0)
     fname = NULL;  /* stdin */
   status = luaL_loadfile(L, fname);
+  LTRACE("[M4a] parsed");
   if (status == LUA_OK) {
     int n = pushargs(L);  /* push arguments to script */
+    LTRACE("[M4b] calling");
     status = docall(L, n, LUA_MULTRET);
   }
   return report(L, status);
@@ -661,6 +689,7 @@ static int pmain (lua_State *L) {
 #endif
 #endif
   luaL_openlibs(L);  /* open standard libraries */
+  LTRACE("[M3] libs");
   createargtable(L, argv, argc, script);  /* create table 'arg' */
   lua_gc(L, LUA_GCRESTART);  /* start GC... */
   lua_gc(L, LUA_GCGEN, 0, 0);  /* ...in generational mode */
@@ -674,8 +703,10 @@ static int pmain (lua_State *L) {
   if (!runargs(L, argv, optlim))  /* execute arguments -e and -l */
     return 0;  /* something failed */
   if (script > 0) {  /* execute main script (if there is one) */
+    LTRACE("[M4] script");
     if (handle_script(L, argv + script) != LUA_OK)
       return 0;  /* interrupt in case of error */
+    LTRACE("[M5] script done");
   }
 #endif
 
@@ -704,7 +735,15 @@ static int pmain (lua_State *L) {
 
 int main (int argc, char **argv) {
   int status, result;
-  lua_State *L = luaL_newstate();  /* create state */
+  lua_State *L;
+#ifdef LUA_USE_IIGS
+  char stackanchor;
+  /* #pragma stacksize above, minus slack used before main runs */
+  lua_iigs_initstack(&stackanchor);
+#endif
+  LTRACE("[M1] main");
+  L = luaL_newstate();  /* create state */
+  LTRACE("[M2] state");
   if (L == NULL) {
     l_message(argv[0], "cannot create state: not enough memory");
     return EXIT_FAILURE;
@@ -716,7 +755,8 @@ int main (int argc, char **argv) {
   status = lua_pcall(L, 2, 1, 0);  /* do the call */
   result = lua_toboolean(L, -1);  /* get result */
   report(L, status);
+  LTRACE("[M6] closing state");
   lua_close(L);
+  LTRACE("[M7] state closed; returning to shell");
   return (result && status == LUA_OK) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
-
