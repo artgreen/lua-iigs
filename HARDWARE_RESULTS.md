@@ -1,9 +1,14 @@
 # Real IIgs test results
 
-Current baseline: **LUAPATH / `IIgs b69d628-9766f6d19a8d plain`**.
-The planned warm-run and cold-boot checks are complete: 14 warm launches
+Current tested build: **LUAREVIEW / `IIgs 9add073-776024bcfb02 plain`**.
+The user reports completion of the requested five warm coroutine/hwdiag2
+pairs and one post-power-cycle pair, plus additional mixed-script testing
+in one warm session. See the final entry for evidence and scope.
+
+Preserved prior baseline: **LUAPATH / `IIgs b69d628-9766f6d19a8d plain`**.
+Its warm-run and cold-boot checks completed with 14 warm launches
 and two post-power-cycle launches passed. Earlier "pending" entries below
-describe the state when recorded; the final entry closes those checks.
+describe the state when recorded; later entries close those checks.
 Coverage is limited to the documented workloads and machine configuration.
 The baseline runtime source is commit `9add073`; its banner predates that
 commit. See [preserved provenance](docs/validation/2026-09-21/README.md).
@@ -11,8 +16,12 @@ commit. See [preserved provenance](docs/validation/2026-09-21/README.md).
 Review correction: the baseline hwtest's "20 passed" includes one unsupported
 Lua-hook yield case incorrectly counted as a pass. That path was untested;
 the recorded hardware runs and clean shell returns are still valid evidence.
-The current review candidate has separate skip reporting and a C-hook test,
-but has not yet been tested on this machine.
+The current review candidate has separate skip reporting and a C-hook test.
+Its diagnostic companions have hardware passes, and the user subsequently
+confirmed all outstanding runs, including the original silent tests, passed
+and returned to the shell. Original tableovf.lua took about 18 minutes and
+reported 49,152 entries. The requested candidate repeatability sequence is
+also reported complete; see the final September 22 entry below.
 
 ## 2026-09-21: traced coroutine diagnostic passes
 
@@ -268,3 +277,145 @@ ShrinkIt archives and images are ready locally under
 `build/hardware/20260922T145111Z-5t_54b1b/`. The NAS was not mounted, so this
 session did not copy the new candidate there. The next hardware sequence is
 listed in HARDWARE_TESTING.md; no new hardware results are claimed here.
+
+## 2026-09-22: progress companions pass on hardware
+
+After the NAS was remounted, the review kit was copied to
+`/Volumes/nas/LUA.20260922` and every copied file was read back and verified.
+The user reported runs of tableovf.lua and IIGSHOST lasting at least five
+minutes, with no IIGSHOST output. Both original tests print only at completion;
+neither a hang nor an eventual successful completion was established.
+The user answered "yes" to a combined question about power-cycling between
+runs and successful basic LUAREVIEW tests. This answer does not identify
+individual test results or establish durations.
+
+Progress companions were built from the exact review candidate inputs:
+IIGSDBG adds flushed phase markers to the C host; TABPROBE adds markers to
+the table test and constructs failure-message strings only on failed checks.
+Both passed locally under GoldenGate. The interpreter and original tests
+were not replaced. Sources, logs, manifest, and packaged artifacts are in
+`build/diagnostics/20260922-progress/`; the verified NAS package is
+`/Volumes/nas/LUA.20260922/PROGRESS/PROGRESS.SHK` (SHA-256
+`b9f38fa28cc6a2e0d360e224880ca300a3c3585017af150721cf2cc6349b5079`).
+
+The user's next photograph shows:
+
+- TABPROBE's final post-GC checks through 49,152 entries, followed by
+  `TABPROBE PASSED entries=49152` and the next shell command.
+- `iigsdbg`, with the exact entry marker
+  `776024bcfb02 host-beacons-1`, progressing through H0-H11.
+- Successful recovery from deep Lua-stack recursion, vector and array
+  limit checks, retained-entry validation and garbage collection, followed
+  by 100 native C-hook yields and state closure.
+- `IIGSDBG PASSED yields=100` followed by the shell prompt, with no visible
+  screen corruption.
+
+This establishes one hardware pass and clean exit for each diagnostic
+companion. The TABPROBE invocation/banner is above the photographed region;
+its association with LUAREVIEW follows the requested test sequence.
+Elapsed times and time spent in individual phases have not been reported.
+The host uses the candidate Lua library, but its extra output changes timing
+and code layout. These passes do not establish why the original silent runs
+were slow, or prove that those original binaries complete on hardware.
+Preserve LUAPATH as the previously repeat-tested baseline.
+
+## 2026-09-22: table timing comparison remains inconclusive
+
+The user reports TABPROBE completed in under seven minutes, while original
+tableovf.lua had not returned after nine minutes. Record the original as
+incomplete at that observation time, not a demonstrated hang. The user
+raised the possibility that periodic output prevents a runtime fault.
+
+The scripts differ in more than output: tableovf constructs an assertion
+message on every successful check, while TABPROBE builds a message only on
+failure. At 49,152 entries and two passes, the original performs 98,304
+extra message constructions, as well as the successful assert calls. This
+adds allocation/collection work; its hardware cost is not yet measured.
+TABPROBE also factors verification into a function and adds progress logic.
+The existing comparison cannot isolate an output-sensitive fault.
+
+Two new companions are prepared under
+`build/diagnostics/20260922-table-ab/` using the unchanged candidate:
+
+- TABQUIET: original fill and inline verification loops, failure-only
+  message construction, no progress output or flushes. Final success only.
+- TABEAGER: original eager assertions retained, with flushed progress
+  markers every 4,096 entries and around collection.
+
+Both pass under GoldenGate with memory checks and 49,152 verified entries;
+local elapsed times were approximately 1.9 and 9.3 seconds respectively.
+These are not hardware estimates. Image and ShrinkIt contents were extracted
+and byte-compared. Hardware results for these two companions are pending.
+Use a fresh power-cycle before each comparison, record elapsed times and
+progress intervals, and require the final success marker and shell return.
+Do not infer a hardware failure deadline from the local measurements.
+The package is staged at `/Volumes/nas/LUA.20260922/TABLEAB/TABLEAB.SHK`;
+all five transfer files were read back and matched their local bytes.
+
+## 2026-09-22: both table comparison companions pass
+
+The user reports `luareview -E -v tabquiet.lua` passed with 49,152 entries.
+The initially typed negative count was explicitly corrected as a typo.
+After proceeding to TABEAGER, the user reports "they passed". Record both
+comparison scripts as user-reported hardware passes. No elapsed times,
+phase timings, photographs, or separate shell-return confirmation were
+supplied for these two runs.
+
+TABQUIET establishes completion of the table-limit and before/after-GC
+integrity checks without periodic output. TABEAGER establishes completion
+with the original eager assertion-message construction and progress output.
+Together with TABPROBE, these results strengthen the explanation that the
+original test's extra successful-assert/message work caused a long runtime.
+They do not measure that cost on hardware, or establish completion of the
+original silent TABLEOVF or IIGSHOST. A timing/layout-sensitive problem in
+those exact originals is not ruled out. No runtime fix is inferred from
+these diagnostic passes.
+
+## 2026-09-22: original silent tests pass and return to the shell
+
+The user reports: "they all passed", explicitly identifying original
+tableovf.lua as completing in about 18 minutes with `entries=49152`, and
+confirms "all ran, all returned to the # prompt". In the ongoing test
+sequence, this closes the outstanding original TABLEOVF/IIGSHOST completion
+checks and the separate shell-return checks for TABQUIET and TABEAGER.
+Record these as user-reported passes on the review candidate. IIGSHOST's
+elapsed time and exact final output were not transcribed in this update;
+no additional per-test run counts are inferred.
+
+The original silent table workload therefore completed successfully without
+progress output. Its earlier five-/nine-minute observations were premature
+to classify as a hang. The observed approximately 18-minute duration applies
+to this accelerated ROM 03 / 8 MB configuration, not a universal deadline.
+TABPROBE's previously reported under-seven-minute duration and the eager
+assertion-message work support a workload-cost explanation; they do not
+isolate or precisely measure allocation versus collection costs.
+
+No interpreter change was needed to obtain these passes. The tested
+originals and diagnostic variants are preserved. This closes the present
+silent-test investigation; it does not establish repeatability counts for
+LUAREVIEW, full upstream API coverage, or resolution of files.lua.
+
+## 2026-09-22: LUAREVIEW repeatability and mixed-script session pass
+
+After being asked to run `coroutine.lua` and `hwdiag2.lua` with LUAREVIEW
+five times each without rebooting, then once each after a full power-cycle,
+the user reports "it has passed every single test". Record the requested
+sequence as completed by user report: ten warm launches and two cold-boot
+follow-up launches, with the requested success markers and shell returns.
+This is contextual confirmation of the instructed sequence, not a captured
+per-invocation log.
+
+The user also reports running additional scripts successfully and continued
+operation after many different scripts in the same warm session. Script
+names, counts, and durations were not supplied, so record this as additional
+qualitative stability evidence without adding it to the twelve counted
+launches or claiming coverage of particular unlisted scripts.
+
+LUAREVIEW `IIgs 9add073-776024bcfb02 plain` now has successful targeted
+hardware checks, clean exits, the requested warm/cold repeatability checks,
+and additional mixed-script session evidence on the accelerated ROM 03 /
+8 MB machine. No further repetition of this sequence is needed to close
+this validation phase. Preserve both this exact candidate and the earlier
+LUAPATH baseline. The unavailable upstream T harness and historical
+files.lua failure remain separate limitations; these results do not claim
+all upstream tests pass or certify other hardware configurations.

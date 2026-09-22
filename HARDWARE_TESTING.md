@@ -88,7 +88,7 @@ disk's executable and text files by exporting and comparing them. See manifest.j
 SHA256SUMS beside the images. GoldenGate results do not certify real hardware.
 
 
-## PR-review candidate (hardware validation pending)
+## PR-review candidate (targeted hardware passes recorded)
 
 Preserve LUAPATH and its files. Build the new candidate using
 `python3 tools/hardware-kit.py --plain-name luareview`; its source digest
@@ -103,6 +103,21 @@ hwtest now says HWTEST PASSED WITH SKIPS for the unsupported Lua hook.
 IIGSHOST PASSED verifies the yielding C-hook path separately. Every command
 must return to the shell with no screen corruption. Then repeat the
 coroutine/hwdiag2 pair and one cold-boot pair for this new candidate.
+
+Hardware follow-up: the user reports all outstanding runs passed and
+returned to `#`, including the original silent tests. Original tableovf.lua
+took approximately **18 minutes**, reporting `entries=49152`, on the
+accelerated ROM 03 / 8 MB machine. It and IIGSHOST print only at completion;
+five or nine minutes of silence is not sufficient to call either a hang.
+No IIGSHOST hardware duration has been recorded. Allow for configuration
+differences; 18 minutes is an observation, not a timeout guarantee. See
+HARDWARE_RESULTS.md for diagnostic comparisons and evidence limits. The user
+subsequently confirmed the requested LUAREVIEW repeatability sequence:
+five warm coroutine/hwdiag2 pairs, then one pair after a full power-cycle
+(twelve launches), plus additional successful mixed-script warm-session
+testing with unspecified scripts/counts. This validation sequence is complete
+for the identified candidate; repeat it when validating a changed runtime,
+not merely to reconfirm the same report.
 
 The version output includes `IIgs mm=untested/ok/degraded/disabled`.
 Untested is normal before any large allocation; it does not run a probe.

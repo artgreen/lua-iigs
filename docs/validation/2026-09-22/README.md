@@ -4,14 +4,22 @@ Candidate: `IIgs 9add073-776024bcfb02 plain`, executable LUAREVIEW.
 Built from the review working tree before committing; 9add073 is the
 parent HEAD, not the tree being claimed as the candidate. The accompanying
 manifest hashes identify the exact source/tooling inputs. These inputs
-match the commit introducing this record. Unlike the preserved September
-21 baseline, this candidate has **not been run on real hardware**.
+match the commit introducing this record. Subsequent hardware testing has
+user-reported targeted passes, including the original silent TABLEOVF and
+IIGSHOST, with all runs returning to the shell. Original tableovf.lua took
+about 18 minutes and reported 49,152 entries. See
+[hardware results](../../../HARDWARE_RESULTS.md) for the diagnostic sequence
+and evidence limits. The user also confirmed the requested five warm
+coroutine/hwdiag2 pairs and one post-power-cycle pair (twelve launches),
+with additional successful mixed-script testing in a warm session. These
+are user-reported results; extra scripts/counts were not enumerated.
 
 Local kit: `build/hardware/20260922T145111Z-5t_54b1b/`.
 The original package manifest and checksums are preserved unchanged;
 ARCHIVE-SHA256SUMS covers the ShrinkIt archives in nas-transfer. Large
 binaries, images, archives, and raw logs remain gitignored. The NAS was not
-mounted when this candidate was prepared, so no new NAS copy was made.
+mounted when this candidate was prepared. After remounting, the kit was
+staged at `/Volumes/nas/LUA.20260922` and all copied bytes were verified.
 
 ## Completed checks
 
