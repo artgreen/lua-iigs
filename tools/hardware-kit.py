@@ -81,7 +81,7 @@ def main():
     env = dict(os.environ, GOLDEN_GATE=str(sdk))
     manifest = {"id": ident, "commit": commit, "utc": stamp,
                 "plain_name": args.plain_name,
-                "source_sha256": hashes, "sdk": str(sdk),
+                "source_sha256": hashes,
                 "compiler_sha256": {}, "executables": {}, "checks": {}}
     for p in sorted((sdk / "Languages").iterdir()):
         if p.is_file():

@@ -31,9 +31,10 @@ not change the identity or contents of the archived executable.
 - [PR #13 review disposition](PR13-REVIEW.md) records the fixes and alternatives
   adopted during review.
 
-Manifests and original checksums are evidence: do not regenerate them merely
-because documentation changed. Binaries, disk images, SDKs, and logs under
-`build/` are not included in a fresh clone. Rebuilding creates new evidence.
+The public manifest copies redact a local SDK path; original checksums remain
+as evidence for the preserved packages. Do not regenerate those checksums
+merely because documentation changed. Binaries, disk images, SDKs, and logs
+under `build/` are not included in a fresh clone. Rebuilding creates new evidence.
 
 ## Historical material
 

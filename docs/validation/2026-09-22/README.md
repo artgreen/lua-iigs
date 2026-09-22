@@ -7,8 +7,9 @@ The temporary name identifies the tested artifact. For a new distribution
 build, choose `lua`.
 Built from the review working tree before committing; 9add073 is the
 parent HEAD, not the tree being claimed as the candidate. The accompanying
-manifest hashes identify the exact source/tooling inputs. These inputs
-match the commit introducing this record. Subsequent hardware testing has
+public [manifest copy](manifest.redacted.json) retains the source/tooling
+hashes while redacting the local SDK path. These inputs match the commit
+introducing this record. Subsequent hardware testing has
 user-reported targeted passes, including the original silent TABLEOVF and
 IIGSHOST, with all runs returning to the shell. Original tableovf.lua took
 about 18 minutes and reported 49,152 entries. See
@@ -19,11 +20,12 @@ with additional successful mixed-script testing in a warm session. These
 are user-reported results; extra scripts/counts were not enumerated.
 
 Local kit: `build/hardware/20260922T145111Z-5t_54b1b/`.
-The original package manifest and checksums are preserved unchanged;
-ARCHIVE-SHA256SUMS covers the ShrinkIt archives in nas-transfer. Large
+The original package manifest remains in the preserved local kit; its
+checksums are reproduced unchanged here. ARCHIVE-SHA256SUMS covers the
+ShrinkIt archives in nas-transfer. Large
 binaries, images, archives, and raw logs remain gitignored. The NAS was not
 mounted when this candidate was prepared. After remounting, the kit was
-staged at `/Volumes/nas/LUA.20260922` and all copied bytes were verified.
+staged at `<NAS mount>/LUA.20260922` and all copied bytes were verified.
 
 ## Recorded local checks (GoldenGate)
 
@@ -80,8 +82,9 @@ LUAREVIEW.SHK SHA-256:
 `bc545bff24ee7a4b0b15b1c4e68b29fb04842c579fb933c94ddaca111045c811`.
 
 `SHA256SUMS` covers the original package directory, including its historical
-HARDWARE_TESTING.md. The current guide has changed; do not overwrite that
-checksum or run it against this documentation directory. ARCHIVE-SHA256SUMS
+HARDWARE_TESTING.md and unredacted manifest. The current guide and public
+manifest have changed; do not overwrite that checksum or run it against this
+documentation directory. ARCHIVE-SHA256SUMS
 covers the separately generated archives under `nas-transfer/`. A fresh
 clone contains the records, not these ignored binaries or images.
 
@@ -89,4 +92,4 @@ The files.lua failure recorded above remains unresolved. A later source
 review found test-side instrumentation that consumes an extra read and
 replacement-character bytes in the fixture; see
 [limitations](../../LIMITATIONS.md#outstanding-validation-and-defects).
-This qualification does not alter the original manifest or local log.
+This qualification does not alter the original package manifest or local log.

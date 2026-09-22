@@ -74,6 +74,7 @@ The banner combines the current Git HEAD prefix with a digest of the input
 snapshot and the variant. Uncommitted input edits are included in the digest;
 HEAD alone does not identify the built source. `HARDWARE_TESTING.md` is one of
 the inputs, so even a documentation update can change the next build's ID.
+The manifest records compiler hashes without exposing the local SDK path.
 Existing objects, `build/lua`, earlier kits, and `lua.po` are not overwritten.
 
 The builder does **not** produce `.SHK` archives, upload files, or perform
@@ -136,8 +137,8 @@ shasum -a 256 -c SHA256SUMS
 cp2 create-file-archive LUA.SHK
 cp2 copy lua.po LUA.SHK
 cp2 get-attr LUA.SHK LUA
-nulib2 -p LUA.SHK LUA > /private/tmp/lua-extracted
-cmp /private/tmp/lua-extracted ../plain/build/lua
+nulib2 -p LUA.SHK LUA > lua-extracted
+cmp lua-extracted ../plain/build/lua
 shasum -a 256 LUA.SHK > ARCHIVE-SHA256SUMS
 ```
 
@@ -148,8 +149,8 @@ NAS generally does not establish that its metadata survived. Plain `.PO`
 images are an alternative if the receiving setup can mount them.
 
 Copy the containers, manifest, and checksums to a new NAS directory and
-verify the destination files by reading them back. The session NAS was
-`/Volumes/nas`; the scripts do not mount it. On the IIgs, use GS ShrinkIt to
+verify the destination files by reading them back. The scripts do not mount
+the NAS. On the IIgs, use GS ShrinkIt to
 extract the archive, or copy from the mounted ProDOS image with a tool that
 preserves file types. [Hardware testing](../HARDWARE_TESTING.md) describes
 what to run after transfer.
@@ -163,9 +164,11 @@ by the linker as not being an object file. In-place links to the original
 staged objects avoid that transfer problem.
 
 The checked-in [validation records](README.md#evidence-and-provenance) refer
-to original package checksums. Run their `SHA256SUMS` in the corresponding
-archived package directory, not in the documentation directory, where the
-image files are absent and the README may have been updated.
+to original package checksums. Their public manifest copies redact the local
+SDK path, so the manifest entries in `SHA256SUMS` match only the preserved
+original packages. Run those checksums in the corresponding archived package
+directory, not in the documentation directory, where the image files are
+absent and the public manifests differ.
 
 ## Clean source distribution
 
