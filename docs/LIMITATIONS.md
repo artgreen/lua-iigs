@@ -47,6 +47,20 @@ The implementation details and allocator fallback limits are in
 port, even though the target floating-point type has a wider significand.
 This keeps that path compatible with the locally tested GoldenGate behavior.
 
+On the tested real IIgs, `0^0` evaluates to NaN; GoldenGate evaluates it to
+1. The hardware power probe passed the other 48 comparisons for bases and
+exponents from -3 through 3. The adapted math test explicitly skips that
+single comparison and uses the generator's 53-bit precision when checking
+seeded random floats. These are test adaptations, not interpreter changes.
+A later hardware assertion exposed a separate runtime defect: converting the exact
+minimum float (-2,147,483,648.0) back to an integer returned +2,147,418,112.
+The candidate now returns the exact minimum directly in the IIgs conversion
+macro, retaining the existing range checks for all other inputs. The fixed
+candidate passed the 33-check probe, 90-check conversion regression, and
+complete adapted math test in one real-IIgs run, returning to the shell.
+This fix is not included in the published v0.2.0 release; see the
+[hardware record](validation/HARDWARE_RESULTS.md).
+
 ## Modules and host facilities
 
 Pure Lua modules are found through `?.lua;?/init.lua` by default, relative

@@ -59,13 +59,13 @@ build/hardware/<UTC timestamp>-<unique suffix>/
 ```
 
 Each image is an 800 KB ProDOS transfer image, not a boot disk. The plain
-and trace images each contain their interpreter, fifteen targeted scripts,
+and trace images each contain their interpreter, sixteen targeted scripts,
 `tracegc.lua`, `README.TXT`, and `BUILD.TXT`. IIGSHOST has a separate image.
 The kit builds and tests `luac`, the library, allocator fault injection,
 bridge, and mmtest locally; those executables are not all included on the
 transfer images. `memfree` is built but not run locally.
 
-The builder runs fifteen scripts in each variant with GoldenGate memory
+The builder runs sixteen scripts in each variant with GoldenGate memory
 checking and completion contracts. It refuses to finish packaging after a
 failed check. The checks and intentional skips are recorded in the manifest.
 Its local timeouts are not hardware timing limits. See [test coverage](../tests/README.md).

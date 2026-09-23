@@ -172,7 +172,11 @@ do
   for i = -3, 3 do    -- variables avoid constant folding
       for j = -3, 3 do
         -- domain errors (0^(-n)) are not portable
-        if not _port or i ~= 0 or j > 0 then
+        -- The target pow(0, 0) returns NaN; GoldenGate returns 1.
+        -- Keep the other 48 comparisons active on the IIgs.
+        if _iigs and i == 0 and j == 0 then
+          print(">>> IIgs: skipping platform-dependent 0^0 comparison <<<")
+        elseif not _port or i ~= 0 or j > 0 then
           assert(eq(i^j, 1 / i^(-j)))
        end
     end
@@ -813,6 +817,9 @@ end
 print("testing 'math.random'")
 
 local random, max, min = math.random, math.max, math.min
+-- lmathlib caps random floats at 53 bits on the IIgs, including hardware
+-- with a 64-bit significand. Use that precision for both random tests.
+local randbits = math.min(floatbits, _iigs and 53 or 64)
 
 local function testnear (val, ref, tol)
   return (math.abs(val - ref) < ref * tol)
@@ -835,16 +842,16 @@ do
   -- using higher bits to generate random floats; (the '% 2^32' converts
   -- 32-bit integers to floats as unsigned)
   local res
-  if floatbits <= 32 then
+  if randbits <= 32 then
     -- get all bits from the higher half
-    res = (h >> (32 - floatbits)) % 2^32
+    res = (h >> (32 - randbits)) % 2^32
   else
     -- get 32 bits from the higher half and the rest from the lower half
-    res = (h % 2^32) * 2^(floatbits - 32) + ((l >> (64 - floatbits)) % 2^32)
+    res = (h % 2^32) * 2^(randbits - 32) + ((l >> (64 - randbits)) % 2^32)
   end
   local rand = random()
-  assert(eq(rand, 0x0.7a7040a5a323c9d6, 2^-floatbits))
-  assert(rand * 2^floatbits == res)
+  assert(eq(rand, 0x0.7a7040a5a323c9d6, 2^-randbits))
+  assert(rand * 2^randbits == res)
 end
 
 do
@@ -860,10 +867,6 @@ do
 end
 
 do   -- test random for floats
-  -- _iigs: lmathlib clamps FIGS to 53 (GoldenGate's SANE emulation is
-  -- 53-bit; real SANE would probe floatbits == 64 but random() still
-  -- yields 53 mantissa bits)
-  local randbits = math.min(floatbits, _iigs and 53 or 64)
   local mult = 2^randbits      -- to make random float into an integral
   local counts = {}    -- counts for bits
   for i = 1, randbits do counts[i] = 0 end

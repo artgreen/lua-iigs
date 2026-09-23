@@ -463,10 +463,23 @@
 ** MAXINTEGER may not have one, and therefore its conversion to float
 ** may have an ill-defined value.)
 */
+#if defined(LUA_USE_IIGS)
+/* The hardware conversion path maps -2147483648.0 to 0x7fff0000.
+** Return the exact minimum directly; retain the range checks for every
+** other value (including NaNs and infinities).
+*/
+#define lua_numbertointeger(n,p) \
+  ((n) == (LUA_NUMBER)(LUA_MININTEGER) \
+   ? (*(p) = LUA_MININTEGER, 1) \
+   : ((n) >= (LUA_NUMBER)(LUA_MININTEGER) && \
+      (n) < -(LUA_NUMBER)(LUA_MININTEGER) && \
+         (*(p) = (LUA_INTEGER)(n), 1)))
+#else
 #define lua_numbertointeger(n,p) \
   ((n) >= (LUA_NUMBER)(LUA_MININTEGER) && \
    (n) < -(LUA_NUMBER)(LUA_MININTEGER) && \
       (*(p) = (LUA_INTEGER)(n), 1))
+#endif
 
 
 /* now the variable definitions */

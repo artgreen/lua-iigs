@@ -15,7 +15,7 @@ python3 -m unittest discover -s tests -p 'test_kit_checks.py'
 python3 tools/generate-cobeacon.py --check
 ```
 
-The first command runs fifteen targeted scripts; `suite` runs the thirty
+The first command runs sixteen targeted scripts; `suite` runs the thirty
 entries in the broader `passing` group followed by the known `files` failure.
 These sets overlap but are not interchangeable: the broader group does not
 include every targeted regression. Run both when appropriate to a runtime
@@ -60,12 +60,20 @@ The authoritative list and completion rules are in
 | `mmalloc` | Full payload checks across 16 KB, 32 KB, and 64 KB boundaries; `MMALLOC PASSED` |
 | `tableovf` | Table growth rejected cleanly; entries preserved before/after GC; `TABLEOVF PASSED` |
 | `errors`, `events`, `math` | Adapted upstream regressions; `OK` |
+| `numconv` | Integer/float boundaries, table keys, rounding, and invalid conversions; `NUMCONV PASSED checks=90` |
 | `verybig` | RK section; explicit skip of programs beyond 16-bit limits |
 
 `tableovf.lua` takes about **18 minutes on the recorded accelerated IIgs**
 and prints only at completion. It retained 49,152 entries. Do not use the
 local timeout as a hardware deadline. See [hardware testing](../HARDWARE_TESTING.md)
 for commands and clean-exit requirements.
+
+`math.lua` explicitly skips the `0^0` comparison on the IIgs: the hardware
+probe returned NaN there, unlike GoldenGate. Its random-number assertions
+use 53 generated bits even when hardware reports a 64-bit float significand.
+With the minimum-integer conversion fix, the revised script passes locally
+and on the recorded real IIgs, alongside all 90 `numconv` checks and a clean
+shell return. See the [hardware record](../docs/validation/HARDWARE_RESULTS.md).
 
 ## C and build checks
 
