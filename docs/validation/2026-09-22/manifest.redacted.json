@@ -98,7 +98,7 @@
     "tools/hardware-kit.py": "818123f08d70afbb776827363ee3f5cfb3344af8953affc65f20135027128a7b",
     "tools/test_support.py": "7d7b233c224d55af3be9b6ac8239f4d79718f760eef793996547cdbaf80e68d2"
   },
-  "sdk": "/Users/green/projects/lua-iigs/.orca-sdk-2.2.1",
+  "sdk": "<local ORCA SDK>",
   "compiler_sha256": {
     "Asm65816": "407950e77ed1f74bb1e0ac726bf2b2dc85e80225dbf8e49d307b3930e4d38329",
     "BASIC": "e948f165bffc51534c25abc1454f59bcef70a97e672fa9ee47a0cafb4d62b1b1",

@@ -1,132 +1,156 @@
-# Lua IIgs hardware troubleshooting
+# Testing Lua on a real IIgs
 
-Target for this session: ROM 03, 8 MB RAM, hardware acceleration enabled.
-The user tentatively reports GS/OS "6.04". Exact OS version, accelerator
-model/speed, shell version, and storage device remain unconfirmed.
-Keep the accelerator enabled during the next tests for a consistent baseline.
+The merged runtime has passed the targeted tests, repeated warm launches,
+and a cold-boot follow-up on an accelerated ROM 03 IIgs with 8 MB RAM.
+The user also reported successful mixed-script use in the same warm session.
+GS/OS was tentatively reported as "6.04"; the exact OS/shell version,
+accelerator model/speed, and storage device remain unconfirmed.
 
-The July 7 resume-guard fix passed GoldenGate but did not resolve the
-reported hardware crash at that time. The identified September build has
-since passed the targeted tests on hardware (see HARDWARE_RESULTS.md).
-These images are diagnostic builds, not a
-hardware-certified release. Each includes a build identifier printed by -v.
+[Hardware results](docs/validation/HARDWARE_RESULTS.md) records the observations and exact
+historical build identities. The instructions below are for validating a
+new build or installation. The completed sequence does not need to be
+repeated solely because documentation changed.
 
-## First hardware run
+## Prepare and transfer
 
-1. Use the newly generated LUATRACE image. It is an 800 KB ProDOS transfer
-   disk, not a boot disk. Boot your normal GS/OS/ORCA-compatible shell and
-   copy its files into a fresh directory on your usual disk, preserving
-   the EXE file type. Change to that directory.
-2. Start from a cold boot. Run `luatrace -E -v hwsmoke.lua`.
-3. Record the build identifier and the last output. Success is `SMOKE DONE`,
-   then `[M5] script done`, `[M6] closing state`, `[M7] state closed`, and
-   return to a working shell prompt. M7 is printed before C runtime cleanup;
-   returning to the shell is still required.
-4. If smoke succeeds, run `luatrace -E -v cobeacon.lua`. Allow at least
-   five minutes on an unaccelerated machine; tracing can make it slower.
-   Photograph the last section marker and trace messages if it fails.
-   Report whether it froze, garbled text, rebooted, or printed a Lua error.
-   B0 means the diagnostic started. Later B numbers name the last entered
-   section, not necessarily the exact failing statement. Normal completion
-   is B27, the C API skip notice, OK, BEACON DONE, and M5 through M7.
-5. After any crash or screen corruption, power-cycle before another run.
+1. Build a verified kit using the [build guide](docs/BUILDING.md). Keep its
+   manifest, checksums, and original executable. Do not overwrite a known-good
+   installation while testing a changed runtime.
+2. Transfer a ProDOS `.po` image or a ShrinkIt `.SHK` archive. The kit images
+   are 800 KB transfer disks, not boot disks. Copying a naked executable
+   through a NAS may lose its file type; use GS ShrinkIt or a disk-image
+   tool that preserves EXE `$B5` / auxiliary `$0000` metadata.
+3. Place the interpreter and scripts together in a separate test directory.
+   Keep `tracegc.lua` beside `cstack.lua`. Extract the separate `iigshost`
+   executable there too. The kit does not package every tool it builds.
+4. Power fully off/on before the first validation run, then use your normal
+   ORCA-compatible shell. Keep accelerator settings consistent across runs.
 
-Do not redirect output to a disk file for the first run: preserve what is
-visible on screen without adding file-write activity to the failing workload.
-The `-E` switch excludes LUA_INIT startup scripts as a variable.
+Commands below assume the executable is named `lua`. If the kit was built
+with a unique test name, substitute that name. Check the banner against
+`BUILD.TXT` from the same kit; do not assume the shell selected the right
+binary merely because a command named `lua` exists. An earlier failed run
+lacked the expected build identifier, while the identified build passed.
 
-## After the first result
+## First checks
 
-If traced tests pass, repeat from the LUAPLAIN image with `luaplain -E -v hwsmoke.lua`
-and `luaplain -E -v cobeacon.lua`. The ordinary build has no M markers. Previous
-reports suggest tracing can affect the failure, so a trace-only pass is not
-enough. Keep accelerator and other system settings unchanged for this pair.
+From the test directory:
 
-If BEACON DONE and M5 appear but M7 does not, investigate shutdown/GC. If M7
-appears but the shell does not return, investigate runtime cleanup. If a B
-section is the last marker, reduce that section to a minimal reproducer.
-No B0 means startup, library initialization, or loading the script failed.
+```text
+lua -E -v
+lua -E -v hwsmoke.lua
+lua -E -v coroutine.lua
+lua -E -v hwdiag2.lua
+```
 
-Once both builds pass, run hwdiag2.lua, hwtest.lua, sieve.lua, cstack.lua,
-pm.lua, and the original coroutine.lua individually. The sieve deliberately
-exceeds the available C stack: a caught 'C stack overflow' is expected.
-Other diagnostics must report their normal completion markers with no FAIL.
-Repeat launches and exits ten times without rebooting, then repeat after a
-cold boot. Record configuration and results; only then treat this as evidence
-of reliability on this particular machine. C API tests requiring Lua's T
-test library remain skipped.
+`-E` ignores Lua environment initialization and module-path settings.
+`-v` prints the Lua version, the kit's build ID, and allocator status. Normal
+Makefile builds lack the kit's unique ID; use an identified kit for comparison.
 
-Always check the build ID printed by -v. An earlier `lua` invocation lacked
-the expected ID and corrupted the screen; the identical new binary worked
-when invoked under the unique name LUAPLAIN. Avoid selecting an old command
-from the shell's search path. Updates may use another unique executable
-name; follow the instructions shipped with that update.
+| Script | Required result |
+| --- | --- |
+| `hwsmoke.lua` | `SMOKE DONE - expect shell prompt next` |
+| `coroutine.lua` | `OK`; upstream C API harness skip notices are expected |
+| `hwdiag2.lua` | `E99 DONE fails=0` and `ALL DIAGNOSTICS PASSED` |
 
-The original September build needed `-e "package.path='?.lua'"` to run
-cstack.lua on the GS. The updated IIgs default is `?.lua;?/init.lua`, so
-TRACEGC.LUA can be loaded from the working directory without this override.
-Keep that helper alongside the test. The default no longer assumes Unix
-`/usr/local` installation directories; applications can set package.path or
-use LUA_PATH when running without -E to select other module directories.
+Every command must also return to a usable shell prompt, shown as `#` in
+the recorded sessions. A printed success line alone does not establish clean
+shutdown. After screen corruption, a crash, or an interrupted suspect run,
+power-cycle before continuing.
 
-## Rebuilding on the Mac
+## Allocation, stack, and C-host checks
 
-Run `python3 tools/hardware-kit.py` from the repository. It requires iix,
-make, ORCA/C 2.2.x, and native AppleCommander acx. Override the SDK or acx
-path with `--sdk` / `--acx` if needed. Use `--plain-name luapath`, for example,
-to give an update a unique executable/image name. Each run creates a new directory under
-build/hardware with source snapshots, separate plain/trace objects, logs,
-and a package directory. It preserves the previous binaries and lua.po.
+```text
+lua -E -v mmalloc.lua
+lua -E -v tableovf.lua
+lua -E -v hwtest.lua
+lua -E -v cstack.lua
+lua -E -v sieve.lua
+lua -E -v pm.lua
+iigshost
+```
 
-The builder runs fifteen targeted diagnostics on each interpreter under
-GoldenGate with memory checking, plus a luac bytecode roundtrip and an
-excessive-parser-nesting test. It also checks the library host with C-hook
-yields and array limits, allocator fault injection, the bridge, and mmtest.
-It compiles memfree but does not run that hardware-only tool. It refuses
-to package failed runs, records source/compiler hashes, and verifies each
-disk's executable and text files by exporting and comparing them. See manifest.json and
-SHA256SUMS beside the images. GoldenGate results do not certify real hardware.
+| Test | Expected completion |
+| --- | --- |
+| `mmalloc.lua` | `MMALLOC PASSED` |
+| `tableovf.lua` | `TABLEOVF PASSED entries=49152` on the recorded build |
+| `hwtest.lua` | 19 passed, 0 failed, 1 skipped; `HWTEST PASSED WITH SKIPS` |
+| `cstack.lua` | `OK` after deliberate stack-overflow recovery tests |
+| `sieve.lua` | `chain=40`, a caught `C stack overflow`, and shell return |
+| `pm.lua` | `OK` |
+| `iigshost` | `IIGSHOST PASSED yields=100` on the recorded build |
 
+The sieve deliberately exceeds the native C-stack capacity. Its caught
+error is the intended result. Chain depth can vary with the build; it is
+not a general limit on the number of independent Lua coroutines.
 
-## PR-review candidate (targeted hardware passes recorded)
+**Allow time for silent tests.** Original `tableovf.lua` took approximately
+18 minutes on the tested accelerated machine and completed successfully.
+It constructs error-message strings for every assertion even when the check
+passes. IIGSHOST also stays silent until completion or an error; its hardware
+duration was not measured. Five or nine minutes of silence did not establish
+a hang. Eighteen minutes is an observation, not a universal deadline.
 
-Preserve LUAPATH and its files. Build the new candidate using
-`python3 tools/hardware-kit.py --plain-name luareview`; its source digest
-and banner differ from the baseline. A separate iigshost.po image contains
-the IIGSHOST executable (keeping all transfer images at 800 KB). Transfer via a ProDOS image or ShrinkIt archive to keep
-EXE/TXT metadata intact. Do not overwrite the known-good installation.
+The remaining targeted scripts are listed in [tests/README.md](tests/README.md).
+Local GoldenGate coverage and a user report of extra scripts must not be
+presented as individually documented hardware passes for every script.
 
-After confirming the new `luareview -E -v` build ID, run hwsmoke.lua,
-mmalloc.lua, tableovf.lua, hwtest.lua, and cstack.lua with that executable,
-and run `iigshost` directly. MMALLOC PASSED and TABLEOVF PASSED are required;
-hwtest now says HWTEST PASSED WITH SKIPS for the unsupported Lua hook.
-IIGSHOST PASSED verifies the yielding C-hook path separately. Every command
-must return to the shell with no screen corruption. Then repeat the
-coroutine/hwdiag2 pair and one cold-boot pair for this new candidate.
+## Repeatability for a changed runtime
 
-Hardware follow-up: the user reports all outstanding runs passed and
-returned to `#`, including the original silent tests. Original tableovf.lua
-took approximately **18 minutes**, reporting `entries=49152`, on the
-accelerated ROM 03 / 8 MB machine. It and IIGSHOST print only at completion;
-five or nine minutes of silence is not sufficient to call either a hang.
-No IIGSHOST hardware duration has been recorded. Allow for configuration
-differences; 18 minutes is an observation, not a timeout guarantee. See
-HARDWARE_RESULTS.md for diagnostic comparisons and evidence limits. The user
-subsequently confirmed the requested LUAREVIEW repeatability sequence:
-five warm coroutine/hwdiag2 pairs, then one pair after a full power-cycle
-(twelve launches), plus additional successful mixed-script warm-session
-testing with unspecified scripts/counts. This validation sequence is complete
-for the identified candidate; repeat it when validating a changed runtime,
-not merely to reconfirm the same report.
+Run this pair five times without rebooting:
 
-The version output includes `IIgs mm=untested/ok/degraded/disabled`.
-Untested is normal before any large allocation; it does not run a probe.
-A degraded warning is always printed if the startup MM probes fail. Stop
-and report it; do not accept that run as validating the hybrid allocator.
-The traced mmalloc test must show `[mm] selftest state=1`; smaller tests
-such as sieve need not initialize the MM path. An ok status certifies the
-small startup probe, not every allocation size or hardware configuration.
+```text
+lua -E -v coroutine.lua
+lua -E -v hwdiag2.lua
+```
 
-The source-only library has a required initialization contract described
-in docs/CORRUPTION-ANALYSIS.md. Existing embedders must request the larger
-stack and initialize its guard before creating a state.
+Then power fully off/on and run the pair once more. This is twelve launches:
+ten warm and two after the power-cycle. Require each script's success marker
+and a clean shell return. Record the build ID, count, configuration, and any
+failure; stop at a failure rather than continuing in potentially damaged
+memory. This sequence is already complete for the preserved September 22
+build, with additional mixed-script warm-session success reported.
+
+## When a failure needs localization
+
+Use the same kit's traced executable:
+
+```text
+luatrace -E -v hwsmoke.lua
+luatrace -E -v cobeacon.lua
+```
+
+Trace output includes lifecycle markers `[M5] script done`, `[M6] closing
+state`, and `[M7] state closed`, plus Memory Manager events. M7 precedes
+C-runtime cleanup, so shell return is still required. `cobeacon.lua` adds
+flushed B markers to the coroutine test. Some markers precede explanatory
+comments rather than test operations; the last marker narrows a region,
+not necessarily a failing instruction. Success ends with B27, `OK`, and
+`BEACON DONE (C API harness skipped)` in the current no-T configuration.
+
+Record the exact command, build ID, elapsed time, last output, and whether
+it froze, corrupted text, rebooted, or printed a Lua error. Prefer a photo
+for an initial corruption report rather than adding file-output activity.
+Tracing changes timing and layout; confirm a fix with the ordinary build too.
+
+The temporary TABPROBE/TABQUIET/TABEAGER/IIGSDBG packages described in the
+results journal were investigation artifacts, not distribution executables
+or prerequisites for this test sequence.
+
+## Allocator status and module lookup
+
+`IIgs mm=untested` is normal before an allocation needs the Memory Manager;
+`-v` does not force a probe. `ok` means the startup probe succeeded, not that
+every allocation size or machine is certified. `degraded` means the probe
+failed and only bounded C-heap fallback is available. Report degradation;
+do not count it as validating the hybrid allocator. `disabled` identifies a
+build with the hybrid allocator compiled out.
+
+For a traced allocation check, `luatrace -E -v mmalloc.lua` must include
+`[mm] selftest state=1`. Small workloads need not activate the MM path.
+
+The default Lua module path is `?.lua;?/init.lua`. The current build does not
+need the old `-e "package.path='?.lua'"` workaround for `cstack.lua`. If
+`tracegc` is missing, check the working directory and extracted helper before
+changing the runtime. C-library search-path text in an error does not imply
+that dynamic C modules are supported; see [limitations](docs/LIMITATIONS.md).

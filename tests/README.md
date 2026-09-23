@@ -1,40 +1,114 @@
-# Lua tests
+# Tests and coverage
 
-Upstream tests originate at https://www.lua.org/tests/.
+Run commands in this guide from the repository root. These automation
+commands execute the IIgs binary under GoldenGate, not natively on the Mac
+and not on real hardware. Build `build/lua` first and select the SDK as
+explained in [building](../docs/BUILDING.md).
 
-`make -C tests tests LUA=/absolute/path/to/lua` runs the targeted regression
-set under GoldenGate with memory checking, timeouts, explicit completion
-markers, and nonzero status for failures. Logs and test scratch files are
-isolated under build/test-runs. `make -C tests suite` runs the broader suite
-and the known files.lua failure separately; an unexpected pass needs review.
-C API portions requiring the unavailable T module remain skipped. The
-verybig test covers its RK section and explicitly skips >64K programs on
-IIgs. Platform scaling uses the IIgs version string, not an unconditional
-flag. No host-platform run is claimed by these IIgs checks.
+## Commands
 
-The hardware kit uses the same targeted contracts and adds:
+```sh
+make -C tests tests LUA="$PWD/build/lua"
+make -C tests suite LUA="$PWD/build/lua"
+python3 tools/run-tests.py --lua "$PWD/build/lua" coroutine hwdiag2
+python3 -m unittest discover -s tests -p 'test_kit_checks.py'
+python3 tools/generate-cobeacon.py --check
+```
 
-- iigshost.c: initialization is required, stack-error recovery, oversized
-  array/vector rejection and error formatting, and real C-hook yields/resumes
-  (saved-PC regression).
-- allocfail.c: actual allocator code with injected allocation failures,
-  bounded fallback, retained data after failed growth, and one warning.
-- mmalloc.lua: complete data checks across 16KB/32KB/64KB boundaries.
-- tableovf.lua: append/rehash overflow, preserved entries, and GC afterward.
-- hookyield.lua: call/line/count hook correctness; Lua hooks cannot yield.
+The first command runs fifteen targeted scripts; `suite` runs the thirty
+entries in the broader `passing` group followed by the known `files` failure.
+These sets overlap but are not interchangeable: the broader group does not
+include every targeted regression. Run both when appropriate to a runtime
+change. `tests/all.lua` is not the supported IIgs driver: its exact version
+check expects `Lua 5.4`, whereas this port reports `Lua (IIgs) 5.4`.
 
-`hwtest.lua` reports its unsupported Lua hook as a skip. The C-host test
-covers the yielding C-hook path separately. The upstream C API harness is
-still not supplied. Neither a completion marker nor GoldenGate proves
-hardware reliability outside the exercised workloads.
+The runner invokes `iix --memcheck` with `-E` and closed stdin. It copies
+tests into a fresh `build/test-runs/<unique directory>/tests/`, creates the
+required `libs/P1` scratch directory, and saves output logs beside it.
+`LUA` overrides the executable; `TIMEOUT=600` overrides the Makefile's
+300-second per-script local timeout. Direct runner use supports `--timeout`.
+These limits apply to GoldenGate, not to physical IIgs run times.
 
-`cobeacon.lua` is generated from coroutine.lua by
-`python3 tools/generate-cobeacon.py`. The kit rejects an out-of-date copy;
-`--check` verifies synchronization. Historical B numbering is retained.
-Some B markers identify explanatory comments rather than operations.
+A targeted pass requires zero process exit, its completion marker, and no
+recognized corruption or allocator-degradation reports. Trace validation in
+the hardware-kit builder additionally requires state closure and successful
+MM activation for `mmalloc`. The general runner does not enable the builder's
+trace-specific contracts. Non-targeted scripts in the broader group get
+exit/memory checks only; "completed" does not mean all assertions ran.
 
-Human-read localization tools (`stackcal.lua`, `hwdiag.lua`, `cobisect.lua`)
-are intentionally outside the regression pass/fail set. They are useful
-when a hardware failure needs narrowing, not evidence of full coverage.
-Standalone `make mmtest memfree` builds Memory Manager probes. mmtest returns
-failure if it detects an error; memfree requires real hardware tool support.
+`make -C tests fails` expects `files.lua` to return a nonzero status without
+a recognized corruption report. An unexpected pass makes that target fail
+for review. The expected-failure check does not match the exact historical
+error, so inspect its log before concluding the same failure recurred.
+
+## Targeted scripts
+
+The authoritative list and completion rules are in
+[tools/test_support.py](../tools/test_support.py).
+
+| Script | Purpose / final marker |
+| --- | --- |
+| `hwsmoke` | Small arithmetic, source/bytecode, coroutine, and GC checks; `SMOKE DONE` |
+| `sieve` | Nested coroutine chain must catch C-stack overflow |
+| `coroutine` | IIgs-scaled coroutine regression; `OK`, with T sections skipped |
+| `cobeacon` | Same coroutine test with flushed section markers; `BEACON DONE` |
+| `cstack` | Deliberate overflow/recovery paths; `OK`; requires `tracegc.lua` |
+| `pm` | Pattern matching, including recursive substitutions; `OK` |
+| `hwdiag2` | Large allocations, compiler constants, and stack recovery; `ALL DIAGNOSTICS PASSED` |
+| `hwtest` | Known-answer regression checks; currently 19 pass, 0 fail, 1 skip |
+| `hookyield` | Lua call/line/count hook checks; does not yield from a C hook |
+| `mmalloc` | Full payload checks across 16 KB, 32 KB, and 64 KB boundaries; `MMALLOC PASSED` |
+| `tableovf` | Table growth rejected cleanly; entries preserved before/after GC; `TABLEOVF PASSED` |
+| `errors`, `events`, `math` | Adapted upstream regressions; `OK` |
+| `verybig` | RK section; explicit skip of programs beyond 16-bit limits |
+
+`tableovf.lua` takes about **18 minutes on the recorded accelerated IIgs**
+and prints only at completion. It retained 49,152 entries. Do not use the
+local timeout as a hardware deadline. See [hardware testing](../HARDWARE_TESTING.md)
+for commands and clean-exit requirements.
+
+## C and build checks
+
+`python3 tools/hardware-kit.py --plain-name luanext` runs the targeted set in
+both plain and trace variants, then additional checks as part of packaging:
+
+- `iigshost.c`: refuse state creation before stack initialization; recover
+  from deep Lua-stack recursion; reject oversized array/vector requests;
+  check retained table data; yield/resume from a native C hook (100 yields
+  observed). This is separate from the upstream T harness.
+- `allocfail.c`: compile the actual allocator with fault-injection wrappers;
+  check bounded fallback, old-data retention, and one expected degradation
+  warning. This deliberately generated warning is not an ordinary runtime pass.
+- Bridge demo and `cstack` through the embedding host.
+- `mmtest`: raw Memory Manager probe, requiring `MMTEST DONE errs=0`.
+- `luac`: source/bytecode smoke round trip and clean excessive-nesting error.
+- `memfree`: compilation only; required query tools are unavailable locally.
+
+The kit builds these hosts itself; `make -C tests tests` does not build or
+run them. Root `make mmtest memfree` builds the standalone probes. The kit
+is the maintained end-to-end route for C-host validation.
+
+## Coverage boundaries and diagnostics
+
+The T harness is absent: `api.lua` and `code.lua` return after skip notices,
+and other tests omit T-dependent sections. `main.lua` currently sets `_iigs`
+true and immediately returns, so its successful exit is not interpreter-CLI
+coverage. Several inherited tests hard-code IIgs adaptations; a host-native
+or unmodified upstream-suite pass is not claimed. `tracegc.lua` is a helper.
+
+`hwtest.lua` reports its unsupported Lua-hook yield case as a skip and prints
+`HWTEST PASSED WITH SKIPS`. Earlier baseline output counted that unsupported
+case as a pass; [the evidence record](../docs/validation/HARDWARE_RESULTS.md)
+preserves the correction. Avoid quoting a whole-suite percentage.
+
+`files.lua` is still expected-failing and has test-instrumentation/fixture
+issues to isolate before diagnosing a runtime defect; see
+[known limitations](../docs/LIMITATIONS.md#outstanding-validation-and-defects).
+
+`cobeacon.lua` is generated from `coroutine.lua`. Regenerate after changing
+the source test with `python3 tools/generate-cobeacon.py`; `--check` verifies
+synchronization. Historical B numbering is retained, and some markers label
+comments rather than operations. `stackcal.lua`, `hwdiag.lua`, and
+`cobisect.lua` are human-read localization tools outside the automated pass
+set. Temporary table/host beacon packages from the hardware session are not
+required for distribution or routine regression testing.

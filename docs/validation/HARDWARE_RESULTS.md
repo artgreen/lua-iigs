@@ -1,5 +1,11 @@
 # Real IIgs test results
 
+This is a chronological evidence journal. Commands, pending items, and
+artifact paths inside dated entries describe that moment in the investigation;
+they are not current installation instructions. Use the
+[hardware guide](../../HARDWARE_TESTING.md) for new testing. Local `build/` and
+NAS paths below are relative to the original project environment.
+
 Current tested build: **LUAREVIEW / `IIgs 9add073-776024bcfb02 plain`**.
 The user reports completion of the requested five warm coroutine/hwdiag2
 pairs and one post-power-cycle pair, plus additional mixed-script testing
@@ -11,12 +17,12 @@ and two post-power-cycle launches passed. Earlier "pending" entries below
 describe the state when recorded; later entries close those checks.
 Coverage is limited to the documented workloads and machine configuration.
 The baseline runtime source is commit `9add073`; its banner predates that
-commit. See [preserved provenance](docs/validation/2026-09-21/README.md).
+commit. See [preserved provenance](2026-09-21/README.md).
 
 Review correction: the baseline hwtest's "20 passed" includes one unsupported
 Lua-hook yield case incorrectly counted as a pass. That path was untested;
 the recorded hardware runs and clean shell returns are still valid evidence.
-The current review candidate has separate skip reporting and a C-hook test.
+The merged build has separate skip reporting and a C-hook test.
 Its diagnostic companions have hardware passes, and the user subsequently
 confirmed all outstanding runs, including the original silent tests, passed
 and returned to the shell. Original tableovf.lua took about 18 minutes and
@@ -32,7 +38,7 @@ device remain unconfirmed. Keep acceleration enabled for the next tests
 to preserve the configuration used for the successful runs.
 
 The user supplied a photograph after receiving the diagnostic kit staged
-at `/Volumes/nas/LUA.20260921` (kit ID `b69d628-9bf53392629b`). The photograph
+at `<NAS mount>/LUA.20260921` (kit ID `b69d628-9bf53392629b`). The photograph
 does not show the version banner, so the executable ID is contextual rather
 than independently confirmed by the image.
 
@@ -250,7 +256,7 @@ baseline. Its source snapshot, compiler/source hashes, local verification
 logs, executable, disk image, and ShrinkIt archive are preserved under
 `build/hardware/20260921T195254Z-isvxzp3_`. The archive is
 `nas-transfer/LUAPATH.SHK`; it was copied and checksum-verified on the NAS
-as `/Volumes/nas/LUA.20260921/LUAPATH.SHK`. The NAS copy was not accessible
+as `<NAS mount>/LUA.20260921/LUAPATH.SHK`. The NAS copy was not accessible
 from the Mac at this final documentation update; the local artifacts remain.
 
 The completed session establishes successful targeted operation, clean
@@ -269,8 +275,8 @@ remain preserved. Library hosts now require explicit stack initialization.
 
 GoldenGate checks cover both interpreter variants, the library host's
 C-hook yields and size-limit errors, allocator failure injection, bridge,
-and compiler. See [candidate validation](docs/validation/2026-09-22/README.md)
-and [review disposition](docs/PR13-REVIEW.md) for coverage and limitations.
+and compiler. See [candidate validation](2026-09-22/README.md)
+and [review disposition](../PR13-REVIEW.md) for coverage and limitations.
 The historical files.lua failure remains reproducible locally.
 
 ShrinkIt archives and images are ready locally under
@@ -281,7 +287,7 @@ listed in HARDWARE_TESTING.md; no new hardware results are claimed here.
 ## 2026-09-22: progress companions pass on hardware
 
 After the NAS was remounted, the review kit was copied to
-`/Volumes/nas/LUA.20260922` and every copied file was read back and verified.
+`<NAS mount>/LUA.20260922` and every copied file was read back and verified.
 The user reported runs of tableovf.lua and IIGSHOST lasting at least five
 minutes, with no IIGSHOST output. Both original tests print only at completion;
 neither a hang nor an eventual successful completion was established.
@@ -295,7 +301,7 @@ the table test and constructs failure-message strings only on failed checks.
 Both passed locally under GoldenGate. The interpreter and original tests
 were not replaced. Sources, logs, manifest, and packaged artifacts are in
 `build/diagnostics/20260922-progress/`; the verified NAS package is
-`/Volumes/nas/LUA.20260922/PROGRESS/PROGRESS.SHK` (SHA-256
+`<NAS mount>/LUA.20260922/PROGRESS/PROGRESS.SHK` (SHA-256
 `b9f38fa28cc6a2e0d360e224880ca300a3c3585017af150721cf2cc6349b5079`).
 
 The user's next photograph shows:
@@ -349,7 +355,7 @@ and byte-compared. Hardware results for these two companions are pending.
 Use a fresh power-cycle before each comparison, record elapsed times and
 progress intervals, and require the final success marker and shell return.
 Do not infer a hardware failure deadline from the local measurements.
-The package is staged at `/Volumes/nas/LUA.20260922/TABLEAB/TABLEAB.SHK`;
+The package is staged at `<NAS mount>/LUA.20260922/TABLEAB/TABLEAB.SHK`;
 all five transfer files were read back and matched their local bytes.
 
 ## 2026-09-22: both table comparison companions pass

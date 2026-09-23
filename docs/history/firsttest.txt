@@ -1,3 +1,6 @@
+Historical Lua 5.4.4 transcript. Not current validation evidence.
+Original captured output follows unchanged.
+
 $ iix lua -v
 Lua 5.4.4  Copyright (C) 1994-2022 Lua.org, PUC-Rio
 

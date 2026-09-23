@@ -1,9 +1,12 @@
 # Current IIgs corruption protections
 
-The accelerated ROM 03 hardware baseline is the archived LUAPATH binary,
-not an arbitrary rebuild. Its provenance is recorded in
-[validation/2026-09-21/README.md](validation/2026-09-21/README.md).
-Changes made during PR review require fresh hardware validation.
+The merged runtime has targeted and repeatability passes on the accelerated
+ROM 03 / 8 MB IIgs. The exact tested artifact is identified in the
+[September 22 validation record](validation/2026-09-22/README.md); an arbitrary
+rebuild is not the same binary. The earlier
+[September 21 baseline](validation/2026-09-21/README.md) is also preserved.
+See [hardware results](validation/HARDWARE_RESULTS.md) for observed scope and
+[embedding](EMBEDDING.md) for a complete host example.
 
 | Setting | Current value | Defined in |
 | --- | --- | --- |
@@ -33,7 +36,7 @@ The guard and error-grace flag are shared by every state in the process.
 Do not initialize from a nested frame or move states to another native
 stack. An uninitialized host now gets NULL from lua_newstate/luaL_newstate.
 Interpreter, compiler, and bridge follow this contract; the C host test
-checks refusal before initialization and recovery after stack overflow.
+checks refusal before initialization and recovery after Lua-stack overflow.
 This is a required initialization change for existing library clients.
 
 ## Allocation and 16-bit arithmetic
@@ -69,14 +72,15 @@ tested in an actual C host; a Lua debug hook cannot exercise that branch.
 
 ## Remaining work
 
-- Revalidate the review candidate on the real IIgs, preserving LUAPATH.
-- Reproduce and isolate the historical files.lua I/O failure; text-mode
-  translation is a hypothesis, not an established cause.
+- Isolate the historical files.lua failure, including its input-consuming
+  diagnostic read and fixture encoding, before attributing it to runtime
+  text translation. See [limitations](LIMITATIONS.md).
 - The upstream T C API harness is still unavailable. The focused C host
   adds coverage but does not replace that full harness.
 - Confirm OS/shell version, accelerator model/speed, and storage device.
-- Broader Lua workloads and other hardware configurations remain untested.
+- Broader coverage and other hardware configurations remain open; the
+  additional mixed-script session was reported without individual script names.
 
 For the detailed experiments, measurements, and superseded theories, see
-[the archived notebook](CORRUPTION-HISTORY.md). Hardware observations take
+[the archived notebook](history/CORRUPTION-HISTORY.md). Hardware observations take
 precedence over its historical emulator-only conclusions.
