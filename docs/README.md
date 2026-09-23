@@ -1,9 +1,11 @@
 # Documentation map
 
-The repository's default branch is `master`. PR #13 merged as `b911c3c`;
-its runtime source was hardware-tested under the archived identifier
-`IIgs 9add073-776024bcfb02 plain`. Documentation changes after that build do
-not change the identity or contents of the archived executable.
+The repository's default branch is `master`. The
+[v0.2.1 release](https://github.com/artgreen/lua-iigs/releases/tag/v0.2.1)
+includes PR #15's hardware-validated minimum-integer fix. Its binaries were
+rebuilt from merged commit `e026f5b`; the same source inputs passed hardware
+math testing as `IIgs aa385d7-13178cdf3c75 plain`. Rebuilds retain their own
+identities and do not replace the archived hardware-tested bytes.
 
 ## Current guidance
 
@@ -23,8 +25,10 @@ not change the identity or contents of the archived executable.
 - [Hardware results](validation/HARDWARE_RESULTS.md) is chronological. Early pending
   items and unsuccessful runs are preserved; the latest summary describes
   current status. User reports and photographs are distinguished from logs.
+- [I/O investigation](validation/IO_INVESTIGATION.md) separates fixture
+  defects, the emulator EOF guard, and the pending hardware text-mode probe.
 - [September 22 LUAREVIEW record](validation/2026-09-22/README.md) identifies
-  the current tested artifact, its source commit, local checks, and hardware
+  an earlier tested artifact, its source commit, local checks, and hardware
   follow-up.
 - [September 21 LUAPATH record](validation/2026-09-21/README.md) preserves the
   earlier tested baseline and its coverage correction.

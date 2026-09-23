@@ -109,9 +109,15 @@ or unmodified upstream-suite pass is not claimed. `tracegc.lua` is a helper.
 case as a pass; [the evidence record](../docs/validation/HARDWARE_RESULTS.md)
 preserves the correction. Avoid quoting a whole-suite percentage.
 
-`files.lua` is still expected-failing and has test-instrumentation/fixture
-issues to isolate before diagnosing a runtime defect; see
-[known limitations](../docs/LIMITATIONS.md#outstanding-validation-and-defects).
+`files.lua` is still expected-failing. Its duplicate read, undefined
+variable, and corrupted fixture bytes have been repaired. The next issues
+are GoldenGate's repeated-EOF abort and a text newline mismatch reproduced
+with an isolated emulator build; see the
+[I/O investigation](../docs/validation/IO_INVESTIGATION.md).
+`ioprobe.lua` is a diagnostic outside the default pass set. It prints byte
+comparisons and failure counts, and deliberately exercises repeated EOF
+reads that terminate the installed GoldenGate. Use hardware or the documented
+isolated emulator for the complete probe; a DONE line is not a pass by itself.
 
 `cobeacon.lua` is generated from `coroutine.lua`. Regenerate after changing
 the source test with `python3 tools/generate-cobeacon.py`; `--check` verifies

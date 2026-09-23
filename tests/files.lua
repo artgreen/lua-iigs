@@ -4,7 +4,7 @@
 local debug = require "debug"
 
 local maxint = math.maxinteger
-_iigs = true -- used to skip failing tests and set sizes
+_iigs = (_VERSION == "Lua (IIgs) 5.4")
 
 if not _iigs then
 assert(type(os.getenv"PATH") == "string")
@@ -97,8 +97,9 @@ assert(io.output():seek("end") == string.len("alo joao"))
 
 assert(io.output():seek("set") == 0)
 
-assert(io.write('"�lo"', "{a}\n", "second line\n", "third line \n"))
-assert(io.write('�fourth_line'))
+-- Preserve the upstream single-byte fixtures regardless of source encoding.
+assert(io.write('"\xE1lo"', "{a}\n", "second line\n", "third line \n"))
+assert(io.write('\xE7fourth_line'))
 io.output(io.stdout)
 collectgarbage()  -- file should be closed by GC
 assert(io.input() == io.stdin and rawequal(io.output(), io.stdout))
@@ -318,19 +319,14 @@ do  -- test error returns
 end
 checkerr("invalid format", io.read, "x")
 assert(io.read(0) == "")   -- not eof
-  print(io.read(5, 'l'))
-  print(s)
-  for i = 1,#s do
-    local z = s:sub(i,i); print(z, string.byte(z))
-  end
-assert(io.read(5, 'l') == '"�lo"{a}')
+assert(io.read(5, 'l') == '"\xE1lo"')
 assert(io.read(0) == "")
 assert(io.read() == "second line")
 local x = io.input():seek()
 assert(io.read() == "third line ")
 assert(io.input():seek("set", x))
 assert(io.read('L') == "third line \n")
-assert(io.read(1) == "�")
+assert(io.read(1) == "\xE7")
 assert(io.read(string.len"fourth_line") == "fourth_line")
 assert(io.input():seek("cur", -string.len"fourth_line"))
 assert(io.read() == "fourth_line")
