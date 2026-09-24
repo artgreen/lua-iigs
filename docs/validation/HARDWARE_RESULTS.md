@@ -8,8 +8,12 @@ NAS paths below are relative to the original project environment.
 
 Latest acceptance build: **published v0.2.1 plain interpreter /
 `IIgs e026f5b-13178cdf3c75 plain`**, renamed LUATEST without changing bytes.
-The user reports RELEASECHECK 1 and LARGEFILE 1 passed; see the September 24
-entries for provenance, scope, and explicit skips. The earlier candidate
+This phase is complete: two photographed full-suite runs passed (23 tests,
+eight with intentional skips), including one user-confirmed cold start.
+Standalone LUAC passed six checks; the native host passed with 100 yields
+and post-host smoke. All returned to the shell. See the
+[phase closeout](2026-09-24/PHASE-CLOSEOUT.md) and September 24 entries for
+provenance, scope, and explicit skips. The earlier candidate
 `IIgs aa385d7-13178cdf3c75 plain` passed math and FILECHECK 4 on September 23.
 
 Earlier repeatability build: **LUAREVIEW / `IIgs 9add073-776024bcfb02 plain`**.
@@ -642,3 +646,146 @@ The test verifies every byte before and after updates, seeks around the
 truncation. Transfers are at most 4,096 bytes and writers close before readers
 open. This pass does not extend to large single transfers, larger file sizes,
 other storage devices, or repeated cold/warm testing of this diagnostic.
+
+### BIGIO 1 prepared; hardware result pending
+
+The next package keeps the published v0.2.1 plain interpreter and tests
+single binary transfers at seven sizes around 32/64/128 KiB. Each case
+checks single-write data through counted reads, read-all, and partial reads
+at EOF, with exact byte/length/position comparisons. Installed GoldenGate
+completes all cases with exit 0 and stack usage 5,788 bytes. Hardware results
+are pending; see the [September 24 record](2026-09-24/README.md#follow-up-bigio-1).
+
+### BIGIO 1 passes on hardware
+
+After staging the verified package and requesting `BIGIO 1 PASSED cases=7`
+and the shell prompt, the user reported "passed". Record one reported pass
+with the unchanged published v0.2.1 plain interpreter on the established
+setup. No new hardware photograph or log was supplied.
+
+The seven sizes span 32,767 through 131,073 bytes. Each case checks a single
+write, counted read, read-all, and a counted request extending 17 bytes past
+EOF, with exact data, lengths, file sizes, and positions. This extends the
+earlier large-file/small-chunk coverage to large single transfers; it does
+not establish a maximum supported size, other storage configurations, or
+repeatability across cold/warm launches.
+
+### BYTEFILE 1 prepared; hardware result pending
+
+The next diagnostic uses the same published interpreter to compile and
+execute source exceeding 64 KiB, dump debug and stripped bytecode exceeding
+64 KiB, and reload both from memory and files. It checks nested closures,
+binary constants, GC, rejection of truncated/wrong-mode input, and valid
+reloads after errors. Installed GoldenGate completes both variants with
+exit 0 and stack usage 7,151 bytes. Hardware validation is pending; see the
+[September 24 record](2026-09-24/README.md#follow-up-bytefile-1).
+
+### BYTEFILE 1 passes on hardware
+
+Following the staged package and instructions requesting both variants and
+shell return, the user reported "passed" and asked to continue testing.
+Record one reported hardware pass with the unchanged published interpreter.
+No new hardware photograph or log was supplied. Coverage includes this
+generated source program, debug/stripped bytecode over 64 KiB, memory/file
+reloads, nested closures after GC, and recovery after rejected loads.
+This does not validate the separate LUAC executable or arbitrary bytecode.
+
+### FILELIFE 1 prepared; hardware result pending
+
+The next package retains the published interpreter and checks repeated file
+cleanup after normal return, errors, coroutine cancellation, early loop
+exit, and garbage collection. Five paths run 12 times in each of incremental
+and generational GC, with data, handle-state, and deletion assertions.
+Installed GoldenGate completes all 120 cases with exit 0 and stack usage
+7,230 bytes. Hardware validation is pending; see the
+[September 24 record](2026-09-24/README.md#follow-up-filelife-1).
+
+### FILELIFE 1 passes on hardware; combined suite started
+
+After instructions requesting the 120-case completion marker and shell
+return, the user reported "test passed. running suite now". Record one
+reported FILELIFE pass with the unchanged published v0.2.1 interpreter on
+the established setup. No new photograph, hardware log, or timing was
+supplied. This covers the five file-cleanup paths in both GC modes, not
+OS-wide resource counts or repeatability across launches.
+
+The user has started the reusable 23-test suite. Its combined hardware
+result remains pending; the FILELIFE result does not establish a suite pass.
+
+### Reusable full suite passes on hardware
+
+The next photograph shows `SUITE COMPLETE group=full passed=23 failed=0
+with_skips=8` followed by `Expect shell prompt next` and a usable `#` prompt.
+The visible preceding stages include FILELIFE's 120 cases and TABLEOVF
+retaining 49,152 entries, each followed by its suite PASS line.
+
+Record one photographed full-suite pass on the established accelerated
+ROM03/8 MB machine. Eight scripts include intentional skips. The final
+screen does not show the build banner; association with the published
+v0.2.1 executable comes from the staged kit and session context. No new
+timing or cold/warm repeatability claim is made. See the
+[dated record](2026-09-24/README.md#full-suite-passes-on-the-iigs) and
+[hardware report](2026-09-24/suite-hardware.json).
+
+### Standalone LUAC test prepared; hardware result pending
+
+The next kit uses the published v0.2.1 LUAC executable, renamed LUACTEST,
+and the same published Lua interpreter. Six checks cover small compilation,
+large debug/stripped bytecode, syntax/depth rejection, and compilation after
+errors. Installed GoldenGate preflight passed all native processes and
+result checks. The new ORCA EXEC batch launch itself remains untested on
+hardware. See the [dated record](2026-09-24/README.md#standalone-luacprobe-1).
+
+### LUAC batch launch feedback
+
+The user reported that a semicolon in the batch's first comment line caused
+a parsing error, and that the current executable prefix is `20:` rather
+than `15:`. Both are corrected in the next package, with a configurable
+prefix for future setups. Local native checks still pass; no LUAC hardware
+completion is claimed from this launch feedback.
+
+### Standalone LUAC passes all six hardware checks
+
+The user reported "it all passed" with a photograph showing
+`LUACPROBE 1 PASSED checks=6 - expect shell prompt next` and a returned `#`.
+Visible output includes 72,126-byte stripped bytecode, the intended syntax
+and C-stack-overflow errors, their verified phase markers, and a successful
+175-byte recovery compile. This confirms the corrected ORCA batch using
+`20:`, including error redirection/status checks and clean shell return.
+
+Record one six-check pass on the established setup. Initial version banners
+are outside the photo; build association follows the staged v0.2.1 package
+and session context. No hardware timing or repeatability count was supplied.
+See the [dated record](2026-09-24/README.md#luacprobe-1-passes-on-hardware) and
+[hardware report](2026-09-24/luac-hardware.json).
+
+### Published native C-host test prepared
+
+The next HOSTCHECK batch uses the published v0.2.1 IIGSHOST executable,
+checks initialization/stack and allocation guards, retained data, and
+native C-hook yield/resume, then launches a fresh Lua smoke test. Installed
+GoldenGate reports 100 yields and successful completion of all processes.
+Hardware validation of this release-host batch is pending. See the
+[dated record](2026-09-24/README.md#native-hostcheck-1).
+
+### Published native C-host passes on hardware
+
+A follow-up photograph confirms `IIGSHOST PASSED yields=100`, the verifier's
+matching yield count, all post-host Lua smoke stages, the final
+`HOSTCHECK 1 PASSED - expect shell prompt next`, and a returned `#`.
+The visible interpreter build is `e026f5b-13178cdf3c75 plain`; native-host
+identity follows the staged published v0.2.1 archive. Record one confirmed
+hardware run, with no elapsed time or cold-start/repeatability claim.
+See the [dated record](2026-09-24/README.md#hostcheck-1-passes-on-hardware)
+and [hardware report](2026-09-24/host-hardware.json).
+
+### Second reusable full-suite pass
+
+After the power-off/on test request, a new photograph shows another
+`SUITE COMPLETE group=full passed=23 failed=0 with_skips=8` and a returned
+`#`. FILELIFE reports 120 cases and TABLEOVF reports 49,152 entries.
+Record two confirmed completed suite runs in total. The user subsequently
+confirmed a complete power-off/on before the second run, establishing one
+cold-start full-suite pass. No elapsed time was supplied. See the
+[dated record](2026-09-24/README.md#second-full-suite-hardware-pass) and
+[hardware report](2026-09-24/suite-hardware.json).

@@ -13,6 +13,12 @@ repeated solely because documentation changed.
 
 ## Prepare and transfer
 
+For routine checks using an existing interpreter, the
+[repeatable regression suite](tests/SUITE.md) packages all 23 Lua regressions
+as `SUITE.SHK` and runs them with one command. It also offers smaller groups.
+The build-kit and individual commands below remain useful for new runtime
+builds and separate native C-host checks.
+
 1. Build a verified kit using the [build guide](docs/BUILDING.md). Keep its
    manifest, checksums, and original executable. Do not overwrite a known-good
    installation while testing a changed runtime.

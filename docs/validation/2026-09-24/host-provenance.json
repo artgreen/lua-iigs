@@ -1,0 +1,28 @@
+{
+  "test": "HOSTCHECK 1",
+  "release": "v0.2.1",
+  "build_id": "e026f5b-13178cdf3c75",
+  "shell_prefix": "20:",
+  "hardware_result": "pending",
+  "local_environment": "installed GoldenGate, separate native processes; not ORCA batch execution",
+  "executables_sha256": {
+    "LUATEST": "431a82d763f25dfcf0c320d21406b599ef9e6c184197b7d034e9c41fd2599d0a",
+    "IIGSHOST": "4d8a7695f6a3accd5792fd1979dacd706ea0fcd2ecbd56cfed0b35f915187f93"
+  },
+  "source_sha256": {
+    "TEST": "3d0500b9e2e58db2301c6194572cd768a26686e0ea6fef3b9d2f09d23abace5d",
+    "TEST.LUA": "544b230e3bc15c66a8171be1fa4671776d9a655fa2920a4f1454a80c8f1f1c51",
+    "HWSMOKE.LUA": "a67e43fdd51285e68483cff99d7ffddad2c6de347cae3373a65245d63924a7c3"
+  },
+  "transfer_sha256": {
+    "LUATEST": "431a82d763f25dfcf0c320d21406b599ef9e6c184197b7d034e9c41fd2599d0a",
+    "IIGSHOST": "4d8a7695f6a3accd5792fd1979dacd706ea0fcd2ecbd56cfed0b35f915187f93",
+    "LICENSE.TXT": "23623178b1c445a80c9aa254f61341315dd000714c7b5e56f08ed0be84e0442b",
+    "TEST": "6a513b8aeddff0c2172172a0e43b34e29491e7a962d4713572dd7d6b8cd263ab",
+    "TEST.LUA": "9f2d5e27353457e3781f7edfbfd3ffee2621eb38c37f5ce607e942e6cb9c5894",
+    "HWSMOKE.LUA": "12e1ed0b4797273678ab4f82f72b42ed6ccab0cc5d98e6ed0362069e0e4abc70",
+    "README.TXT": "a9c4c16d3683381789788395d0d23fa3f25ee547000ca9ba40f57f1b0596f725"
+  },
+  "archive_sha256": "f5a9f7cfbb9cdc4fbeb2b989d06eea59cf930cb842a2bdb46a9b6c5001b72718",
+  "local_result": "native host and post-host smoke passed, all processes returned"
+}

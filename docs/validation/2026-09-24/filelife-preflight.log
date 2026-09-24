@@ -1,0 +1,150 @@
+FILELIFE 1: repeated file cleanup and recovery
+GC mode incremental
+round 1 normal return
+round 1 error unwind
+round 1 coroutine close
+round 1 early loop exit
+round 1 garbage-collected writer
+incremental round 1 PASSED cases=5
+round 2 normal return
+round 2 error unwind
+round 2 coroutine close
+round 2 early loop exit
+round 2 garbage-collected writer
+incremental round 2 PASSED cases=10
+round 3 normal return
+round 3 error unwind
+round 3 coroutine close
+round 3 early loop exit
+round 3 garbage-collected writer
+incremental round 3 PASSED cases=15
+round 4 normal return
+round 4 error unwind
+round 4 coroutine close
+round 4 early loop exit
+round 4 garbage-collected writer
+incremental round 4 PASSED cases=20
+round 5 normal return
+round 5 error unwind
+round 5 coroutine close
+round 5 early loop exit
+round 5 garbage-collected writer
+incremental round 5 PASSED cases=25
+round 6 normal return
+round 6 error unwind
+round 6 coroutine close
+round 6 early loop exit
+round 6 garbage-collected writer
+incremental round 6 PASSED cases=30
+round 7 normal return
+round 7 error unwind
+round 7 coroutine close
+round 7 early loop exit
+round 7 garbage-collected writer
+incremental round 7 PASSED cases=35
+round 8 normal return
+round 8 error unwind
+round 8 coroutine close
+round 8 early loop exit
+round 8 garbage-collected writer
+incremental round 8 PASSED cases=40
+round 9 normal return
+round 9 error unwind
+round 9 coroutine close
+round 9 early loop exit
+round 9 garbage-collected writer
+incremental round 9 PASSED cases=45
+round 10 normal return
+round 10 error unwind
+round 10 coroutine close
+round 10 early loop exit
+round 10 garbage-collected writer
+incremental round 10 PASSED cases=50
+round 11 normal return
+round 11 error unwind
+round 11 coroutine close
+round 11 early loop exit
+round 11 garbage-collected writer
+incremental round 11 PASSED cases=55
+round 12 normal return
+round 12 error unwind
+round 12 coroutine close
+round 12 early loop exit
+round 12 garbage-collected writer
+incremental round 12 PASSED cases=60
+GC mode generational
+round 1 normal return
+round 1 error unwind
+round 1 coroutine close
+round 1 early loop exit
+round 1 garbage-collected writer
+generational round 1 PASSED cases=65
+round 2 normal return
+round 2 error unwind
+round 2 coroutine close
+round 2 early loop exit
+round 2 garbage-collected writer
+generational round 2 PASSED cases=70
+round 3 normal return
+round 3 error unwind
+round 3 coroutine close
+round 3 early loop exit
+round 3 garbage-collected writer
+generational round 3 PASSED cases=75
+round 4 normal return
+round 4 error unwind
+round 4 coroutine close
+round 4 early loop exit
+round 4 garbage-collected writer
+generational round 4 PASSED cases=80
+round 5 normal return
+round 5 error unwind
+round 5 coroutine close
+round 5 early loop exit
+round 5 garbage-collected writer
+generational round 5 PASSED cases=85
+round 6 normal return
+round 6 error unwind
+round 6 coroutine close
+round 6 early loop exit
+round 6 garbage-collected writer
+generational round 6 PASSED cases=90
+round 7 normal return
+round 7 error unwind
+round 7 coroutine close
+round 7 early loop exit
+round 7 garbage-collected writer
+generational round 7 PASSED cases=95
+round 8 normal return
+round 8 error unwind
+round 8 coroutine close
+round 8 early loop exit
+round 8 garbage-collected writer
+generational round 8 PASSED cases=100
+round 9 normal return
+round 9 error unwind
+round 9 coroutine close
+round 9 early loop exit
+round 9 garbage-collected writer
+generational round 9 PASSED cases=105
+round 10 normal return
+round 10 error unwind
+round 10 coroutine close
+round 10 early loop exit
+round 10 garbage-collected writer
+generational round 10 PASSED cases=110
+round 11 normal return
+round 11 error unwind
+round 11 coroutine close
+round 11 early loop exit
+round 11 garbage-collected writer
+generational round 11 PASSED cases=115
+round 12 normal return
+round 12 error unwind
+round 12 coroutine close
+round 12 early loop exit
+round 12 garbage-collected writer
+generational round 12 PASSED cases=120
+FILELIFE 1 PASSED cases=120 - expect shell prompt next
+
+Stack Usage: 7230

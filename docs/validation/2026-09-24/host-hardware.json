@@ -1,0 +1,21 @@
+{
+  "test": "HOSTCHECK 1",
+  "environment": "real Apple IIgs",
+  "status": "passed",
+  "hardware_runs_confirmed": 1,
+  "native_hook_yields": 100,
+  "post_host_smoke_passed": true,
+  "shell_return_observed": true,
+  "evidence": "User report and photograph showing host verification, smoke completion, final marker and shell prompt",
+  "visible_final_marker": "HOSTCHECK 1 PASSED - expect shell prompt next",
+  "visible_interpreter_banner": "IIgs e026f5b-13178cdf3c75 plain",
+  "artifact_association": "Interpreter banner visible; native-host identity follows staged hash-verified release archive",
+  "release": "v0.2.1",
+  "executables_sha256": {
+    "LUATEST": "431a82d763f25dfcf0c320d21406b599ef9e6c184197b7d034e9c41fd2599d0a",
+    "IIGSHOST": "4d8a7695f6a3accd5792fd1979dacd706ea0fcd2ecbd56cfed0b35f915187f93"
+  },
+  "archive_sha256": "f5a9f7cfbb9cdc4fbeb2b989d06eea59cf930cb842a2bdb46a9b6c5001b72718",
+  "elapsed_seconds": null,
+  "cold_start_confirmed": false
+}

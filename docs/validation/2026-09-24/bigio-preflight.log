@@ -1,0 +1,46 @@
+BIGIO 1: single transfers around 32/64/128 KiB
+B1 build payload bytes=32767
+B2 single write bytes=32767
+B3 single counted read bytes=32767
+B4 read all bytes=32767
+B5 counted read past EOF request=32784
+B6 PASS bytes=32767
+B1 build payload bytes=32768
+B2 single write bytes=32768
+B3 single counted read bytes=32768
+B4 read all bytes=32768
+B5 counted read past EOF request=32785
+B6 PASS bytes=32768
+B1 build payload bytes=65535
+B2 single write bytes=65535
+B3 single counted read bytes=65535
+B4 read all bytes=65535
+B5 counted read past EOF request=65552
+B6 PASS bytes=65535
+B1 build payload bytes=65536
+B2 single write bytes=65536
+B3 single counted read bytes=65536
+B4 read all bytes=65536
+B5 counted read past EOF request=65553
+B6 PASS bytes=65536
+B1 build payload bytes=65537
+B2 single write bytes=65537
+B3 single counted read bytes=65537
+B4 read all bytes=65537
+B5 counted read past EOF request=65554
+B6 PASS bytes=65537
+B1 build payload bytes=131072
+B2 single write bytes=131072
+B3 single counted read bytes=131072
+B4 read all bytes=131072
+B5 counted read past EOF request=131089
+B6 PASS bytes=131072
+B1 build payload bytes=131073
+B2 single write bytes=131073
+B3 single counted read bytes=131073
+B4 read all bytes=131073
+B5 counted read past EOF request=131090
+B6 PASS bytes=131073
+BIGIO 1 PASSED cases=7 - expect shell prompt next
+
+Stack Usage: 5788
