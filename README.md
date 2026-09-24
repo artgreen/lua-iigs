@@ -18,8 +18,10 @@ use in one warm session. The original silent `tableovf.lua` completed with
 
 These are results for an identified build on one machine, not a percentage
 of the complete upstream suite or a guarantee for every Lua workload.
-The `files.lua` regression remains unresolved, the upstream `T` C API test
-harness is unavailable, and some tests are scaled or skipped for this port.
+The repaired/adapted `files.lua` passes on hardware in portable/small-file
+mode, with explicit skips; stock GoldenGate still has EOF/text-translation
+issues. The upstream `T` C API test harness is unavailable, and some tests
+are scaled or skipped for this port.
 See [known limitations](docs/LIMITATIONS.md) and the chronological
 [hardware results](docs/validation/HARDWARE_RESULTS.md).
 

@@ -6,10 +6,14 @@ they are not current installation instructions. Use the
 [hardware guide](../../HARDWARE_TESTING.md) for new testing. Local `build/` and
 NAS paths below are relative to the original project environment.
 
-Current tested build: **LUAREVIEW / `IIgs 9add073-776024bcfb02 plain`**.
+Latest focused math/I/O build: **LUATEST / `IIgs aa385d7-13178cdf3c75 plain`**.
+The adapted math and FILECHECK 4 tests completed on hardware; see their
+September 23 entries for coverage and explicit skips.
+
+Earlier repeatability build: **LUAREVIEW / `IIgs 9add073-776024bcfb02 plain`**.
 The user reports completion of the requested five warm coroutine/hwdiag2
 pairs and one post-power-cycle pair, plus additional mixed-script testing
-in one warm session. See the final entry for evidence and scope.
+in one warm session. See the September 22 entries for evidence and scope.
 
 Preserved prior baseline: **LUAPATH / `IIgs b69d628-9766f6d19a8d plain`**.
 Its warm-run and cold-boot checks completed with 14 warm launches
@@ -545,3 +549,47 @@ This validates the minimum-integer workaround and complete adapted math
 test on that machine. It does not establish repeated-run counts or remove
 the explicit power-domain exception. The published v0.2.0 release remains
 unchanged; the fix and test updates are on `codex/math-portability`.
+
+## 2026-09-23: focused file I/O probe passes on hardware
+
+The photograph identifies `IIgs aa385d7-13178cdf3c75 plain` and
+`IOPROBE 1 DONE checks=38 failures=0`, with a clean shell return. All text
+read modes report LF bytes, and the binary, restored fixture, repeated EOF,
+and seek checks pass. This does not certify the broader files.lua script.
+It distinguishes the earlier local newline/EOF failures from this hardware
+result; see the [I/O investigation](IO_INVESTIGATION.md) for the next test.
+
+### FILECHECK 2 reaches buffering, then fails at the second open
+
+The next photograph shows the same build returning to the shell after
+FILEFIX.LUA line 680 reports `no such file or directory` opening a reader.
+The writer had opened successfully immediately before it. This precedes
+the buffering setup and write, so it is not the emulator's line-683
+visibility assertion. No buffering or full files.lua hardware pass is
+recorded. BUFPROBE 3 will compare creation and second-open behavior.
+
+### BUFPROBE 3 isolates writer sharing
+
+The next photograph shows `IIgs aa385d7-13178cdf3c75 plain`, six cases,
+`errors=0`, and a shell prompt. In all five writer cases, the second reader
+reports `open-err:4` before write, after write, and after flush. After close,
+it reads the correct data. This includes preexisting files, r+, binary mode,
+and unbuffered output. Two simultaneous readers succeed in B6. The result
+supports a writer-sharing restriction in this setup; it does not establish
+buffer visibility or identify the responsible OS/runtime/storage layer.
+FILECHECK 4 adapts that assumption and is awaiting hardware results.
+
+### FILECHECK 4 completes on hardware
+
+The next photograph confirms `IIgs aa385d7-13178cdf3c75 plain` and
+`FILECHECK 4 FINISHED - expect shell prompt next`, followed by `#`.
+Full, unbuffered, and line-buffered modes each report correct close/reopen
+data. Portable date/time checks finish; `no daylight saving information`
+is informational, not a failed assertion.
+
+This is one hardware pass of the repaired/adapted files.lua using portable
+and small-file flags. The run explicitly excludes Unix processes,
+nonportable dates, the large-file block, and cross-handle buffer visibility.
+It does not certify those cases or resolve the stock emulator's EOF/text
+translation differences. The interpreter is unchanged from the successful
+math tests; this investigation changed tests and documentation only.
