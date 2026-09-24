@@ -111,8 +111,9 @@ preserves the correction. Avoid quoting a whole-suite percentage.
 
 `files.lua` is still expected-failing. Its duplicate read, undefined
 variable, and corrupted fixture bytes have been repaired. The next issues
-are GoldenGate's repeated-EOF abort and a text newline mismatch reproduced
-with an isolated emulator build; see the
+are GoldenGate's repeated-EOF abort and text translation differences. The
+real IIgs passes all 38 focused probe checks; broader file/buffering and
+date testing is still pending. See the
 [I/O investigation](../docs/validation/IO_INVESTIGATION.md).
 `ioprobe.lua` is a diagnostic outside the default pass set. It prints byte
 comparisons and failure counts, and deliberately exercises repeated EOF

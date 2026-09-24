@@ -89,8 +89,10 @@ NDA is implemented by this repository.
   archive. The repaired test exposes GoldenGate's five-read EOF abort.
   With that emulator guard restricted to terminals in an isolated build,
   it reaches a text newline mismatch: counted/whole-file reads return CR
-  while line reads return LF. A focused probe reproduces four mismatches
-  locally; hardware confirmation and any runtime fix remain pending. See
+  while line reads return LF. The real IIgs passes all 38 focused probe
+  checks with consistent LF bytes and clean EOF handling, so no Lua I/O
+  runtime change is justified by those local differences. The broader
+  repaired file test still needs hardware validation, including buffering. See
   [the I/O investigation](validation/IO_INVESTIGATION.md).
 - **The upstream `T` C API harness is not supplied.** `api.lua`, `code.lua`,
   and T-dependent sections skip coverage. The focused C-host regression
@@ -103,7 +105,8 @@ NDA is implemented by this repository.
   warm/cold runs and mixed-script use do not certify every application,
   allocator pressure scenario, or hardware configuration.
 
-Next, run IOPROBE 1 on hardware using the preserved math-tested interpreter.
-It checks binary integrity, the restored fixtures, text read modes, and
-repeated EOF reads. Earlier corruption theories and timing estimates remain
-history, not established causes of this I/O failure.
+Next, run FILECHECK 2 with the preserved math-tested interpreter. It executes
+the repaired files.lua with the upstream portable/small-test flags, reporting
+the excluded Unix, nonportable date, and large-file cases explicitly. Earlier
+corruption theories and timing estimates remain history, not established
+causes of this I/O failure.

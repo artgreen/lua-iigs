@@ -183,18 +183,10 @@ three
   assert(f:close())
   local f <close> = assert(io.open(file, "r"))
   l1, l2, n1, n2, c, l3, l4, dummy = f:read(7, "l", "n", "n", 1, "l", "l")
-  if not _iigs then
-    assert(l1 == "a line\n" and l2 == "another line" and c == '\n' and
-            n1 == 1234 and n2 == 3.45 and l3 == "one" and l4 == "two"
-            and dummy == nil)
-  else
-    -- TODO
-    -- For some reason we're getting a \n instead of a \r for a single char read
-    ---
-    assert(l1 == "a line\r" and l2 == "another line" and c == '\n' and
-            n1 == 1234 and n2 == 3.45 and l3 == "one" and l4 == "two"
-            and dummy == nil)
-  end
+  -- Keep the upstream LF expectation: confirmed on real IIgs hardware.
+  assert(l1 == "a line\n" and l2 == "another line" and c == '\n' and
+         n1 == 1234 and n2 == 3.45 and l3 == "one" and l4 == "two"
+         and dummy == nil)
   assert(f:close())
   local f <close> = assert(io.open(file, "r"))
   -- second item failing
@@ -239,11 +231,7 @@ assert(f:read("n") == -0xffff); assert(f:read(2) == "+ ")
 assert(f:read("n") == 0.3); assert(f:read(1) == "|")
 assert(f:read("n") == 5e-3); assert(f:read(1) == "X")
 assert(f:read("n") == 234e13); assert(f:read(1) == "E")
-  if not _iigs then
-    assert(f:read("n") == 0Xdeadbeefdeadbeef); assert(f:read(2) == "x\n")
-  else
-    assert(f:read("n") == 0Xdeadbeefdeadbeef); assert(f:read(2) == "x\r")
-  end
+assert(f:read("n") == 0Xdeadbeefdeadbeef); assert(f:read(2) == "x\n")
 assert(f:read("n") == 0x1.13aP3); assert(f:read(1) == "e")
 
 do   -- attempt to read too long number
@@ -686,6 +674,7 @@ assert(os.remove(file))
 collectgarbage()
 
 -- testing buffers
+print("testing buffers")
 do
   local f = assert(io.open(file, "w"))
   local fr = assert(io.open(file, "r"))
@@ -966,5 +955,4 @@ s = tonumber(s)
 io.write(string.format('test done on %2.2d/%2.2d/%d', d, m, a))
 io.write(string.format(', at %2.2d:%2.2d:%2.2d\n', h, min, s))
 io.write(string.format('%s\n', _VERSION))
-
 

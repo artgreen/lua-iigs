@@ -545,3 +545,12 @@ This validates the minimum-integer workaround and complete adapted math
 test on that machine. It does not establish repeated-run counts or remove
 the explicit power-domain exception. The published v0.2.0 release remains
 unchanged; the fix and test updates are on `codex/math-portability`.
+
+## 2026-09-23: focused file I/O probe passes on hardware
+
+The photograph identifies `IIgs aa385d7-13178cdf3c75 plain` and
+`IOPROBE 1 DONE checks=38 failures=0`, with a clean shell return. All text
+read modes report LF bytes, and the binary, restored fixture, repeated EOF,
+and seek checks pass. This does not certify the broader files.lua script.
+It distinguishes the earlier local newline/EOF failures from this hardware
+result; see the [I/O investigation](IO_INVESTIGATION.md) for the next test.
