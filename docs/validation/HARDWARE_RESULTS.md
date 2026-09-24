@@ -6,9 +6,11 @@ they are not current installation instructions. Use the
 [hardware guide](../../HARDWARE_TESTING.md) for new testing. Local `build/` and
 NAS paths below are relative to the original project environment.
 
-Latest focused math/I/O build: **LUATEST / `IIgs aa385d7-13178cdf3c75 plain`**.
-The adapted math and FILECHECK 4 tests completed on hardware; see their
-September 23 entries for coverage and explicit skips.
+Latest acceptance build: **published v0.2.1 plain interpreter /
+`IIgs e026f5b-13178cdf3c75 plain`**, renamed LUATEST without changing bytes.
+The user reports RELEASECHECK 1 and LARGEFILE 1 passed; see the September 24
+entries for provenance, scope, and explicit skips. The earlier candidate
+`IIgs aa385d7-13178cdf3c75 plain` passed math and FILECHECK 4 on September 23.
 
 Earlier repeatability build: **LUAREVIEW / `IIgs 9add073-776024bcfb02 plain`**.
 The user reports completion of the requested five warm coroutine/hwdiag2
@@ -593,3 +595,50 @@ nonportable dates, the large-file block, and cross-handle buffer visibility.
 It does not certify those cases or resolve the stock emulator's EOF/text
 translation differences. The interpreter is unchanged from the successful
 math tests; this investigation changed tests and documentation only.
+
+## 2026-09-24: published v0.2.1 acceptance prepared
+
+RELEASECHECK 1 will test the exact published plain interpreter bytes,
+`IIgs e026f5b-13178cdf3c75 plain`, renamed to LUATEST for the existing test
+commands. Smoke, 90 numeric conversion checks, the full adapted math test,
+and the repaired portable/small-file I/O test run in one invocation.
+The package's executable hash matches the published release manifest;
+no interpreter was rebuilt. The isolated diagnostic emulator completes
+the combined run, but hardware validation is pending. See the
+[September 24 record](2026-09-24/README.md) for provenance, scope, and logs.
+
+### Published v0.2.1 acceptance passes
+
+After transfer verification and instructions specifying the release banner,
+all four stages, the final RELEASECHECK 1 marker, and shell return, the user
+reported "everything passed". Record one user-reported hardware acceptance
+pass of the published plain interpreter on the established machine. No new
+hardware photograph/log was supplied for this run.
+
+This covers smoke, 90 numeric conversion checks, full adapted math, and
+portable/small-file I/O with date/time. The documented platform-dependent
+math and file-test skips remain. It does not validate LUAC, LUATRACE,
+IIGSHOST, larger files, or repeated cold/warm runs of the exact release bytes.
+
+### LARGEFILE 1 prepared; hardware result pending
+
+The follow-up package retains the exact published v0.2.1 plain interpreter
+and adds a binary-file diagnostic crossing 64/128/192/256 KiB boundaries.
+It checks sequential integrity, seeks, updates, append, and truncation with
+small transfers and a single open handle at a time. Installed GoldenGate
+completes the test with the expected marker, exit 0, and stack usage 5,729
+bytes. This is preflight evidence only; no hardware pass is recorded yet.
+See the [September 24 record](2026-09-24/README.md#follow-up-largefile-1).
+
+### LARGEFILE 1 passes on hardware
+
+After staging the verified archive and requesting its final marker and shell
+return, the user reported "all tests work". Record one reported hardware pass
+with the published v0.2.1 plain interpreter, `e026f5b-13178cdf3c75`, on the
+established setup. No new hardware photograph or log was supplied.
+
+The test verifies every byte before and after updates, seeks around the
+64/128/192 KiB boundaries, appends across 256 KiB to 262,163 bytes, and checks
+truncation. Transfers are at most 4,096 bytes and writers close before readers
+open. This pass does not extend to large single transfers, larger file sizes,
+other storage devices, or repeated cold/warm testing of this diagnostic.

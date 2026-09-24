@@ -1,0 +1,9 @@
+{
+  "build_id": "e026f5b-13178cdf3c75",
+  "executable_sha256": "431a82d763f25dfcf0c320d21406b599ef9e6c184197b7d034e9c41fd2599d0a",
+  "test_source_sha256": "c8210906e750ff8fc7903c9effc3baa04c1e38a06db26ade59ce9bcde272ab6c",
+  "archive_sha256": "6417c03dc3f0539e52ce2acccc3808b1b75736f4adfb5d7413da54a8c7b6926c",
+  "hardware_result": "User reported \"all tests work\" after the requested LARGEFILE 1 run; no new hardware photograph or log supplied.",
+  "hardware_report_date": "2026-09-24",
+  "hardware_scope": "Published plain interpreter: binary integrity, boundary seeks and updates, append through 262163 bytes, and truncation with transfers of at most 4096 bytes."
+}

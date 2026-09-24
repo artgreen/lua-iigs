@@ -1,0 +1,48 @@
+LARGEFILE 1: binary offsets through 256 KiB
+L1 write 262143 bytes in small blocks
+written 32768/262143
+written 65536/262143
+written 98304/262143
+written 131072/262143
+written 163840/262143
+written 196608/262143
+written 229376/262143
+written 262143/262143
+L2 reopen and verify every original byte
+verified 32768/262143
+verified 65536/262143
+verified 98304/262143
+verified 131072/262143
+verified 163840/262143
+verified 196608/262143
+verified 229376/262143
+verified 262143/262143
+L3 set/cur/end seeks near boundaries
+seek OK 32767
+seek OK 32768
+seek OK 65532
+seek OK 65535
+seek OK 65536
+seek OK 131068
+seek OK 131071
+seek OK 131072
+seek OK 196604
+seek OK 196607
+seek OK 196608
+seek OK 262127
+L4 update across 64/128/192 KiB boundaries
+L5 append across 256 KiB boundary
+L6 reopen and verify every updated byte
+verified 32768/262163
+verified 65536/262163
+verified 98304/262163
+verified 131072/262163
+verified 163840/262163
+verified 196608/262163
+verified 229376/262163
+verified 262144/262163
+verified 262163/262163
+L7 truncate, reopen, and verify no stale tail
+LARGEFILE 1 PASSED bytes=262163 - expect shell prompt next
+
+Stack Usage: 5729
