@@ -1,0 +1,80 @@
+STEP prepare exit=0
+Lua (IIgs) 5.4.6  Copyright (C) 1994-2023 Lua.org, PUC-Rio
+IIgs 63eca55c48e5 plain
+IIgs mm=untested
+LUACPROBE 1 phase=prepare
+prepared large source bytes=117073
+LUACPROBE 1 PHASE PASSED prepare
+
+Stack Usage: 3587
+STEP version exit=0
+Lua (IIgs) 5.4.6  Copyright (C) 1994-2023 Lua.org, PUC-Rio
+
+Stack Usage: 88
+STEP compile-small exit=0
+
+Stack Usage: 2799
+STEP small exit=0
+LUACPROBE 1 phase=small
+lc.small.out verified bytes=175
+LUACPROBE 1 PHASE PASSED small
+
+Stack Usage: 4426
+STEP compile-debug exit=0
+
+Stack Usage: 2799
+STEP debug exit=0
+LUACPROBE 1 phase=debug
+lc.debug.out verified bytes=90744
+LUACPROBE 1 PHASE PASSED debug
+
+Stack Usage: 4426
+STEP compile-stripped exit=0
+
+Stack Usage: 2799
+STEP stripped exit=0
+LUACPROBE 1 phase=stripped
+lc.strip.out verified bytes=72126
+LUACPROBE 1 PHASE PASSED stripped
+
+Stack Usage: 4361
+STEP reject-syntax exit=255
+luactest: lc.bad.lua:1: <name> expected near '='
+
+Stack Usage: 2840
+STEP syntax exit=0
+LUACPROBE 1 phase=syntax
+luactest: lc.bad.lua:1: <name> expected near '='
+
+Stack Usage: 2840
+
+LUACPROBE 1 PHASE PASSED syntax
+
+Stack Usage: 3249
+STEP reject-depth exit=255
+luactest: C stack overflow
+
+Stack Usage: 17447
+STEP depth exit=0
+LUACPROBE 1 phase=depth
+luactest: C stack overflow
+
+Stack Usage: 17447
+
+LUACPROBE 1 PHASE PASSED depth
+
+Stack Usage: 3249
+STEP compile-recovery exit=0
+
+Stack Usage: 2763
+STEP recovery exit=0
+LUACPROBE 1 phase=recovery
+lc.again.out verified bytes=175
+LUACPROBE 1 PHASE PASSED recovery
+
+Stack Usage: 4426
+STEP finish exit=0
+LUACPROBE 1 phase=finish
+LUACPROBE 1 PASSED checks=6 - expect shell prompt next
+
+Stack Usage: 3143

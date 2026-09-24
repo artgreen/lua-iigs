@@ -1,0 +1,675 @@
+{
+  "schema": "lua-iigs-package/1",
+  "utc": "2026-09-24T23:20:41+00:00",
+  "build_id": "63eca55c48e5",
+  "build_dir": "63eca55c48e5-20260924T231837Z",
+  "build_manifest_sha256": "47d70a1b247edecd6e159a27fb71738cb4c34e237f373421ed4d446f7998fa16",
+  "package_identity": "5039793fa25b",
+  "packaging_tools": {
+    "acx": "acx: 13.0",
+    "cp2": "CiderPress II Command-Line Utility v1.2.1-dev2",
+    "nulib2": "present"
+  },
+  "tests": {
+    "file": "build/test-reports/63eca55c48e5-20260924T231904Z-__57il5x/report.json",
+    "sha256": "b7cdea359751980750eab609b6a047ae86e3ea2e69c642ed75dba07db25f4d5b",
+    "summary": {
+      "total": 59,
+      "failed": 0,
+      "with_skips": 13
+    },
+    "environment": "GoldenGate emulator with --memcheck; not hardware",
+    "test_identity": "ccd763851463"
+  },
+  "containers": {
+    "runtime": {
+      "image": {
+        "file": "lua.po",
+        "volume": "LUA",
+        "sha256": "3fffd7cce91844bac926381dd4d1c1a14b26700dae7b7eb95e6340e04e12ae63",
+        "size": 819200
+      },
+      "archive": {
+        "file": "LUA.SHK",
+        "sha256": "9d16250606cdeb15cb042d488d65df1939feccfb20cded15b6ceed2b81b7edbc",
+        "size": 304106
+      },
+      "members": [
+        {
+          "name": "LUA",
+          "kind": "EXE",
+          "file_type": "$B5",
+          "aux_type": "$0000",
+          "size": 362344,
+          "sha256": "2bd98bff0bd818226543a8096a37c0b107a2383b304c9523def47e00882ee1d0"
+        },
+        {
+          "name": "HWSMOKE.LUA",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 1206,
+          "sha256": "12e1ed0b4797273678ab4f82f72b42ed6ccab0cc5d98e6ed0362069e0e4abc70"
+        },
+        {
+          "name": "SIEVE.LUA",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 1575,
+          "sha256": "39eada785ba292d854fc5f87c23ce6b9c015ed5008ca9ac6fb8d113b8b17149f"
+        },
+        {
+          "name": "COROUTINE.LUA",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 32116,
+          "sha256": "9df683959ee80babd651f295027a2920513aa89728134b626e4286c75cb079d7"
+        },
+        {
+          "name": "COBEACON.LUA",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 34012,
+          "sha256": "9b9b5dc032b75be41b1d96c3b760a578be0411f77093c68a6416a6d8e27c2a66"
+        },
+        {
+          "name": "CSTACK.LUA",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 5393,
+          "sha256": "44bc316fbd4f01d62953c0c5cc61acb5992e5b01be1cbc0b59c94c0dd9390dc1"
+        },
+        {
+          "name": "PM.LUA",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 13706,
+          "sha256": "e1771ac7f9cdea33b47a9d3f34d8ab6a2910ad0f39c74dde82b1cde629ae4810"
+        },
+        {
+          "name": "HWDIAG2.LUA",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 5496,
+          "sha256": "e55e7fb1341c082d30c23a510380adc02cc03e96ec23dc240242701de93ed5b6"
+        },
+        {
+          "name": "HWTEST.LUA",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 7586,
+          "sha256": "3303d91813611df59dc52cdae6d0a80c63a39df97259f5eca2babc352a6dcf20"
+        },
+        {
+          "name": "HOOKYIELD.LUA",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 1088,
+          "sha256": "8c4bb050aa1cad0b2c71d76dbabafa5e3d0e0a3574bb70b8f7f039f5d689b605"
+        },
+        {
+          "name": "MMALLOC.LUA",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 916,
+          "sha256": "596c1f1de2b38f2ab588eaeb44168b2a7983d0cc1bce17f7c6e2999272b5fb29"
+        },
+        {
+          "name": "TABLEOVF.LUA",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 638,
+          "sha256": "b8de6d1d5c53fed1f737b6c87886bedc5a7f5723b8a8731f3b6fe54eb0b9dfd7"
+        },
+        {
+          "name": "ERRORS.LUA",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 19594,
+          "sha256": "c66eddd41b0271360a1b00788de31344628a1b571f4865a987a678ea59dc6815"
+        },
+        {
+          "name": "EVENTS.LUA",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 12672,
+          "sha256": "c634543cba674d45bf1ed330becf820b13b7cc77a4a5bbfceb4b3639bc6eb15b"
+        },
+        {
+          "name": "MATH.LUA",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 30321,
+          "sha256": "130df2dde302323aedaa3ed285e24b1c16a165e7f7b5fa024bb19e4e934ec49e"
+        },
+        {
+          "name": "VERYBIG.LUA",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 4133,
+          "sha256": "081bcebd5b56c48f4e9fc32668f895dbc0fe8acb16fdc21e152a9d322a425a8b"
+        },
+        {
+          "name": "NUMCONV.LUA",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 1816,
+          "sha256": "9604e08c8f276574fb2fc5cfdeba052a50e92be775c7ea26f04ad6fec3d57e29"
+        },
+        {
+          "name": "TRACEGC.LUA",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 680,
+          "sha256": "97253251b340d4e876af8b3155bfa5a1c15d993a0f79ccf079fde7a6aa0b4551"
+        },
+        {
+          "name": "README.TXT",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 350,
+          "sha256": "aa27d1376167505adb17857400f0c64a7c9a55be2123ffad0927de1b53f5de0d"
+        },
+        {
+          "name": "LICENSE.TXT",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 1066,
+          "sha256": "23623178b1c445a80c9aa254f61341315dd000714c7b5e56f08ed0be84e0442b"
+        }
+      ],
+      "verification": "every member extracted (acx for .po, nulib2 for .SHK) and compared byte-for-byte; type/aux read back with cp2; exact member set"
+    },
+    "small": {
+      "image": {
+        "file": "luasmall.po",
+        "volume": "LUASMALL",
+        "sha256": "37f0157eeabc5b81cc6ec300cdf7d21c3755149ed82cb6c177b0a665a43fda34",
+        "size": 819200
+      },
+      "archive": {
+        "file": "LUASMALL.SHK",
+        "sha256": "e11653bad9172c708cdc44f3716df9a0b0c2172a55f98096deb183636829149a",
+        "size": 184899
+      },
+      "members": [
+        {
+          "name": "LUASMALL",
+          "kind": "EXE",
+          "file_type": "$B5",
+          "aux_type": "$0000",
+          "size": 309037,
+          "sha256": "a7f277060f091a0038d12d51bec5916abffad6d5e181050b0ff9d6229e612947"
+        },
+        {
+          "name": "README.TXT",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 366,
+          "sha256": "68b9b50057f15d7aa09f0dd372d22850cad2331ca8121040365cb36bfcfa2485"
+        },
+        {
+          "name": "LICENSE.TXT",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 1066,
+          "sha256": "23623178b1c445a80c9aa254f61341315dd000714c7b5e56f08ed0be84e0442b"
+        }
+      ],
+      "verification": "every member extracted (acx for .po, nulib2 for .SHK) and compared byte-for-byte; type/aux read back with cp2; exact member set"
+    },
+    "compiler": {
+      "image": {
+        "file": "luac.po",
+        "volume": "LUAC",
+        "sha256": "53c9c8f6c27678c166d89fe2555cb279cb7a2d53b168fb8b4fd297d7cacc89e2",
+        "size": 819200
+      },
+      "archive": {
+        "file": "LUAC.SHK",
+        "sha256": "e9b2539ca6155883d376720f16623c865f525786c2ea5e7bab08c3de143b3e88",
+        "size": 224725
+      },
+      "members": [
+        {
+          "name": "LUAC",
+          "kind": "EXE",
+          "file_type": "$B5",
+          "aux_type": "$0000",
+          "size": 370941,
+          "sha256": "a21493e2793b77149f99fc89fc00fb89a9b886cafadca24c8bfb24194b407d61"
+        },
+        {
+          "name": "README.TXT",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 292,
+          "sha256": "404f2f48503f4850dffb561c8a14e53e9483203d594371f36e8dc6e2354529ac"
+        },
+        {
+          "name": "LICENSE.TXT",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 1066,
+          "sha256": "23623178b1c445a80c9aa254f61341315dd000714c7b5e56f08ed0be84e0442b"
+        }
+      ],
+      "verification": "every member extracted (acx for .po, nulib2 for .SHK) and compared byte-for-byte; type/aux read back with cp2; exact member set"
+    },
+    "trace": {
+      "image": {
+        "file": "luatrace.po",
+        "volume": "LUATRACE",
+        "sha256": "a85418d54fcb92f962c5837c3ba2488bdfeda9f81287800fa7878acce11043e0",
+        "size": 819200
+      },
+      "archive": {
+        "file": "LUATRACE.SHK",
+        "sha256": "36857ed5ca54c7011d733518d9324b52c76a88789201de59d74f855348c7be64",
+        "size": 305127
+      },
+      "members": [
+        {
+          "name": "LUATRACE",
+          "kind": "EXE",
+          "file_type": "$B5",
+          "aux_type": "$0000",
+          "size": 364126,
+          "sha256": "0af1fa9ef6a509c4e0908b6dbe526570753d4f22fd20edfbfabbc6d851f8a5fa"
+        },
+        {
+          "name": "HWSMOKE.LUA",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 1206,
+          "sha256": "12e1ed0b4797273678ab4f82f72b42ed6ccab0cc5d98e6ed0362069e0e4abc70"
+        },
+        {
+          "name": "SIEVE.LUA",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 1575,
+          "sha256": "39eada785ba292d854fc5f87c23ce6b9c015ed5008ca9ac6fb8d113b8b17149f"
+        },
+        {
+          "name": "COROUTINE.LUA",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 32116,
+          "sha256": "9df683959ee80babd651f295027a2920513aa89728134b626e4286c75cb079d7"
+        },
+        {
+          "name": "COBEACON.LUA",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 34012,
+          "sha256": "9b9b5dc032b75be41b1d96c3b760a578be0411f77093c68a6416a6d8e27c2a66"
+        },
+        {
+          "name": "CSTACK.LUA",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 5393,
+          "sha256": "44bc316fbd4f01d62953c0c5cc61acb5992e5b01be1cbc0b59c94c0dd9390dc1"
+        },
+        {
+          "name": "PM.LUA",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 13706,
+          "sha256": "e1771ac7f9cdea33b47a9d3f34d8ab6a2910ad0f39c74dde82b1cde629ae4810"
+        },
+        {
+          "name": "HWDIAG2.LUA",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 5496,
+          "sha256": "e55e7fb1341c082d30c23a510380adc02cc03e96ec23dc240242701de93ed5b6"
+        },
+        {
+          "name": "HWTEST.LUA",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 7586,
+          "sha256": "3303d91813611df59dc52cdae6d0a80c63a39df97259f5eca2babc352a6dcf20"
+        },
+        {
+          "name": "HOOKYIELD.LUA",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 1088,
+          "sha256": "8c4bb050aa1cad0b2c71d76dbabafa5e3d0e0a3574bb70b8f7f039f5d689b605"
+        },
+        {
+          "name": "MMALLOC.LUA",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 916,
+          "sha256": "596c1f1de2b38f2ab588eaeb44168b2a7983d0cc1bce17f7c6e2999272b5fb29"
+        },
+        {
+          "name": "TABLEOVF.LUA",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 638,
+          "sha256": "b8de6d1d5c53fed1f737b6c87886bedc5a7f5723b8a8731f3b6fe54eb0b9dfd7"
+        },
+        {
+          "name": "ERRORS.LUA",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 19594,
+          "sha256": "c66eddd41b0271360a1b00788de31344628a1b571f4865a987a678ea59dc6815"
+        },
+        {
+          "name": "EVENTS.LUA",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 12672,
+          "sha256": "c634543cba674d45bf1ed330becf820b13b7cc77a4a5bbfceb4b3639bc6eb15b"
+        },
+        {
+          "name": "MATH.LUA",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 30321,
+          "sha256": "130df2dde302323aedaa3ed285e24b1c16a165e7f7b5fa024bb19e4e934ec49e"
+        },
+        {
+          "name": "VERYBIG.LUA",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 4133,
+          "sha256": "081bcebd5b56c48f4e9fc32668f895dbc0fe8acb16fdc21e152a9d322a425a8b"
+        },
+        {
+          "name": "NUMCONV.LUA",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 1816,
+          "sha256": "9604e08c8f276574fb2fc5cfdeba052a50e92be775c7ea26f04ad6fec3d57e29"
+        },
+        {
+          "name": "TRACEGC.LUA",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 680,
+          "sha256": "97253251b340d4e876af8b3155bfa5a1c15d993a0f79ccf079fde7a6aa0b4551"
+        },
+        {
+          "name": "README.TXT",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 296,
+          "sha256": "632266e95b7fac3ce4da006f74a6ed38118dbdd146d87f5eb3f786f32f1b1508"
+        },
+        {
+          "name": "LICENSE.TXT",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 1066,
+          "sha256": "23623178b1c445a80c9aa254f61341315dd000714c7b5e56f08ed0be84e0442b"
+        }
+      ],
+      "verification": "every member extracted (acx for .po, nulib2 for .SHK) and compared byte-for-byte; type/aux read back with cp2; exact member set"
+    },
+    "library": {
+      "image": {
+        "file": "lualib.po",
+        "volume": "LUALIB",
+        "sha256": "18f6a962379bb9d0dc2480566537acda378987fb1bc2cfa6dafdf4953ab13d5b",
+        "size": 819200
+      },
+      "archive": {
+        "file": "LUALIB.SHK",
+        "sha256": "a4e3a56e2da3d32b0477514d434b6c648ac0b64e6990ed0138c45efe35fe3ae4",
+        "size": 339688
+      },
+      "members": [
+        {
+          "name": "LUA.LIB",
+          "kind": "LIB",
+          "file_type": "$B2",
+          "aux_type": "$0000",
+          "size": 524380,
+          "sha256": "aee7320b44c925efe06fe8413419aba95806d9ff16e7998582231e5546b9fb1a"
+        },
+        {
+          "name": "LVM.A",
+          "kind": "OBJ",
+          "file_type": "$B1",
+          "aux_type": "$0000",
+          "size": 92283,
+          "sha256": "fa8314a7c89a8645dc8d0d66f31745920234f6c78f98b4a263a1aa6bc31b6661"
+        },
+        {
+          "name": "LUA.H",
+          "kind": "CSRC",
+          "file_type": "$B0",
+          "aux_type": "$0008",
+          "size": 16573,
+          "sha256": "d89a08c8a6b3b637a30b9bc550dcdaf400cff9b7f7f7b4e42a80ab7aefb6f277"
+        },
+        {
+          "name": "LUACONF.H",
+          "kind": "CSRC",
+          "file_type": "$B0",
+          "aux_type": "$0008",
+          "size": 24212,
+          "sha256": "162fde608690e85f56b7a1769680acb32250d1f08fe8f7c1e21ca85ff7093573"
+        },
+        {
+          "name": "LUALIB.H",
+          "kind": "CSRC",
+          "file_type": "$B0",
+          "aux_type": "$0008",
+          "size": 1116,
+          "sha256": "a8cc52524f68a468f04cf435a0867fdefc171714d7ae354c8627fed99a76c8b3"
+        },
+        {
+          "name": "LAUXLIB.H",
+          "kind": "CSRC",
+          "file_type": "$B0",
+          "aux_type": "$0008",
+          "size": 9547,
+          "sha256": "6295a78933ab5b894c8a1b792785942e22daa0feac6e3aa9557897feb03aa54d"
+        },
+        {
+          "name": "PARSECONF.H",
+          "kind": "CSRC",
+          "file_type": "$B0",
+          "aux_type": "$0008",
+          "size": 230,
+          "sha256": "c10fd1e038f691998fa40466c2389708c7d48a2f1baedfd046a5f13aafdc268d"
+        },
+        {
+          "name": "README.TXT",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 320,
+          "sha256": "ca00ea24e86804d55fae540c42fe7ccb5590a24a1deb83a6cc017169acf3496b"
+        },
+        {
+          "name": "LICENSE.TXT",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 1066,
+          "sha256": "23623178b1c445a80c9aa254f61341315dd000714c7b5e56f08ed0be84e0442b"
+        }
+      ],
+      "verification": "every member extracted (acx for .po, nulib2 for .SHK) and compared byte-for-byte; type/aux read back with cp2; exact member set"
+    },
+    "library-small": {
+      "image": {
+        "file": "luasmlib.po",
+        "volume": "LUASMLIB",
+        "sha256": "cdd535a44a591b1d8b287d8b3815a985a38bc4ce85bc95b52081eae564bed7e4",
+        "size": 819200
+      },
+      "archive": {
+        "file": "LUASMLIB.SHK",
+        "sha256": "7a43e4907e4072e03cb8c8aa2f2ab759f29d8b8ad4f7fbedf75e18e7b36bd267",
+        "size": 282182
+      },
+      "members": [
+        {
+          "name": "LUASMALL.LIB",
+          "kind": "LIB",
+          "file_type": "$B2",
+          "aux_type": "$0000",
+          "size": 412143,
+          "sha256": "51673dc2ba427d2ce6c3a81a0f56db5a57897a4abe5733b0db1b19a61cd6090f"
+        },
+        {
+          "name": "LVM.A",
+          "kind": "OBJ",
+          "file_type": "$B1",
+          "aux_type": "$0000",
+          "size": 92283,
+          "sha256": "fa8314a7c89a8645dc8d0d66f31745920234f6c78f98b4a263a1aa6bc31b6661"
+        },
+        {
+          "name": "LUA.H",
+          "kind": "CSRC",
+          "file_type": "$B0",
+          "aux_type": "$0008",
+          "size": 16573,
+          "sha256": "d89a08c8a6b3b637a30b9bc550dcdaf400cff9b7f7f7b4e42a80ab7aefb6f277"
+        },
+        {
+          "name": "LUACONF.H",
+          "kind": "CSRC",
+          "file_type": "$B0",
+          "aux_type": "$0008",
+          "size": 24212,
+          "sha256": "162fde608690e85f56b7a1769680acb32250d1f08fe8f7c1e21ca85ff7093573"
+        },
+        {
+          "name": "LUALIB.H",
+          "kind": "CSRC",
+          "file_type": "$B0",
+          "aux_type": "$0008",
+          "size": 1116,
+          "sha256": "a8cc52524f68a468f04cf435a0867fdefc171714d7ae354c8627fed99a76c8b3"
+        },
+        {
+          "name": "LAUXLIB.H",
+          "kind": "CSRC",
+          "file_type": "$B0",
+          "aux_type": "$0008",
+          "size": 9547,
+          "sha256": "6295a78933ab5b894c8a1b792785942e22daa0feac6e3aa9557897feb03aa54d"
+        },
+        {
+          "name": "PARSECONF.H",
+          "kind": "CSRC",
+          "file_type": "$B0",
+          "aux_type": "$0008",
+          "size": 258,
+          "sha256": "b6d2c510f6222fab71e50c93a6b96d987d2fa6df5fc988d7261e9818ca3378a8"
+        },
+        {
+          "name": "README.TXT",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 347,
+          "sha256": "7b612c845670781c5f349e2b63c33ad0a78ccec704dba3b248f7d1a06f02165c"
+        },
+        {
+          "name": "LICENSE.TXT",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 1066,
+          "sha256": "23623178b1c445a80c9aa254f61341315dd000714c7b5e56f08ed0be84e0442b"
+        }
+      ],
+      "verification": "every member extracted (acx for .po, nulib2 for .SHK) and compared byte-for-byte; type/aux read back with cp2; exact member set"
+    },
+    "host": {
+      "image": {
+        "file": "iigshost.po",
+        "volume": "IIGSHOST",
+        "sha256": "67394033167c15ce52c50597e64613fa5dd015745dfbbfca9c6a9c6b9588e40d",
+        "size": 819200
+      },
+      "archive": {
+        "file": "IIGSHOST.SHK",
+        "sha256": "b4f479104562aec2f30cf85f30e0cf99ceb5ea59f757f34500867f64becc6a9b",
+        "size": 219054
+      },
+      "members": [
+        {
+          "name": "IIGSHOST",
+          "kind": "EXE",
+          "file_type": "$B5",
+          "aux_type": "$0000",
+          "size": 355241,
+          "sha256": "4d8a7695f6a3accd5792fd1979dacd706ea0fcd2ecbd56cfed0b35f915187f93"
+        },
+        {
+          "name": "README.TXT",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 285,
+          "sha256": "45908910c1e7e6506279a18e6129caece3a541319a368211cf987913df05bf68"
+        },
+        {
+          "name": "LICENSE.TXT",
+          "kind": "TXT",
+          "file_type": "$04",
+          "aux_type": "$0000",
+          "size": 1066,
+          "sha256": "23623178b1c445a80c9aa254f61341315dd000714c7b5e56f08ed0be84e0442b"
+        }
+      ],
+      "verification": "every member extracted (acx for .po, nulib2 for .SHK) and compared byte-for-byte; type/aux read back with cp2; exact member set"
+    }
+  },
+  "hardware_validation": "none recorded for these executables"
+}

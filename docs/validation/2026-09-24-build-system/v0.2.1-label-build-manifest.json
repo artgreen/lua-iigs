@@ -1,0 +1,702 @@
+{
+  "schema": "lua-iigs-build/1",
+  "build_id": "63eca55c48e5",
+  "banner_label": "IIgs e026f5b-13178cdf3c75",
+  "created_utc": "2026-09-24T22:43:27+00:00",
+  "identity_scope": "runtime sources, recipe, configuration macros, toolchain; excludes docs, tests, and packaging code",
+  "git": {
+    "commit": "52d780b0630f35e941f812a5bf442d7133917bf7",
+    "branch": "codex/build-system",
+    "inputs_match_commit": false,
+    "inputs_differing_from_commit": [
+      "src/ldo.c",
+      "src/llex.c",
+      "src/luaconf.h",
+      "tests/allocfail.c"
+    ]
+  },
+  "recipe": {
+    "recipe_version": 1,
+    "compile_flags": [
+      "-I",
+      "-P",
+      "-D",
+      "+O"
+    ],
+    "core_units": [
+      "lapi",
+      "lauxlib",
+      "lbaselib",
+      "lcode",
+      "lcorolib",
+      "lctype",
+      "ldblib",
+      "ldebug",
+      "ldo",
+      "ldump",
+      "lfunc",
+      "lgc",
+      "linit",
+      "liolib",
+      "llex",
+      "lmathlib",
+      "lmem",
+      "loadlib",
+      "lobject",
+      "lopcodes",
+      "loslib",
+      "lparser",
+      "lstate",
+      "lstring",
+      "lstrlib",
+      "ltable",
+      "ltablib",
+      "ltm",
+      "lundump",
+      "lzio"
+    ],
+    "parser_units": [
+      "lcode",
+      "llex",
+      "lparser"
+    ],
+    "configurations": {
+      "lua": {
+        "macros": [
+          "BUILD_IS_LUA"
+        ],
+        "link": [
+          "lua.a",
+          "lvm",
+          "lapi.a",
+          "lauxlib.a",
+          "lbaselib.a",
+          "lcode.a",
+          "lcorolib.a",
+          "lctype.a",
+          "ldblib.a",
+          "ldebug.a",
+          "ldo.a",
+          "ldump.a",
+          "lfunc.a",
+          "lgc.a",
+          "linit.a",
+          "liolib.a",
+          "llex.a",
+          "lmathlib.a",
+          "lmem.a",
+          "loadlib.a",
+          "lobject.a",
+          "lopcodes.a",
+          "loslib.a",
+          "lparser.a",
+          "lstate.a",
+          "lstring.a",
+          "lstrlib.a",
+          "ltable.a",
+          "ltablib.a",
+          "ltm.a",
+          "lundump.a",
+          "lzio.a"
+        ],
+        "library": "lua.lib"
+      },
+      "lua-small": {
+        "macros": [
+          "BUILD_IS_LUA",
+          "LUA_NO_PARSER"
+        ],
+        "link": [
+          "lua.a",
+          "lvm",
+          "lapi.a",
+          "lauxlib.a",
+          "lbaselib.a",
+          "lcorolib.a",
+          "lctype.a",
+          "ldblib.a",
+          "ldebug.a",
+          "ldo.a",
+          "ldump.a",
+          "lfunc.a",
+          "lgc.a",
+          "linit.a",
+          "liolib.a",
+          "lmathlib.a",
+          "lmem.a",
+          "loadlib.a",
+          "lobject.a",
+          "lopcodes.a",
+          "loslib.a",
+          "lstate.a",
+          "lstring.a",
+          "lstrlib.a",
+          "ltable.a",
+          "ltablib.a",
+          "ltm.a",
+          "lundump.a",
+          "lzio.a"
+        ],
+        "library": "luasmall.lib"
+      },
+      "luac": {
+        "macros": [
+          "BUILD_IS_LUAC"
+        ],
+        "link": [
+          "luac.a",
+          "lvm",
+          "lapi.a",
+          "lauxlib.a",
+          "lbaselib.a",
+          "lcode.a",
+          "lcorolib.a",
+          "lctype.a",
+          "ldblib.a",
+          "ldebug.a",
+          "ldo.a",
+          "ldump.a",
+          "lfunc.a",
+          "lgc.a",
+          "linit.a",
+          "liolib.a",
+          "llex.a",
+          "lmathlib.a",
+          "lmem.a",
+          "loadlib.a",
+          "lobject.a",
+          "lopcodes.a",
+          "loslib.a",
+          "lparser.a",
+          "lstate.a",
+          "lstring.a",
+          "lstrlib.a",
+          "ltable.a",
+          "ltablib.a",
+          "ltm.a",
+          "lundump.a",
+          "lzio.a"
+        ],
+        "library": null
+      },
+      "luatrace": {
+        "macros": [
+          "BUILD_IS_LUA",
+          "LUA_IIGS_MMTRACE"
+        ],
+        "link": [
+          "lua.a",
+          "lvm",
+          "lapi.a",
+          "lauxlib.a",
+          "lbaselib.a",
+          "lcode.a",
+          "lcorolib.a",
+          "lctype.a",
+          "ldblib.a",
+          "ldebug.a",
+          "ldo.a",
+          "ldump.a",
+          "lfunc.a",
+          "lgc.a",
+          "linit.a",
+          "liolib.a",
+          "llex.a",
+          "lmathlib.a",
+          "lmem.a",
+          "loadlib.a",
+          "lobject.a",
+          "lopcodes.a",
+          "loslib.a",
+          "lparser.a",
+          "lstate.a",
+          "lstring.a",
+          "lstrlib.a",
+          "ltable.a",
+          "ltablib.a",
+          "ltm.a",
+          "lundump.a",
+          "lzio.a"
+        ],
+        "library": null
+      }
+    },
+    "toolchain": {
+      "orca_c": "2.2.1",
+      "iix": "iix version 2.1.0",
+      "iix_sha256": "7212b18a03adefa8743419e21c6a8b76c6d6b2cb6f26b8447af75ff5eb438eff",
+      "sdk_files_sha256": {
+        "Languages/cc": "f0254f55109ae41d56e0b08881baf607a93a6a6ffdde90839f5c3d57d5b78680",
+        "Languages/Linker": "77861874847c6f40e68962beec9dab7996bd2d0a00586dfe846b13b00f74296e",
+        "Libraries/ORCALib": "f19b6d54be6b88d77aa44513ade313f240a83b6b88bb454bc93fef802ab26397",
+        "Libraries/SysLib": "0144d537f881338256cf29d43731c5d07b3b529770101f28b2977638cad9b75d",
+        "Libraries/SysFloat": "e37dad9d88f3b202cb8098b4faceb83eda95114955f47013bfc50c7560893dd6",
+        "Utilities/MakeLib": "5032fd25dbf0096b4719c11cd4371ccb2a6d288fff8d92c642c7f4444893cc22",
+        "Libraries/ORCACDefs/*": "14805e45ec07f3d6faefbb62dabeaf9e645db7163cfcc900c4c1086079f0cfe0"
+      }
+    }
+  },
+  "toolchain_selected_by": "primary worktree .orca-sdk-2.2.1",
+  "runtime_sources_sha256": {
+    "src/lapi.c": "aa8bd25af42c07f3c2a96af394b5b39d3331782fef8f15ba4394dc5828a23c9d",
+    "src/lapi.h": "9522209670086adfbb11379416078a7f4dafe154043e320cd435fa1811aaabfb",
+    "src/lauxlib.c": "38e834f9c7b3e60fbc7832db08e213ee267bc6cd68bf6ba9d2ec57f05c8b0ea9",
+    "src/lauxlib.h": "be6918d323556036adf1f6be20e2e2dd8e27ba88194d30559d49310f050b5928",
+    "src/lbaselib.c": "250a2fc264e2b98e713418373f3d90b9818562aa237bbb2937b1ae9696b84a4b",
+    "src/lcode.c": "40473a697c92978ed187ca5133ea1b18a9c98035f9bed6521eda99db7d0e70fb",
+    "src/lcode.h": "40f6a6453461aef8f31b61a4a6698862578b74f8b11a084708336923d7808e18",
+    "src/lcorolib.c": "0588318e3fcf481e5e4186fd7ebb4b7ff6ddb88689ff4f0624af767446d1821a",
+    "src/lctype.c": "418b28ce1f89b55391ef5cc72433c3e9c6222a3da1f835b18c46548c09962ef2",
+    "src/lctype.h": "c800311872ecba642f6d013b290eda83ba6cd8df8061e25cdca1dd4adcbed8b5",
+    "src/ldblib.c": "fdfadbfd97bed9f8c02abdc25401d9839e5cd0c96e83170c058d39baf503c046",
+    "src/ldebug.c": "1755599e83a814829844544df17e172281a85cfbcb5e93bbaae825ce08eecb83",
+    "src/ldebug.h": "e2c04610e4ba14f7ed615ba89ce2eeb7cc1aa90e128a5103416cd0eb32423dc5",
+    "src/ldo.c": "a601d0a3dc2d214154cbff296a208aa7d72810f3cb51c639ac25cb71bd1b8676",
+    "src/ldo.h": "718cc0c55d3f9ae09047adf82dad8200e7143649726fca1fc86a7b027a209058",
+    "src/ldump.c": "8396d46122973d978697f762340a58923f5aff52e943acce5721968f8ea68a1a",
+    "src/lfunc.c": "6311125473beaacafaf52988a3b869ff3e705f9a77e21facdfd27d652ebcfdaf",
+    "src/lfunc.h": "81dc02d55ae8000461ab90bb9689d2600ba51f2ea9ac9fb019386995c07e3e4a",
+    "src/lgc.c": "5093a4364319f66739d8e88c8cc2c07fc2fd95e14f5cc88144468a9bde583c7d",
+    "src/lgc.h": "c83d3b8e31345c0aacd37442954a7f2434312ee48f98a8b9ae4fc8aad26d0c99",
+    "src/linit.c": "07e516b679b48a66a8fddb5fc16a449c3fbe31fb2745e296dc4b197dac551e92",
+    "src/liolib.c": "dc50c6c9e80d576dfe937919b1bc7beb022800c88212729e23c5fbb5f2fb0410",
+    "src/ljumptab.h": "6c3e9858b9dad03ccd61445ab0bff0eb6ddfa5e731e044f93350fe6c6b2ad8d5",
+    "src/llex.c": "de3a6a94cb79cda954f8f633b6a32d3e9b5fff20c85af8b945b90dcc9b13951a",
+    "src/llex.h": "5ce0302528260ed6a40ec3ebf5e27d3bc108242d9dca57e8cdbe80fe34e13410",
+    "src/llimits.h": "03245e293df500cc76f6fcfdac2816184c0ac12af26e6a60cded30b21c011ffb",
+    "src/lmathlib.c": "bdd14dc8612cab00513a41ff3506437e6606bce687c832d5249f3e7b615053d5",
+    "src/lmem.c": "5fde30f200de2838cbbec0a1b3d5a8b6501e57cc27e9e3752f2d72d3a071f13a",
+    "src/lmem.h": "7c4f409d629d9dfe6e9b18515f810fbf10ace677e098a1df077b762b1d0f1e0f",
+    "src/loadlib.c": "5bbb6e0f7a392676c8615e7d6d0b9d8419440ed3171ba3d510e9291490aaa46b",
+    "src/lobject.c": "4a5d01f5ff6381ea97dc4f6784af0b3c8080d279e6cfe5a9e9ca7b45beb941f0",
+    "src/lobject.h": "bfb60c7515f54e4e181c0418998ed2d4fb73436255ffe86c0050928b5153183f",
+    "src/lopcodes.c": "bb5507736fe208f4e28f7123e245a6d1ef02cf4bcfc445be356d5227415efe8b",
+    "src/lopcodes.h": "075c74184a89416b62318d9ccf3e6cfb1ed971bc12c0594a0669b0724e319270",
+    "src/lopnames.h": "fbdbebc96b136efc6165cba1ac2b311b0c52413aaef59ae9ec750748f13c9e9a",
+    "src/loslib.c": "94bef32e6190f144e25ac4c810c8dd39a841a10b204458b7d99bb43257d0a51e",
+    "src/lparser.c": "79019b12de4caf41efa96bc2eda20b02f581704ab0a34d73d929a3ed00276b44",
+    "src/lparser.h": "68c34ef2d6e5a227f7cff18436a42c6739b1470ce12f059f168d9bb69fc8d49c",
+    "src/lprefix.h": "626785d4eda75e9435f0ac21a780ae3b11f8b27dc36934e637a5c2305f906531",
+    "src/lstate.c": "0b7b6cbcd507e38cafa7709b66057aec3c841225976fce8e864d72d7d1bca731",
+    "src/lstate.h": "39587b3a4dce0a2e014d1aa71baab2d5a08a01ad016dd9a102a238f56917be27",
+    "src/lstring.c": "f943d04bac037d30e34ccba85a8280fe46bae86fce694d5e79fb7a69531b2e06",
+    "src/lstring.h": "a8cb0d737276f6a41071a0776ee1d8aa13cf02fa7c79ea096d202b14ea792e31",
+    "src/lstrlib.c": "8579d77843515ec486824587504301d70b85645b5c8c6c3867f0649339500026",
+    "src/ltable.c": "1dedb6e492739776389bafd0d7461bf2dd30a73ebcddb0e9c13fcca8f81b7962",
+    "src/ltable.h": "6f90dc1475f1ebed6e67e42c51682fa30df0147d8f723a7435313f88540a157e",
+    "src/ltablib.c": "675c165104a7de482bcede0f9dc628522f6e1a33fab3cd037f567aafe9230182",
+    "src/ltm.c": "ceeb9b38be7c25e80017b7de9897ec44d14f8247fd0a37d5cbecf18b1364725d",
+    "src/ltm.h": "730b681b5f13fd2519fef9e418423097dda7843466fa524fa7a5b718d3af4802",
+    "src/lua.c": "6f0a91aff2aa0e1b84d7b905719cbff524746a58d1a9537620299963bc3a1cb0",
+    "src/lua.h": "7b3b925370ba76e670e2ed518333b7da84722a12e52c6e0e007230b6e74038db",
+    "src/lua.hpp": "fd83f7e823cfbb03ac2da937ec83f01b4a6ddaac220a4fa1ffd6c6c3842c5890",
+    "src/luac.c": "3a5b6e0de4496565cc5a336d680baa82a78485f905ad2c43270af5b0e8132c89",
+    "src/luaconf.h": "b7493bc3805fd1ca4c9c04bf5100dca4f7c671594da37962bc0a12d14be8654c",
+    "src/lualib.h": "4ea0f67d3e467f5d6a327616e22a3c2da8e03d47a3c3660916275f2842f521ea",
+    "src/lundump.c": "0f752c40d3364d985e104299009c81db12113078c22fdb3eac92cfe8cde7907e",
+    "src/lundump.h": "746551630d8678ae31a999bf9318003d9329388b7cd9d3fa1cdc725ffc9dc2ee",
+    "src/lutf8lib.c": "2956796c7efcb3a678ca68f93db3c7ac2fb9c440b0e083a9ff9f47b1555d82ad",
+    "src/lvm.c": "944087909f7c2103a422e451c271640fd922d309f0b6788315e6438ed20aa4fe",
+    "src/lvm.h": "aba601b887236d5e135392e0c49370df3b5a9ac5c66ab2d44156b3244f2dcef3",
+    "src/lzio.c": "a0a367e76396436294e9a2746a2131115858802fc3ed0dd63f13579bb21c52b6",
+    "src/lzio.h": "a0b0b53ae93bcaa712e88c2258cecc122c6c35acccfbf6731e44b151c36d3508"
+  },
+  "host_sources_sha256": {
+    "memfree.c": "fed1ca980e9c311d26c09913b878256b9f57a7efb680bb57d7744fb257856b2c",
+    "mmtest.c": "9924d43d95d982673fb808c3af6b5c60b10170f163d1e2ce7da20e6bc76bea97",
+    "test.c": "b651fc2c323cf0650625d6b3584970e8d10553e99b0ee6888904bbc90af2e2c5",
+    "testbridge.c": "4f0d5b7a75959b6a0fa06e7e8249d2837f0dd6edfd83d06c1eef1428dc77136b",
+    "testiface.c": "c0f2444b4f701deaaee5f8efd173a6f406df8c09b4d3c67346c10649f53dfa2f",
+    "testiface.h": "6c43125d9640f0a3595d75192495c1094ae04990887a02738b94830096983a69",
+    "tests/allocfail.c": "0b4d2974d1c4d8040c117e84bf081c0fa6e27c21b237d3cffd97099eb2c1876a",
+    "tests/iigshost.c": "52445774b95e0b87e68a0fa48df7bf62e9325e0e6b7f33d37139b7daf71a188e"
+  },
+  "configurations": {
+    "lua": {
+      "macros": [
+        "BUILD_IS_LUA",
+        "LUA_IIGS_BUILD_ID=\"IIgs e026f5b-13178cdf3c75 plain\""
+      ],
+      "parseconf_sha256": "25fba7ed7f04c66c21eed7f15e4798cd3275807e729ea92461854135a7e40580",
+      "units_compiled": 32,
+      "link_inputs": [
+        "lua.a",
+        "lvm",
+        "lapi.a",
+        "lauxlib.a",
+        "lbaselib.a",
+        "lcode.a",
+        "lcorolib.a",
+        "lctype.a",
+        "ldblib.a",
+        "ldebug.a",
+        "ldo.a",
+        "ldump.a",
+        "lfunc.a",
+        "lgc.a",
+        "linit.a",
+        "liolib.a",
+        "llex.a",
+        "lmathlib.a",
+        "lmem.a",
+        "loadlib.a",
+        "lobject.a",
+        "lopcodes.a",
+        "loslib.a",
+        "lparser.a",
+        "lstate.a",
+        "lstring.a",
+        "lstrlib.a",
+        "ltable.a",
+        "ltablib.a",
+        "ltm.a",
+        "lundump.a",
+        "lzio.a"
+      ],
+      "parser": {
+        "parser_symbols_present": [
+          "luaK_code",
+          "luaX_init",
+          "luaX_next",
+          "luaY_parser"
+        ],
+        "global_symbols": 1506,
+        "units_omitted": []
+      }
+    },
+    "lua-small": {
+      "macros": [
+        "BUILD_IS_LUA",
+        "LUA_NO_PARSER",
+        "LUA_IIGS_BUILD_ID=\"IIgs e026f5b-13178cdf3c75 small\""
+      ],
+      "parseconf_sha256": "bb2be74768ec4d4874d5bdd3174fd135934ebeefb577187c086b73a063426fe7",
+      "units_compiled": 29,
+      "link_inputs": [
+        "lua.a",
+        "lvm",
+        "lapi.a",
+        "lauxlib.a",
+        "lbaselib.a",
+        "lcorolib.a",
+        "lctype.a",
+        "ldblib.a",
+        "ldebug.a",
+        "ldo.a",
+        "ldump.a",
+        "lfunc.a",
+        "lgc.a",
+        "linit.a",
+        "liolib.a",
+        "lmathlib.a",
+        "lmem.a",
+        "loadlib.a",
+        "lobject.a",
+        "lopcodes.a",
+        "loslib.a",
+        "lstate.a",
+        "lstring.a",
+        "lstrlib.a",
+        "ltable.a",
+        "ltablib.a",
+        "ltm.a",
+        "lundump.a",
+        "lzio.a"
+      ],
+      "parser": {
+        "parser_symbols_present": [],
+        "global_symbols": 1273,
+        "units_omitted": [
+          "lcode",
+          "llex",
+          "lparser"
+        ]
+      }
+    },
+    "luac": {
+      "macros": [
+        "BUILD_IS_LUAC"
+      ],
+      "parseconf_sha256": "f2a32a4e01312a7481352324af7b46a1db9ddbca8c696a7c4af81eeb2880a2c2",
+      "units_compiled": 32,
+      "link_inputs": [
+        "luac.a",
+        "lvm",
+        "lapi.a",
+        "lauxlib.a",
+        "lbaselib.a",
+        "lcode.a",
+        "lcorolib.a",
+        "lctype.a",
+        "ldblib.a",
+        "ldebug.a",
+        "ldo.a",
+        "ldump.a",
+        "lfunc.a",
+        "lgc.a",
+        "linit.a",
+        "liolib.a",
+        "llex.a",
+        "lmathlib.a",
+        "lmem.a",
+        "loadlib.a",
+        "lobject.a",
+        "lopcodes.a",
+        "loslib.a",
+        "lparser.a",
+        "lstate.a",
+        "lstring.a",
+        "lstrlib.a",
+        "ltable.a",
+        "ltablib.a",
+        "ltm.a",
+        "lundump.a",
+        "lzio.a"
+      ],
+      "parser": {
+        "parser_symbols_present": [
+          "luaK_code",
+          "luaX_init",
+          "luaX_next",
+          "luaY_parser"
+        ],
+        "global_symbols": 1499,
+        "units_omitted": []
+      }
+    },
+    "luatrace": {
+      "macros": [
+        "BUILD_IS_LUA",
+        "LUA_IIGS_MMTRACE",
+        "LUA_IIGS_BUILD_ID=\"IIgs e026f5b-13178cdf3c75 trace\""
+      ],
+      "parseconf_sha256": "55285cff2c7962c239e6ae6f8356bb7a699e075ba2527c1ae3732673009d860a",
+      "units_compiled": 32,
+      "link_inputs": [
+        "lua.a",
+        "lvm",
+        "lapi.a",
+        "lauxlib.a",
+        "lbaselib.a",
+        "lcode.a",
+        "lcorolib.a",
+        "lctype.a",
+        "ldblib.a",
+        "ldebug.a",
+        "ldo.a",
+        "ldump.a",
+        "lfunc.a",
+        "lgc.a",
+        "linit.a",
+        "liolib.a",
+        "llex.a",
+        "lmathlib.a",
+        "lmem.a",
+        "loadlib.a",
+        "lobject.a",
+        "lopcodes.a",
+        "loslib.a",
+        "lparser.a",
+        "lstate.a",
+        "lstring.a",
+        "lstrlib.a",
+        "ltable.a",
+        "ltablib.a",
+        "ltm.a",
+        "lundump.a",
+        "lzio.a"
+      ],
+      "parser": {
+        "parser_symbols_present": [
+          "luaK_code",
+          "luaX_init",
+          "luaX_next",
+          "luaY_parser"
+        ],
+        "global_symbols": 1508,
+        "units_omitted": []
+      }
+    }
+  },
+  "banners": {
+    "lua": "Lua (IIgs) 5.4.6  Copyright (C) 1994-2023 Lua.org, PUC-Rio",
+    "lua-small": "Lua (IIgs) 5.4.6  Copyright (C) 1994-2023 Lua.org, PUC-Rio",
+    "luatrace": "Lua (IIgs) 5.4.6  Copyright (C) 1994-2023 Lua.org, PUC-Rio"
+  },
+  "artifacts": {
+    "lua/out/allocfail": {
+      "kind": "EXE",
+      "size": 262462,
+      "sha256": "4f928f02d67dc5dd818b368576c1aab837435053902105ade0c45095e98518c7"
+    },
+    "lua/out/allocfail.map": {
+      "kind": "TXT",
+      "size": 38647,
+      "sha256": "bd258562bb3c536b777189c077b2359c7e1161cb612368263ccc5edf91b844d3"
+    },
+    "lua/out/bridge": {
+      "kind": "EXE",
+      "size": 355510,
+      "sha256": "4da72dab9928f0208a5bca07b08a792bd9f84892fa4939f310a05e95f4afbe66"
+    },
+    "lua/out/bridge.map": {
+      "kind": "TXT",
+      "size": 57067,
+      "sha256": "89225326cf36f4f0da25e47ec778748d046a60f0de7d100c64952bec4b8f1516"
+    },
+    "lua/out/iigshost": {
+      "kind": "EXE",
+      "size": 355241,
+      "sha256": "4d8a7695f6a3accd5792fd1979dacd706ea0fcd2ecbd56cfed0b35f915187f93"
+    },
+    "lua/out/iigshost.map": {
+      "kind": "TXT",
+      "size": 56602,
+      "sha256": "eb21ab8041269666edcc20173a57bd1a225aaa9f5b94507826f86aff5f362792"
+    },
+    "lua/out/include/lauxlib.h": {
+      "kind": "TXT",
+      "size": 9547,
+      "sha256": "be6918d323556036adf1f6be20e2e2dd8e27ba88194d30559d49310f050b5928"
+    },
+    "lua/out/include/lua.h": {
+      "kind": "TXT",
+      "size": 16573,
+      "sha256": "7b3b925370ba76e670e2ed518333b7da84722a12e52c6e0e007230b6e74038db"
+    },
+    "lua/out/include/lua.hpp": {
+      "kind": "TXT",
+      "size": 191,
+      "sha256": "fd83f7e823cfbb03ac2da937ec83f01b4a6ddaac220a4fa1ffd6c6c3842c5890"
+    },
+    "lua/out/include/luaconf.h": {
+      "kind": "TXT",
+      "size": 24212,
+      "sha256": "b7493bc3805fd1ca4c9c04bf5100dca4f7c671594da37962bc0a12d14be8654c"
+    },
+    "lua/out/include/lualib.h": {
+      "kind": "TXT",
+      "size": 1116,
+      "sha256": "4ea0f67d3e467f5d6a327616e22a3c2da8e03d47a3c3660916275f2842f521ea"
+    },
+    "lua/out/include/parseconf.h": {
+      "kind": "TXT",
+      "size": 238,
+      "sha256": "25fba7ed7f04c66c21eed7f15e4798cd3275807e729ea92461854135a7e40580"
+    },
+    "lua/out/lua": {
+      "kind": "EXE",
+      "size": 362361,
+      "sha256": "431a82d763f25dfcf0c320d21406b599ef9e6c184197b7d034e9c41fd2599d0a"
+    },
+    "lua/out/lua.lib": {
+      "kind": "LIB",
+      "size": 524380,
+      "sha256": "aee7320b44c925efe06fe8413419aba95806d9ff16e7998582231e5546b9fb1a"
+    },
+    "lua/out/lua.map": {
+      "kind": "TXT",
+      "size": 58936,
+      "sha256": "51f8ccce90fe84f93ea29b215eb4925ba070f5bead79f1c74ea49d82e082f4aa"
+    },
+    "lua/out/lvm.a": {
+      "kind": "OBJ",
+      "size": 92283,
+      "sha256": "fa8314a7c89a8645dc8d0d66f31745920234f6c78f98b4a263a1aa6bc31b6661"
+    },
+    "lua/out/memfree": {
+      "kind": "EXE",
+      "size": 7828,
+      "sha256": "81803eec716eea49be876d9178cb561db291aeb51cfc201edd9ec2170c55454a"
+    },
+    "lua/out/memfree.map": {
+      "kind": "TXT",
+      "size": 5273,
+      "sha256": "f5f85b1c0152abd0bc6a756aff5ea9a0a0f73f9f4ae2a4a9f2ddfec24dc7e9a7"
+    },
+    "lua/out/mmtest": {
+      "kind": "EXE",
+      "size": 11352,
+      "sha256": "56fdc7c0e84d9a778c5c6b80fdee2b0b37bf123a683ec6b56845b896dd7e1256"
+    },
+    "lua/out/mmtest.map": {
+      "kind": "TXT",
+      "size": 5893,
+      "sha256": "65956eec80f1af57f0253a577c675981ce0b5aa39e0369a6c1ee6196a0b89449"
+    },
+    "lua-small/out/include/lauxlib.h": {
+      "kind": "TXT",
+      "size": 9547,
+      "sha256": "be6918d323556036adf1f6be20e2e2dd8e27ba88194d30559d49310f050b5928"
+    },
+    "lua-small/out/include/lua.h": {
+      "kind": "TXT",
+      "size": 16573,
+      "sha256": "7b3b925370ba76e670e2ed518333b7da84722a12e52c6e0e007230b6e74038db"
+    },
+    "lua-small/out/include/lua.hpp": {
+      "kind": "TXT",
+      "size": 191,
+      "sha256": "fd83f7e823cfbb03ac2da937ec83f01b4a6ddaac220a4fa1ffd6c6c3842c5890"
+    },
+    "lua-small/out/include/luaconf.h": {
+      "kind": "TXT",
+      "size": 24212,
+      "sha256": "b7493bc3805fd1ca4c9c04bf5100dca4f7c671594da37962bc0a12d14be8654c"
+    },
+    "lua-small/out/include/lualib.h": {
+      "kind": "TXT",
+      "size": 1116,
+      "sha256": "4ea0f67d3e467f5d6a327616e22a3c2da8e03d47a3c3660916275f2842f521ea"
+    },
+    "lua-small/out/include/parseconf.h": {
+      "kind": "TXT",
+      "size": 266,
+      "sha256": "bb2be74768ec4d4874d5bdd3174fd135934ebeefb577187c086b73a063426fe7"
+    },
+    "lua-small/out/luasmall": {
+      "kind": "EXE",
+      "size": 309052,
+      "sha256": "22276930822397c6450a5d3cd4be78254688b16c8a8326bdcb60c74d9a8e8695"
+    },
+    "lua-small/out/luasmall.lib": {
+      "kind": "LIB",
+      "size": 412143,
+      "sha256": "51673dc2ba427d2ce6c3a81a0f56db5a57897a4abe5733b0db1b19a61cd6090f"
+    },
+    "lua-small/out/luasmall.map": {
+      "kind": "TXT",
+      "size": 49930,
+      "sha256": "08a2fd9d147f3c19654604f8bdb9cca5797ea2b863f92e704a6cd1c93527233a"
+    },
+    "lua-small/out/lvm.a": {
+      "kind": "OBJ",
+      "size": 92283,
+      "sha256": "fa8314a7c89a8645dc8d0d66f31745920234f6c78f98b4a263a1aa6bc31b6661"
+    },
+    "luac/out/luac": {
+      "kind": "EXE",
+      "size": 370941,
+      "sha256": "a21493e2793b77149f99fc89fc00fb89a9b886cafadca24c8bfb24194b407d61"
+    },
+    "luac/out/luac.map": {
+      "kind": "TXT",
+      "size": 58794,
+      "sha256": "ec449b5547814c9d781c963c64c050e959d217c575080a070f3a9c1e6b354725"
+    },
+    "luatrace/out/luatrace": {
+      "kind": "EXE",
+      "size": 364142,
+      "sha256": "76c854ebef118e5cfd12d485a08beeafc20518bb612b15b1afae66939e289474"
+    },
+    "luatrace/out/luatrace.map": {
+      "kind": "TXT",
+      "size": 59023,
+      "sha256": "89012e261f8e805d0a2c11165f7aacbb2d1253c615d7ade8dbeb438d459cd7f7"
+    }
+  },
+  "same_id_comparisons": [],
+  "reproducibility": "not claimed; see same_id_comparisons and any release comparison",
+  "tests": "none recorded here; test reports are separate (make test BUILD=...)",
+  "hardware_validation": "none: newly built executables need their own hardware validation"
+}

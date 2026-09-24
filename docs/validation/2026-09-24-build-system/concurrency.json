@@ -1,0 +1,19 @@
+{
+  "utc": "2026-09-24T22:55:17+00:00",
+  "toolchain": "e5de3e21c50190b3",
+  "jobs": 8,
+  "objects_compared": 33,
+  "rounds": [
+    {
+      "round": 1,
+      "differences": []
+    },
+    {
+      "round": 2,
+      "differences": []
+    }
+  ],
+  "temp_prefix_writes": [],
+  "result": "identical",
+  "work": "<local scratch directory>"
+}

@@ -1,0 +1,129 @@
+{
+  "schema": "lua-iigs-kit/1",
+  "kit": "host",
+  "utc": "2026-09-24T23:21:39+00:00",
+  "input": {
+    "kind": "identified build",
+    "build_id": "63eca55c48e5",
+    "build_dir": "63eca55c48e5-20260924T231837Z",
+    "build_manifest_sha256": "47d70a1b247edecd6e159a27fb71738cb4c34e237f373421ed4d446f7998fa16"
+  },
+  "shell_prefix": "20:",
+  "run_command": "20:test",
+  "executables_sha256": {
+    "LUATEST": "2bd98bff0bd818226543a8096a37c0b107a2383b304c9523def47e00882ee1d0",
+    "IIGSHOST": "4d8a7695f6a3accd5792fd1979dacd706ea0fcd2ecbd56cfed0b35f915187f93"
+  },
+  "kit_identity": "759d38f9176b",
+  "batch": [
+    "* Native C host and hook test. No interpreter rebuild.",
+    "set exit on",
+    "20:luatest -E -v test.lua prepare",
+    "echo HOSTCHECK starting native host. This phase runs quietly.",
+    "unset exit",
+    "20:iigshost >host.out >&host.err",
+    "set hoststatus {status}",
+    "set exit on",
+    "20:luatest -E test.lua verify {hoststatus}",
+    "20:luatest -E test.lua finish",
+    "exit 0"
+  ],
+  "preflight": {
+    "environment": "GoldenGate with --memcheck, commands launched separately; not ORCA batch execution, not hardware",
+    "steps": [
+      {
+        "step": "prepare",
+        "exit_code": 0,
+        "result": "passed"
+      },
+      {
+        "step": "host",
+        "exit_code": 0,
+        "result": "status captured"
+      },
+      {
+        "step": "verify",
+        "exit_code": 0,
+        "result": "passed"
+      },
+      {
+        "step": "finish",
+        "exit_code": 0,
+        "result": "passed"
+      }
+    ]
+  },
+  "container": {
+    "image": {
+      "file": "TEST.po",
+      "volume": "HOSTCHECK",
+      "sha256": "9b494f56ad754cf67de2fa5d33ab5f874044e4b5002a5c9f9fa51c82b2421b60",
+      "size": 819200
+    },
+    "archive": {
+      "file": "TEST.SHK",
+      "sha256": "4e33a5d466e1f06facb69474e51658c8a84b90933e4e89b6697fec521d7aebeb",
+      "size": 440791
+    },
+    "members": [
+      {
+        "name": "LUATEST",
+        "kind": "EXE",
+        "file_type": "$B5",
+        "aux_type": "$0000",
+        "size": 362344,
+        "sha256": "2bd98bff0bd818226543a8096a37c0b107a2383b304c9523def47e00882ee1d0"
+      },
+      {
+        "name": "IIGSHOST",
+        "kind": "EXE",
+        "file_type": "$B5",
+        "aux_type": "$0000",
+        "size": 355241,
+        "sha256": "4d8a7695f6a3accd5792fd1979dacd706ea0fcd2ecbd56cfed0b35f915187f93"
+      },
+      {
+        "name": "TEST",
+        "kind": "EXEC",
+        "file_type": "$B0",
+        "aux_type": "$0006",
+        "size": 323,
+        "sha256": "6a513b8aeddff0c2172172a0e43b34e29491e7a962d4713572dd7d6b8cd263ab"
+      },
+      {
+        "name": "TEST.LUA",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 2248,
+        "sha256": "9f2d5e27353457e3781f7edfbfd3ffee2621eb38c37f5ce607e942e6cb9c5894"
+      },
+      {
+        "name": "HWSMOKE.LUA",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 1206,
+        "sha256": "12e1ed0b4797273678ab4f82f72b42ed6ccab0cc5d98e6ed0362069e0e4abc70"
+      },
+      {
+        "name": "README.TXT",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 646,
+        "sha256": "c29088f2d88f79b1ddacff120045b7924e4dcaf9fc4efc8849a61b6e660bf4b3"
+      },
+      {
+        "name": "LICENSE.TXT",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 1066,
+        "sha256": "23623178b1c445a80c9aa254f61341315dd000714c7b5e56f08ed0be84e0442b"
+      }
+    ],
+    "verification": "every member extracted (acx for .po, nulib2 for .SHK) and compared byte-for-byte; type/aux read back with cp2; exact member set"
+  },
+  "hardware_result": "pending: record the observed banner, final lines, and shell return separately"
+}

@@ -1,0 +1,204 @@
+{
+  "schema": "lua-iigs-kit/1",
+  "kit": "luac",
+  "utc": "2026-09-24T23:21:35+00:00",
+  "input": {
+    "kind": "identified build",
+    "build_id": "63eca55c48e5",
+    "build_dir": "63eca55c48e5-20260924T231837Z",
+    "build_manifest_sha256": "47d70a1b247edecd6e159a27fb71738cb4c34e237f373421ed4d446f7998fa16"
+  },
+  "shell_prefix": "20:",
+  "run_command": "20:test",
+  "executables_sha256": {
+    "LUATEST": "2bd98bff0bd818226543a8096a37c0b107a2383b304c9523def47e00882ee1d0",
+    "LUACTEST": "a21493e2793b77149f99fc89fc00fb89a9b886cafadca24c8bfb24194b407d61"
+  },
+  "kit_identity": "7a765cd499e7",
+  "batch": [
+    "* Standalone LUAC checks. Run in a dedicated test directory.",
+    "set exit on",
+    "echo LUACPROBE step prepare",
+    "20:luatest -E -v test.lua prepare",
+    "echo LUACPROBE step version",
+    "20:luactest -v",
+    "echo LUACPROBE step compile-small",
+    "20:luactest -o lc.small.out lc.small.lua",
+    "echo LUACPROBE step small",
+    "20:luatest -E test.lua small",
+    "echo LUACPROBE step compile-debug",
+    "20:luactest -o lc.debug.out lc.big.lua",
+    "echo LUACPROBE step debug",
+    "20:luatest -E test.lua debug",
+    "echo LUACPROBE step compile-stripped",
+    "20:luactest -s -o lc.strip.out lc.big.lua",
+    "echo LUACPROBE step stripped",
+    "20:luatest -E test.lua stripped",
+    "echo LUACPROBE step reject-syntax",
+    "unset exit",
+    "20:luactest -p lc.bad.lua >&lc.bad.log",
+    "set lcstatus {status}",
+    "set exit on",
+    "echo LUACPROBE step syntax",
+    "20:luatest -E test.lua syntax {lcstatus}",
+    "echo LUACPROBE step reject-depth",
+    "unset exit",
+    "20:luactest -p lc.deep.lua >&lc.deep.log",
+    "set lcstatus {status}",
+    "set exit on",
+    "echo LUACPROBE step depth",
+    "20:luatest -E test.lua depth {lcstatus}",
+    "echo LUACPROBE step compile-recovery",
+    "20:luactest -o lc.again.out lc.small.lua",
+    "echo LUACPROBE step recovery",
+    "20:luatest -E test.lua recovery",
+    "echo LUACPROBE step finish",
+    "20:luatest -E test.lua finish",
+    "exit 0"
+  ],
+  "preflight": {
+    "environment": "GoldenGate with --memcheck, commands launched separately; not ORCA batch execution, not hardware",
+    "steps": [
+      {
+        "step": "prepare",
+        "exit_code": 0,
+        "result": "passed"
+      },
+      {
+        "step": "version",
+        "exit_code": 0,
+        "result": "passed"
+      },
+      {
+        "step": "compile-small",
+        "exit_code": 0,
+        "result": "passed"
+      },
+      {
+        "step": "small",
+        "exit_code": 0,
+        "result": "passed"
+      },
+      {
+        "step": "compile-debug",
+        "exit_code": 0,
+        "result": "passed"
+      },
+      {
+        "step": "debug",
+        "exit_code": 0,
+        "result": "passed"
+      },
+      {
+        "step": "compile-stripped",
+        "exit_code": 0,
+        "result": "passed"
+      },
+      {
+        "step": "stripped",
+        "exit_code": 0,
+        "result": "passed"
+      },
+      {
+        "step": "reject-syntax",
+        "exit_code": 255,
+        "result": "status captured"
+      },
+      {
+        "step": "syntax",
+        "exit_code": 0,
+        "result": "passed"
+      },
+      {
+        "step": "reject-depth",
+        "exit_code": 255,
+        "result": "status captured"
+      },
+      {
+        "step": "depth",
+        "exit_code": 0,
+        "result": "passed"
+      },
+      {
+        "step": "compile-recovery",
+        "exit_code": 0,
+        "result": "passed"
+      },
+      {
+        "step": "recovery",
+        "exit_code": 0,
+        "result": "passed"
+      },
+      {
+        "step": "finish",
+        "exit_code": 0,
+        "result": "passed"
+      }
+    ]
+  },
+  "container": {
+    "image": {
+      "file": "TEST.po",
+      "volume": "LUACTEST",
+      "sha256": "30d6e6a08899f720528222613977d6434bdc7e01b9f13630dcd4108e12ca36cd",
+      "size": 819200
+    },
+    "archive": {
+      "file": "TEST.SHK",
+      "sha256": "9ec29c8707476dc13972460f6e270d5bba66d7d4c025a4e6aa4369392b80f161",
+      "size": 446851
+    },
+    "members": [
+      {
+        "name": "LUATEST",
+        "kind": "EXE",
+        "file_type": "$B5",
+        "aux_type": "$0000",
+        "size": 362344,
+        "sha256": "2bd98bff0bd818226543a8096a37c0b107a2383b304c9523def47e00882ee1d0"
+      },
+      {
+        "name": "LUACTEST",
+        "kind": "EXE",
+        "file_type": "$B5",
+        "aux_type": "$0000",
+        "size": 370941,
+        "sha256": "a21493e2793b77149f99fc89fc00fb89a9b886cafadca24c8bfb24194b407d61"
+      },
+      {
+        "name": "TEST",
+        "kind": "EXEC",
+        "file_type": "$B0",
+        "aux_type": "$0006",
+        "size": 1150,
+        "sha256": "bba9ef160521d11cfacf4d75c92ed003c3d10cf3b539b4dec97a6555e17bebf9"
+      },
+      {
+        "name": "TEST.LUA",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 4203,
+        "sha256": "e4d77e78e50c54b127c06527c9752baaf6b808ea2b28cbcc0d20ea141f443b3e"
+      },
+      {
+        "name": "README.TXT",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 685,
+        "sha256": "2f46ef67289c19862bd16d63eb5ee6fc45e7780b4d864842b0abba77fb1e7a92"
+      },
+      {
+        "name": "LICENSE.TXT",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 1066,
+        "sha256": "23623178b1c445a80c9aa254f61341315dd000714c7b5e56f08ed0be84e0442b"
+      }
+    ],
+    "verification": "every member extracted (acx for .po, nulib2 for .SHK) and compared byte-for-byte; type/aux read back with cp2; exact member set"
+  },
+  "hardware_result": "pending: record the observed banner, final lines, and shell return separately"
+}

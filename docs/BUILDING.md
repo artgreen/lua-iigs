@@ -121,12 +121,14 @@ map: the parser entry points (`luaY_parser`, `luaK_code`, `luaX_next`,
 `luaX_init`) must be present in parser configurations and absent from
 `lua-small`.
 
-Measured sizes (identified build `63eca55c48e5`, 2026-09-24):
+Measured sizes (identified build `63eca55c48e5`, default banners, 2026-09-24):
 
 | Product | Full | Compact | Saving |
 | --- | ---: | ---: | ---: |
-| interpreter | 362,361 | 309,052 | 53,309 bytes (14.7%) |
+| interpreter | 362,344 | 309,037 | 53,307 bytes (14.7%) |
 | embedding library | 524,380 | 412,143 | 112,237 bytes (21.4%) |
+
+Executable sizes vary by a few bytes with the banner text.
 
 What the compact runtime can and cannot run is described in
 [compact runtime testing](../tests/COMPACT.md).
