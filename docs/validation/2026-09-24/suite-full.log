@@ -1,0 +1,636 @@
+Lua (IIgs) 5.4.6  Copyright (C) 1994-2023 Lua.org, PUC-Rio
+IIgs e026f5b-13178cdf3c75 plain
+IIgs mm=untested
+
+IIGS SUITE 1 group=full tests=23
+
+Intermediate 'expect shell prompt' messages belong to individual tests.
+
+Require SUITE COMPLETE and then the shell prompt. Stops on first failure.
+
+SUITE START 1/23 hwsmoke
+S0 smoke entered
+S1 arithmetic and strings
+S2 source and bytecode loading
+S3 coroutine continuations
+S4 tables and garbage collection
+SMOKE DONE - expect shell prompt next
+
+SUITE PASS hwsmoke
+
+SUITE START 2/23 numconv
+NUMCONV 1: integer/float boundary regression
+NUMCONV PASSED checks=90
+
+SUITE PASS numconv
+
+SUITE START 3/23 math
+testing numbers and math lib
+32-bit integers, 53-bit (mantissa) floats
+>>> IIgs: skipping platform-dependent 0^0 comparison <<<
+testing order (floats can represent all integers)
+testing -0 and NaN
+testing 'math.random'
+random seeds: 1794481365, 167450
+float random range in 42400 calls: [0.000001, 0.999978]
+integer random range in 19200 calls: [minint + 46ppm, maxint - 4ppm]
+OK
+
+SUITE PASS math WITH SKIPS
+
+SUITE START 4/23 sieve
+chain=40	primes=6	caught: sieve.lua:35: sieve.lua:24: sieve.lua:24: sieve.lua:24: sieve.lua:24: sieve.lua:24: sieve.lua:24: C stack overflow
+
+SUITE PASS sieve
+
+SUITE START 5/23 coroutine
+testing coroutines
+to-be-closed variables in coroutines
+testing 'coroutine.close'
+
+ >>> testC not active: skipping coroutine API tests <<<
+
++
+testing yields inside metamethods
++
+testing yields inside 'for' iterators
+
+ >>> testC not active: skipping coroutine API tests <<<
+
+OK
+
+SUITE PASS coroutine WITH SKIPS
+
+SUITE START 6/23 cobeacon
+B0 coroutine diagnostic entered
+testing coroutines
+B1 trivial errors
+B2 tests for multiple yield/resume arguments
+B3 yields in tail calls
+B4 recursive
+B5 sieve
+B6 bank-0 C stack (a full lua_resume + setjmp buffer + luaV_execute per
+B7 level), so the chain depth = number of primes found is hard-capped at
+B8 ldo.c) raises a clean C stack overflow instead of overrunning the
+B9 segment. gennum=8 yields 4 primes (2,3,5,7) with margin. The old
+B10 gennum=46 (14 primes) actually overran the segment and corrupted
+B11 memory; it only appeared to pass under GoldenGate.
+to-be-closed variables in coroutines
+testing 'coroutine.close'
+B12 yielding across C boundaries
+B13 unyieldable C call
+B14 errors in coroutines
+B15 co-routines x for loop
+B16 access to locals of collected corroutines
+B17 old bug: attempt to resume itself
+B18 other old bug when attempting to resume itself
+B19 bug in 5.4.1
+B20 attempt to resume 'normal' coroutine
+B21 infinite recursion of coroutines
+B22 access to locals of erroneous coroutines
+B23 overwrite previous position of local `a'
+
+ >>> testC not active: skipping coroutine API tests <<<
+
+B24 leaving a pending coroutine open
++
+testing yields inside metamethods
+B25 repeat tests with larger constants (to use 'K' opcodes)
+B26 getuptable & setuptable
++
+testing yields inside 'for' iterators
+B27 tests for coroutine API
+
+ >>> testC not active: skipping coroutine API tests <<<
+
+OK
+BEACON DONE (C API harness skipped)
+
+SUITE PASS cobeacon WITH SKIPS
+
+SUITE START 7/23 cstack
+testing stack overflow detection
+testing stack overflow in message handling
+final count: 	3781
+testing recursion inside pattern matching
+testing stack-overflow in recursive 'gsub'
+final count: 	6
+testing stack-overflow in recursive 'gsub' with metatables
+final count: 	3
+testing limits in coroutines inside deep calls
+final count: 	6
+chain of 'coroutine.close'
+.final count: 	7
+nesting of resuming yielded coroutines
+final count: 	6
+nesting coroutines running after recoverable errors
+final count: 	7
+OK
+.
+SUITE PASS cstack
+
+SUITE START 8/23 pm
+testing pattern matching
++
++
++
++
+big strings
+OK
+
+SUITE PASS pm
+
+SUITE START 9/23 hwdiag2
+E00 hwdiag2 start Lua (IIgs) 5.4 mem=78K
+E10 trying 16000
+E10 string-16000 ok
+E10 trying 28000
+E10 string-28000 ok
+E10 trying 33000
+E10 string-33000 ok
+E10 trying 40000
+E10 string-40000 ok
+E10 trying 65000
+E10 string-65000 ok
+E10 trying 131000
+E10 string-131000 ok
+E11 mem=43K
+E20 trying 1000
+E20 table-1000 ok
+E21 mem=102K
+E20 trying 2400
+E20 table-2400 ok
+E21 mem=204K
+E20 trying 3000
+E20 table-3000 ok
+E21 mem=227K
+E20 trying 3200
+E20 table-3200 ok
+E21 mem=235K
+E20 trying 4096
+E20 table-4096 ok
+E21 mem=345K
+E20 trying 5000
+E20 table-5000 ok
+E21 mem=379K
+E30 trying 2400
+E30 const-2400 ok
+E31 mem=450K
+E30 trying 2900
+E30 const-2900 ok
+E31 mem=533K
+E30 trying 3000
+E30 const-3000 ok
+E31 mem=827K
+E30 trying 3200
+E30 const-3200 ok
+E31 mem=275K
+E70 stack test (per-level prints; if this freezes, note the level)
+E71 level 1
+E71 level 2
+E71 level 3
+E71 level 4
+E71 level 5
+E71 level 6
+E71 level 7
+E72 stopped cleanly at depth 7
+E73 chain caught ok
+E99 DONE fails=0
+ALL DIAGNOSTICS PASSED
+
+SUITE PASS hwdiag2
+
+SUITE START 10/23 hwtest
+=== Lua IIgs fix verification ===
+Lua (IIgs) 5.4
+[1] compiler: large constant table
+  ok   valid chunk compiles
+  ok   table length
+  ok   every constant intact
+[2] C-stack overflow is graceful
+  ok   C-boundary recursion reports stack overflow
+  ok   recursed several levels then stopped
+  ok   arithmetic intact after overflow
+  ok   tables intact after overflow
+  ok   deep call raises a catchable error
+  ok   error mentions overflow/stack
+[3] debug hooks / savedpc
+  ok   hooked coroutine ran
+  ok   result correct under hooks
+  ok   all hook line numbers valid
+  SKIP Lua hook cannot yield; requires the C-hook host test
+[4] math.random precision
+  ok   draws in [0,1) with <=53 mantissa bits
+[5] general integrity
+  ok   string.rep length
+  ok   string.sub
+  ok   5000-entry array sum
+  ok   2000-entry hash sum
+  ok   3000 interned strings
+  ok   live objects intact after full GC
+=== 19 passed, 0 failed, 1 skipped ===
+HWTEST PASSED WITH SKIPS
+
+SUITE PASS hwtest WITH SKIPS
+
+SUITE START 11/23 hookyield
+lines:	1006	calls:	501	sum:	125250
+OK
+
+SUITE PASS hookyield
+
+SUITE START 12/23 mmalloc
+MM allocation intact 16384
+MM allocation intact 28000
+MM allocation intact 33000
+MM allocation intact 40960
+MM allocation intact 65536
+MM allocation intact 131072
+MMALLOC PASSED
+
+SUITE PASS mmalloc
+
+SUITE START 13/23 errors
+testing errors
+
+ >>> testC not active: skipping memory message test <<<
+
++
+testing stack overflow
+(expected stack overflow after 14914 calls)
+(expected stack overflow after 14914 calls)
+(expected stack overflow after 14914 calls)
++
++
+testing tokens in error messages
++
+OK
+
+SUITE PASS errors WITH SKIPS
+
+SUITE START 14/23 events
+testing metatables
+
+ >>> testC not active: skipping tests for userdata <<<
+
++
++
+OK
+
+SUITE PASS events WITH SKIPS
+
+SUITE START 15/23 verybig
+testing RK
+(>64k programs: skipped on 16-bit int)
+
+SUITE PASS verybig WITH SKIPS
+
+SUITE START 16/23 ioprobe
+IOPROBE 1: file bytes, text modes, and EOF
+I1 binary roundtrip/seek/append
+I2 restored upstream byte fixture
+I3 text newline comparison
+expected : 41 0A 42 0A
+disk rb/a: 41 0A 42 0A
+text r/a : 41 0A 42 0A
+text r/4 : 41 0A 42 0A
+text r/L : 41 0A 42 0A
+line then a: 42 0A
+line then 2: 42 0A
+I4 repeated reads at EOF
+IOPROBE 1 DONE checks=38 failures=0
+Expect shell prompt next
+
+SUITE PASS ioprobe
+
+SUITE START 17/23 bufprobe
+
+OBSERVATION bufprobe: errors=0 checks final data; retain R0/Rw/Rf/Rc sharing observations
+BUFPROBE 3: creation, second opens, and flush
+R0=before write Rw=after write Rf=after flush Rc=after close
+B1 new file, w/full
+R0="" Rw="x" Rf="x" Rc="x"
+B2 existing empty file, w/full
+R0="" Rw="x" Rf="x" Rc="x"
+B3 existing data, r+/full
+R0="seed" Rw="xeed" Rf="xeed" Rc="xeed"
+B4 new file, wb/full
+R0="" Rw="x" Rf="x" Rc="x"
+B5 new file, w/no buffering
+R0="" Rw="x" Rf="x" Rc="x"
+B6 two simultaneous readers
+second="seed"
+BUFPROBE 3 DONE cases=6 errors=0
+Report R0/Rw/Rf/Rc even when errors=0; expect shell prompt next
+
+SUITE PASS bufprobe
+
+SUITE START 18/23 files
+
+SKIP files: Unix processes, nonportable dates, and upstream large-file block; separate largefile/bigio cover binary file boundaries
+testing i/o
++
++
++
++
++
+testing buffers
+SKIP IIgs cross-handle buffer visibility (writer sharing unavailable)
+buffer mode full: close/reopen data OK
+buffer mode no: close/reopen data OK
+buffer mode line: close/reopen data OK
++
+testing date/time
+no daylight saving information
+test done on 24/09/2026, at 11:03:06
+Lua (IIgs) 5.4
+
+SUITE PASS files WITH SKIPS
+
+SUITE START 19/23 largefile
+LARGEFILE 1: binary offsets through 256 KiB
+L1 write 262143 bytes in small blocks
+written 32768/262143
+written 65536/262143
+written 98304/262143
+written 131072/262143
+written 163840/262143
+written 196608/262143
+written 229376/262143
+written 262143/262143
+L2 reopen and verify every original byte
+verified 32768/262143
+verified 65536/262143
+verified 98304/262143
+verified 131072/262143
+verified 163840/262143
+verified 196608/262143
+verified 229376/262143
+verified 262143/262143
+L3 set/cur/end seeks near boundaries
+seek OK 32767
+seek OK 32768
+seek OK 65532
+seek OK 65535
+seek OK 65536
+seek OK 131068
+seek OK 131071
+seek OK 131072
+seek OK 196604
+seek OK 196607
+seek OK 196608
+seek OK 262127
+L4 update across 64/128/192 KiB boundaries
+L5 append across 256 KiB boundary
+L6 reopen and verify every updated byte
+verified 32768/262163
+verified 65536/262163
+verified 98304/262163
+verified 131072/262163
+verified 163840/262163
+verified 196608/262163
+verified 229376/262163
+verified 262144/262163
+verified 262163/262163
+L7 truncate, reopen, and verify no stale tail
+LARGEFILE 1 PASSED bytes=262163 - expect shell prompt next
+
+SUITE PASS largefile
+
+SUITE START 20/23 bigio
+BIGIO 1: single transfers around 32/64/128 KiB
+B1 build payload bytes=32767
+B2 single write bytes=32767
+B3 single counted read bytes=32767
+B4 read all bytes=32767
+B5 counted read past EOF request=32784
+B6 PASS bytes=32767
+B1 build payload bytes=32768
+B2 single write bytes=32768
+B3 single counted read bytes=32768
+B4 read all bytes=32768
+B5 counted read past EOF request=32785
+B6 PASS bytes=32768
+B1 build payload bytes=65535
+B2 single write bytes=65535
+B3 single counted read bytes=65535
+B4 read all bytes=65535
+B5 counted read past EOF request=65552
+B6 PASS bytes=65535
+B1 build payload bytes=65536
+B2 single write bytes=65536
+B3 single counted read bytes=65536
+B4 read all bytes=65536
+B5 counted read past EOF request=65553
+B6 PASS bytes=65536
+B1 build payload bytes=65537
+B2 single write bytes=65537
+B3 single counted read bytes=65537
+B4 read all bytes=65537
+B5 counted read past EOF request=65554
+B6 PASS bytes=65537
+B1 build payload bytes=131072
+B2 single write bytes=131072
+B3 single counted read bytes=131072
+B4 read all bytes=131072
+B5 counted read past EOF request=131089
+B6 PASS bytes=131072
+B1 build payload bytes=131073
+B2 single write bytes=131073
+B3 single counted read bytes=131073
+B4 read all bytes=131073
+B5 counted read past EOF request=131090
+B6 PASS bytes=131073
+BIGIO 1 PASSED cases=7 - expect shell prompt next
+
+SUITE PASS bigio
+
+SUITE START 21/23 bytefile
+BYTEFILE 1: source and bytecode roundtrip beyond 64 KiB
+P1 generate source with 9000 arithmetic statements
+source bytes=117077
+P2 load source file and execute
+P3 dump debug
+debug bytecode bytes=90751
+P4 load from memory debug
+P5 save/reopen/compare debug
+P6 load binary file and execute debug
+P7 reject wrong mode and truncated input debug
+P8 reload valid file after errors debug
+debug PASSED
+P3 dump stripped
+stripped bytecode bytes=72130
+P4 load from memory stripped
+P5 save/reopen/compare stripped
+P6 load binary file and execute stripped
+P7 reject wrong mode and truncated input stripped
+P8 reload valid file after errors stripped
+stripped PASSED
+BYTEFILE 1 PASSED variants=2 - expect shell prompt next
+
+SUITE PASS bytefile
+
+SUITE START 22/23 filelife
+FILELIFE 1: repeated file cleanup and recovery
+GC mode incremental
+round 1 normal return
+round 1 error unwind
+round 1 coroutine close
+round 1 early loop exit
+round 1 garbage-collected writer
+incremental round 1 PASSED cases=5
+round 2 normal return
+round 2 error unwind
+round 2 coroutine close
+round 2 early loop exit
+round 2 garbage-collected writer
+incremental round 2 PASSED cases=10
+round 3 normal return
+round 3 error unwind
+round 3 coroutine close
+round 3 early loop exit
+round 3 garbage-collected writer
+incremental round 3 PASSED cases=15
+round 4 normal return
+round 4 error unwind
+round 4 coroutine close
+round 4 early loop exit
+round 4 garbage-collected writer
+incremental round 4 PASSED cases=20
+round 5 normal return
+round 5 error unwind
+round 5 coroutine close
+round 5 early loop exit
+round 5 garbage-collected writer
+incremental round 5 PASSED cases=25
+round 6 normal return
+round 6 error unwind
+round 6 coroutine close
+round 6 early loop exit
+round 6 garbage-collected writer
+incremental round 6 PASSED cases=30
+round 7 normal return
+round 7 error unwind
+round 7 coroutine close
+round 7 early loop exit
+round 7 garbage-collected writer
+incremental round 7 PASSED cases=35
+round 8 normal return
+round 8 error unwind
+round 8 coroutine close
+round 8 early loop exit
+round 8 garbage-collected writer
+incremental round 8 PASSED cases=40
+round 9 normal return
+round 9 error unwind
+round 9 coroutine close
+round 9 early loop exit
+round 9 garbage-collected writer
+incremental round 9 PASSED cases=45
+round 10 normal return
+round 10 error unwind
+round 10 coroutine close
+round 10 early loop exit
+round 10 garbage-collected writer
+incremental round 10 PASSED cases=50
+round 11 normal return
+round 11 error unwind
+round 11 coroutine close
+round 11 early loop exit
+round 11 garbage-collected writer
+incremental round 11 PASSED cases=55
+round 12 normal return
+round 12 error unwind
+round 12 coroutine close
+round 12 early loop exit
+round 12 garbage-collected writer
+incremental round 12 PASSED cases=60
+GC mode generational
+round 1 normal return
+round 1 error unwind
+round 1 coroutine close
+round 1 early loop exit
+round 1 garbage-collected writer
+generational round 1 PASSED cases=65
+round 2 normal return
+round 2 error unwind
+round 2 coroutine close
+round 2 early loop exit
+round 2 garbage-collected writer
+generational round 2 PASSED cases=70
+round 3 normal return
+round 3 error unwind
+round 3 coroutine close
+round 3 early loop exit
+round 3 garbage-collected writer
+generational round 3 PASSED cases=75
+round 4 normal return
+round 4 error unwind
+round 4 coroutine close
+round 4 early loop exit
+round 4 garbage-collected writer
+generational round 4 PASSED cases=80
+round 5 normal return
+round 5 error unwind
+round 5 coroutine close
+round 5 early loop exit
+round 5 garbage-collected writer
+generational round 5 PASSED cases=85
+round 6 normal return
+round 6 error unwind
+round 6 coroutine close
+round 6 early loop exit
+round 6 garbage-collected writer
+generational round 6 PASSED cases=90
+round 7 normal return
+round 7 error unwind
+round 7 coroutine close
+round 7 early loop exit
+round 7 garbage-collected writer
+generational round 7 PASSED cases=95
+round 8 normal return
+round 8 error unwind
+round 8 coroutine close
+round 8 early loop exit
+round 8 garbage-collected writer
+generational round 8 PASSED cases=100
+round 9 normal return
+round 9 error unwind
+round 9 coroutine close
+round 9 early loop exit
+round 9 garbage-collected writer
+generational round 9 PASSED cases=105
+round 10 normal return
+round 10 error unwind
+round 10 coroutine close
+round 10 early loop exit
+round 10 garbage-collected writer
+generational round 10 PASSED cases=110
+round 11 normal return
+round 11 error unwind
+round 11 coroutine close
+round 11 early loop exit
+round 11 garbage-collected writer
+generational round 11 PASSED cases=115
+round 12 normal return
+round 12 error unwind
+round 12 coroutine close
+round 12 early loop exit
+round 12 garbage-collected writer
+generational round 12 PASSED cases=120
+FILELIFE 1 PASSED cases=120 - expect shell prompt next
+
+SUITE PASS filelife
+
+SUITE START 23/23 tableovf
+
+LONG tableovf: previously about 18 minutes on accelerated hardware; silent until completion
+TABLEOVF PASSED entries=49152
+
+SUITE PASS tableovf
+
+SUITE COMPLETE group=full passed=23 failed=0 with_skips=8
+
+Expect shell prompt next
+
+Stack Usage: 20299

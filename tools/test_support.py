@@ -3,10 +3,11 @@ import re
 
 TESTS = ("hwsmoke", "sieve", "coroutine", "cobeacon", "cstack", "pm",
          "hwdiag2", "hwtest", "hookyield", "mmalloc", "tableovf",
-         "errors", "events", "math", "verybig")
+         "errors", "events", "math", "verybig", "numconv")
 FAILURE = re.compile(r"MemCheck:|\bBRK\b|\bFAIL(?:ED)?\b|SOME TESTS FAILED|"
                      r"\[mm\] selftest state=-1|mm=degraded")
 COMPLETION = {
+    "numconv": r"^NUMCONV PASSED checks=90$",
     "hwsmoke": r"^SMOKE DONE - expect shell prompt next$",
     "sieve": r"^chain=40.*caught: .*C stack overflow$",
     "cobeacon": r"^BEACON DONE(?: \(C API harness skipped\))?$",

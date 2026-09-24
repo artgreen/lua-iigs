@@ -7,6 +7,12 @@ explained in [building](../docs/BUILDING.md).
 
 ## Commands
 
+For the reusable hardware kit covering all 23 session regressions, use the
+[repeatable suite guide](SUITE.md). It provides named groups, a stable
+`TEST.LUA` entry point, verified ShrinkIt packaging, and strict local reports.
+The older commands below remain useful for independent-process and broader
+upstream checks; their `suite` Makefile target is a different test set.
+
 ```sh
 make -C tests tests LUA="$PWD/build/lua"
 make -C tests suite LUA="$PWD/build/lua"
@@ -15,7 +21,7 @@ python3 -m unittest discover -s tests -p 'test_kit_checks.py'
 python3 tools/generate-cobeacon.py --check
 ```
 
-The first command runs fifteen targeted scripts; `suite` runs the thirty
+The first command runs sixteen targeted scripts; `suite` runs the thirty
 entries in the broader `passing` group followed by the known `files` failure.
 These sets overlap but are not interchangeable: the broader group does not
 include every targeted regression. Run both when appropriate to a runtime
@@ -60,6 +66,7 @@ The authoritative list and completion rules are in
 | `mmalloc` | Full payload checks across 16 KB, 32 KB, and 64 KB boundaries; `MMALLOC PASSED` |
 | `tableovf` | Table growth rejected cleanly; entries preserved before/after GC; `TABLEOVF PASSED` |
 | `errors`, `events`, `math` | Adapted upstream regressions; `OK` |
+| `numconv` | Integer/float boundaries, table keys, rounding, and invalid conversions; `NUMCONV PASSED checks=90` |
 | `verybig` | RK section; explicit skip of programs beyond 16-bit limits |
 
 `tableovf.lua` takes about **18 minutes on the recorded accelerated IIgs**
@@ -67,7 +74,24 @@ and prints only at completion. It retained 49,152 entries. Do not use the
 local timeout as a hardware deadline. See [hardware testing](../HARDWARE_TESTING.md)
 for commands and clean-exit requirements.
 
+`math.lua` explicitly skips the `0^0` comparison on the IIgs: the hardware
+probe returned NaN there, unlike GoldenGate. Its random-number assertions
+use 53 generated bits even when hardware reports a 64-bit float significand.
+With the minimum-integer conversion fix, the revised script passes locally
+and on the recorded real IIgs, alongside all 90 `numconv` checks and a clean
+shell return. See the [hardware record](../docs/validation/HARDWARE_RESULTS.md).
+
 ## C and build checks
+
+The [native C-host batch](HOST_TESTING.md) checks the published embedding
+host and native C-hook yield/resume path, verifies its output/status, then
+runs a fresh Lua smoke test. Its package reuses the `TEST.SHK` / `20:test`
+workflow.
+
+For a hardware check of the published standalone LUAC executable, use the
+[LUAC batch test](LUAC_TESTING.md). It covers small and large source,
+debug/stripped bytecode, two expected compiler errors, and valid compilation
+afterward. This is separate from the reusable Lua-only suite.
 
 `python3 tools/hardware-kit.py --plain-name luanext` runs the targeted set in
 both plain and trace variants, then additional checks as part of packaging:
@@ -101,9 +125,53 @@ or unmodified upstream-suite pass is not claimed. `tracegc.lua` is a helper.
 case as a pass; [the evidence record](../docs/validation/HARDWARE_RESULTS.md)
 preserves the correction. Avoid quoting a whole-suite percentage.
 
-`files.lua` is still expected-failing and has test-instrumentation/fixture
-issues to isolate before diagnosing a runtime defect; see
-[known limitations](../docs/LIMITATIONS.md#outstanding-validation-and-defects).
+`files.lua` is still expected-failing in the stock GoldenGate suite because
+of its repeated-EOF abort and text translation differences. Its duplicate
+read, undefined variable, and corrupted fixture bytes have been repaired.
+The real IIgs passes all 38 focused I/O checks and FILECHECK 4: the adapted
+file test with portable date/time checks. That run excludes Unix processes,
+nonportable dates, large files, and cross-handle buffer visibility. The
+hardware refuses a reader while a writer is open; the IIgs buffer tests
+check final data after close/reopen instead. See the
+[I/O investigation](../docs/validation/IO_INVESTIGATION.md).
+`ioprobe.lua` is a diagnostic outside the default pass set. It prints byte
+comparisons and failure counts, and deliberately exercises repeated EOF
+reads that terminate the installed GoldenGate. Use hardware or the documented
+isolated emulator for the complete probe; a DONE line is not a pass by itself.
+`bufprobe.lua` records sharing behavior before/after writes, flush, and close.
+Its zero error count verifies final data, not cross-handle buffer visibility;
+record the per-case observations as well.
+
+`largefile.lua` is a separate hardware diagnostic for binary offsets through
+256 KiB. It writes and rereads every byte in small chunks, checks set/cur/end
+seeks, updates across boundaries, appends beyond 256 KiB, and checks truncation.
+It uses one temporary file and closes writers before reopening for reading.
+This covers large file offsets, not single transfers or Lua strings above
+65,535 bytes. Progress markers accompany the work; require the final PASSED
+marker and shell return. It is outside the default targeted regression set.
+
+`bigio.lua` separately checks large single binary transfers at 32/64/128 KiB
+boundaries. Seven sizes cover 32,767 through 131,073 bytes; each case checks
+a single write, counted read, read-all, and partial read at EOF with exact
+byte/length/position assertions. It uses concatenation to build payloads
+without depending on string.rep's separate INT_MAX limit. Require
+`BIGIO 1 PASSED cases=7` and a shell return. This diagnostic is also outside
+the default targeted regression set.
+
+`bytefile.lua` generates a source chunk with 9,000 arithmetic statements,
+executes it, dumps debug and stripped bytecode larger than 64 KiB, and reloads
+both from memory and disk. It checks binary constants, nested closures after
+GC, rejection of wrong-mode/truncated input, and recovery with valid code.
+Require `BYTEFILE 1 PASSED variants=2` and shell return. It uses two temporary
+files and is a separate diagnostic, not validation of the LUAC executable
+or bytecode compatibility with other platforms.
+
+`filelife.lua` repeats five file cleanup paths for 12 rounds in each of
+incremental and generational GC: normal scope exit, error unwinding,
+coroutine cancellation, early io.lines exit, and an abandoned writer's
+finalization. It checks closed handles where inspectable, data after reopen,
+and temporary-file removal. Require `FILELIFE 1 PASSED cases=120` and shell
+return. This separate diagnostic does not measure OS-wide resource counts.
 
 `cobeacon.lua` is generated from `coroutine.lua`. Regenerate after changing
 the source test with `python3 tools/generate-cobeacon.py`; `--check` verifies

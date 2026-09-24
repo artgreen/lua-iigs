@@ -1,0 +1,32 @@
+Attributes for 'LUATEST':
+  File Kind   : plain file
+  File Type   : EXE 0xb5
+  Aux Type    : 0x0000
+  HFS Type    : '␀␀␀␀' 0x00000000
+  HFS Creator : '␀␀␀␀' 0x00000000
+  Access      : 0xc3 [dnwr]
+  Create Date : 24-Sep-2026 12:45:00
+  Mod Date    : 24-Sep-2026 12:45:00
+  Comment     : (none)
+
+Attributes for 'LUACTEST':
+  File Kind   : plain file
+  File Type   : EXE 0xb5
+  Aux Type    : 0x0000
+  HFS Type    : '␀␀␀␀' 0x00000000
+  HFS Creator : '␀␀␀␀' 0x00000000
+  Access      : 0xc3 [dnwr]
+  Create Date : 24-Sep-2026 12:45:00
+  Mod Date    : 24-Sep-2026 12:45:00
+  Comment     : (none)
+
+Attributes for 'TEST':
+  File Kind   : plain file
+  File Type   : SRC 0xb0
+  Aux Type    : 0x0006
+  HFS Type    : '␀␀␀␀' 0x00000000
+  HFS Creator : '␀␀␀␀' 0x00000000
+  Access      : 0xc3 [dnwr]
+  Create Date : 24-Sep-2026 12:45:00
+  Mod Date    : 24-Sep-2026 12:45:00
+  Comment     : (none)

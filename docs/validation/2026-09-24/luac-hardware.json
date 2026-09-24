@@ -1,0 +1,30 @@
+{
+  "test": "LUACPROBE 1",
+  "environment": "real Apple IIgs",
+  "status": "passed",
+  "checks_passed": 6,
+  "hardware_runs_confirmed": 1,
+  "shell_return_observed": true,
+  "shell_prefix": "20:",
+  "shell_batch_result": "completed with expected-error status and stderr checks",
+  "evidence": "User report and photograph of final screen",
+  "visible_final_marker": "LUACPROBE 1 PASSED checks=6 - expect shell prompt next",
+  "visible_binary_sizes": {
+    "lc.strip.out": 72126,
+    "lc.again.out": 175
+  },
+  "expected_errors_observed": [
+    "lc.bad.lua:1: <name> expected near =",
+    "C stack overflow"
+  ],
+  "build_banner_visible": false,
+  "artifact_association": "Staged corrected archive and session context; initial version banners not visible",
+  "release": "v0.2.1",
+  "build_id": "e026f5b-13178cdf3c75",
+  "executables_sha256": {
+    "LUATEST": "431a82d763f25dfcf0c320d21406b599ef9e6c184197b7d034e9c41fd2599d0a",
+    "LUACTEST": "a21493e2793b77149f99fc89fc00fb89a9b886cafadca24c8bfb24194b407d61"
+  },
+  "archive_sha256": "940188ffb837819b742b194eacf0e2196a0ffc8cf49b2d4af478cf08e3bbca68",
+  "elapsed_seconds": null
+}

@@ -1,0 +1,23 @@
+BYTEFILE 1: source and bytecode roundtrip beyond 64 KiB
+P1 generate source with 9000 arithmetic statements
+source bytes=117077
+P2 load source file and execute
+P3 dump debug
+debug bytecode bytes=90751
+P4 load from memory debug
+P5 save/reopen/compare debug
+P6 load binary file and execute debug
+P7 reject wrong mode and truncated input debug
+P8 reload valid file after errors debug
+debug PASSED
+P3 dump stripped
+stripped bytecode bytes=72130
+P4 load from memory stripped
+P5 save/reopen/compare stripped
+P6 load binary file and execute stripped
+P7 reject wrong mode and truncated input stripped
+P8 reload valid file after errors stripped
+stripped PASSED
+BYTEFILE 1 PASSED variants=2 - expect shell prompt next
+
+Stack Usage: 7151

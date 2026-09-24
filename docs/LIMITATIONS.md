@@ -47,6 +47,20 @@ The implementation details and allocator fallback limits are in
 port, even though the target floating-point type has a wider significand.
 This keeps that path compatible with the locally tested GoldenGate behavior.
 
+On the tested real IIgs, `0^0` evaluates to NaN; GoldenGate evaluates it to
+1. The hardware power probe passed the other 48 comparisons for bases and
+exponents from -3 through 3. The adapted math test explicitly skips that
+single comparison and uses the generator's 53-bit precision when checking
+seeded random floats. These are test adaptations, not interpreter changes.
+A later hardware assertion exposed a separate runtime defect: converting the exact
+minimum float (-2,147,483,648.0) back to an integer returned +2,147,418,112.
+The candidate now returns the exact minimum directly in the IIgs conversion
+macro, retaining the existing range checks for all other inputs. The fixed
+candidate passed the 33-check probe, 90-check conversion regression, and
+complete adapted math test in one real-IIgs run, returning to the shell.
+This fix is included in v0.2.1 (v0.2.0 still has the defect); see the
+[hardware record](validation/HARDWARE_RESULTS.md).
+
 ## Modules and host facilities
 
 Pure Lua modules are found through `?.lua;?/init.lua` by default, relative
@@ -69,14 +83,23 @@ NDA is implemented by this repository.
 
 ## Outstanding validation and defects
 
-- **`files.lua` remains an expected failure in the local suite.** Its
-  read/write regression has not been resolved. The current test also
-  contains a diagnostic `print(io.read(5, 'l'))` immediately before an
-  assertion that performs another read, consuming input twice. This must
-  be disentangled from any runtime I/O fault before attributing the failure
-  to GS/OS text translation. The fixture also contains UTF-8 replacement
-  characters whose intended original bytes need verification. Neither a
-  proven translation root cause nor a general file-I/O fix is claimed.
+- **`files.lua` remains an expected failure in the local suite.** The
+  duplicate diagnostic read and undefined variable have been removed, and
+  the original E1/E7 fixture bytes restored from the verified upstream
+  archive. The repaired test exposes GoldenGate's five-read EOF abort.
+  With that emulator guard restricted to terminals in an isolated build,
+  it reaches a text newline mismatch: counted/whole-file reads return CR
+  while line reads return LF. The real IIgs passes all 38 focused probe
+  checks with consistent LF bytes and clean EOF handling, so no Lua I/O
+  runtime change is justified by those local differences. The broader
+  repaired file test reaches buffering on hardware but fails to open a
+  reader while a writer is open. BUFPROBE 3 reproduces this for new and
+  existing files even after flush; two readers work and all final data is
+  correct. The test now explicitly skips cross-handle visibility on IIgs
+  and checks data after close/reopen instead. FILECHECK 4 completes on
+  hardware, including portable date/time, with the exclusions below.
+  No runtime fix is claimed. See
+  [the I/O investigation](validation/IO_INVESTIGATION.md).
 - **The upstream `T` C API harness is not supplied.** `api.lua`, `code.lua`,
   and T-dependent sections skip coverage. The focused C-host regression
   checks real C-hook yields, initialization, and selected limits; it does
@@ -88,8 +111,10 @@ NDA is implemented by this repository.
   warm/cold runs and mixed-script use do not certify every application,
   allocator pressure scenario, or hardware configuration.
 
-For the next I/O investigation, first isolate the read-consuming test
-instrumentation and verify the fixture bytes, then compare a minimal binary
-and text-mode round trip on GoldenGate and the IIgs. Keep the hardware-tested
-build intact while doing that work. Earlier corruption theories and timing
-estimates are retained as history, not as established current causes.
+FILECHECK 4 has one complete hardware pass with the preserved math-tested
+interpreter and a clean shell return. It includes the buffer-test adaptation
+and portable date/time checks, while explicitly excluding cross-handle buffer
+visibility, Unix processes, nonportable date cases, and the large-file block.
+Stock GoldenGate failures remain separate from this hardware result. Earlier
+corruption theories and timing estimates remain history, not established
+causes of this I/O failure.

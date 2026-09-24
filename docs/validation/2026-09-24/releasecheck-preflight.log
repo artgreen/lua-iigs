@@ -1,0 +1,51 @@
+Lua (IIgs) 5.4.6  Copyright (C) 1994-2023 Lua.org, PUC-Rio
+IIgs e026f5b-13178cdf3c75 plain
+IIgs mm=untested
+RELEASECHECK 1: published v0.2.1 acceptance
+Expected -v banner: IIgs e026f5b-13178cdf3c75 plain
+R1 smoke (its shell message is intermediate; more tests follow)
+S0 smoke entered
+S1 arithmetic and strings
+S2 source and bytecode loading
+S3 coroutine continuations
+S4 tables and garbage collection
+SMOKE DONE - expect shell prompt next
+R1 PASSED
+R2 integer/float boundary regression
+NUMCONV 1: integer/float boundary regression
+NUMCONV PASSED checks=90
+R2 PASSED
+R3 full adapted math test
+testing numbers and math lib
+32-bit integers, 53-bit (mantissa) floats
+>>> IIgs: skipping platform-dependent 0^0 comparison <<<
+testing order (floats can represent all integers)
+testing -0 and NaN
+testing 'math.random'
+random seeds: 1794475249, 167450
+float random range in 68900 calls: [0.000000, 0.999987]
+integer random range in 16000 calls: [minint + 258ppm, maxint - 522ppm]
+OK
+R3 PASSED
+R4 adapted file I/O and portable date/time
+SKIP Unix processes, nonportable dates, large-file block
+testing i/o
++
++
++
++
++
+testing buffers
+SKIP IIgs cross-handle buffer visibility (writer sharing unavailable)
+buffer mode full: close/reopen data OK
+buffer mode no: close/reopen data OK
+buffer mode line: close/reopen data OK
++
+testing date/time
+no daylight saving information
+test done on 24/09/2026, at 09:21:01
+Lua (IIgs) 5.4
+R4 PASSED
+RELEASECHECK 1 PASSED - expect shell prompt next
+
+Stack Usage: 7980

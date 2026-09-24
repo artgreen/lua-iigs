@@ -1,0 +1,30 @@
+Lua (IIgs) 5.4.6  Copyright (C) 1994-2023 Lua.org, PUC-Rio
+IIgs e026f5b-13178cdf3c75 plain
+IIgs mm=untested
+HOSTCHECK 1 phase=prepare
+HOSTCHECK 1 PREPARED
+
+Stack Usage: 3331
+IIGSHOST PASSED yields=100
+
+Stack Usage: 5208
+HOSTCHECK 1 phase=verify
+IIGSHOST PASSED yields=100
+
+
+Stack Usage: 5208
+
+HOSTCHECK 1 HOST VERIFIED yields=100
+
+Stack Usage: 3307
+HOSTCHECK 1 phase=finish
+HOSTCHECK 1 post-host Lua smoke
+S0 smoke entered
+S1 arithmetic and strings
+S2 source and bytecode loading
+S3 coroutine continuations
+S4 tables and garbage collection
+SMOKE DONE - expect shell prompt next
+HOSTCHECK 1 PASSED - expect shell prompt next
+
+Stack Usage: 5514

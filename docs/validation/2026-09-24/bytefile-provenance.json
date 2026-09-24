@@ -1,0 +1,9 @@
+{
+  "build_id": "e026f5b-13178cdf3c75",
+  "executable_sha256": "431a82d763f25dfcf0c320d21406b599ef9e6c184197b7d034e9c41fd2599d0a",
+  "test_source_sha256": "f6a13d6c104176405747ca90dda8c244e939c755e7f03a22ecb473daaa888868",
+  "archive_sha256": "13127914f0d78869bcca39c0bf3b9bf759932b93fa4ae82e1fec2312c817e5eb",
+  "hardware_result": "User reported \"passed\" after the requested BYTEFILE 1 run; no new hardware photograph or log supplied.",
+  "hardware_report_date": "2026-09-24",
+  "hardware_scope": "Published plain interpreter: generated source, debug/stripped bytecode over 64 KiB, memory/file reloads, nested closures after GC, and recovery after rejected loads; not the separate LUAC executable."
+}

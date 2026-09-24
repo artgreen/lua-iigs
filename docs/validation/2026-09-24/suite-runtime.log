@@ -1,0 +1,292 @@
+Lua (IIgs) 5.4.6  Copyright (C) 1994-2023 Lua.org, PUC-Rio
+IIgs e026f5b-13178cdf3c75 plain
+IIgs mm=untested
+
+IIGS SUITE 1 group=runtime tests=15
+
+Intermediate 'expect shell prompt' messages belong to individual tests.
+
+Require SUITE COMPLETE and then the shell prompt. Stops on first failure.
+
+SUITE START 1/15 hwsmoke
+S0 smoke entered
+S1 arithmetic and strings
+S2 source and bytecode loading
+S3 coroutine continuations
+S4 tables and garbage collection
+SMOKE DONE - expect shell prompt next
+
+SUITE PASS hwsmoke
+
+SUITE START 2/15 numconv
+NUMCONV 1: integer/float boundary regression
+NUMCONV PASSED checks=90
+
+SUITE PASS numconv
+
+SUITE START 3/15 math
+testing numbers and math lib
+32-bit integers, 53-bit (mantissa) floats
+>>> IIgs: skipping platform-dependent 0^0 comparison <<<
+testing order (floats can represent all integers)
+testing -0 and NaN
+testing 'math.random'
+random seeds: 1794481457, 167450
+float random range in 58300 calls: [0.000019, 0.999990]
+integer random range in 9600 calls: [minint + 140ppm, maxint - 181ppm]
+OK
+
+SUITE PASS math WITH SKIPS
+
+SUITE START 4/15 sieve
+chain=40	primes=6	caught: sieve.lua:35: sieve.lua:24: sieve.lua:24: sieve.lua:24: sieve.lua:24: sieve.lua:24: sieve.lua:24: C stack overflow
+
+SUITE PASS sieve
+
+SUITE START 5/15 coroutine
+testing coroutines
+to-be-closed variables in coroutines
+testing 'coroutine.close'
+
+ >>> testC not active: skipping coroutine API tests <<<
+
++
+testing yields inside metamethods
++
+testing yields inside 'for' iterators
+
+ >>> testC not active: skipping coroutine API tests <<<
+
+OK
+
+SUITE PASS coroutine WITH SKIPS
+
+SUITE START 6/15 cobeacon
+B0 coroutine diagnostic entered
+testing coroutines
+B1 trivial errors
+B2 tests for multiple yield/resume arguments
+B3 yields in tail calls
+B4 recursive
+B5 sieve
+B6 bank-0 C stack (a full lua_resume + setjmp buffer + luaV_execute per
+B7 level), so the chain depth = number of primes found is hard-capped at
+B8 ldo.c) raises a clean C stack overflow instead of overrunning the
+B9 segment. gennum=8 yields 4 primes (2,3,5,7) with margin. The old
+B10 gennum=46 (14 primes) actually overran the segment and corrupted
+B11 memory; it only appeared to pass under GoldenGate.
+to-be-closed variables in coroutines
+testing 'coroutine.close'
+B12 yielding across C boundaries
+B13 unyieldable C call
+B14 errors in coroutines
+B15 co-routines x for loop
+B16 access to locals of collected corroutines
+B17 old bug: attempt to resume itself
+B18 other old bug when attempting to resume itself
+B19 bug in 5.4.1
+B20 attempt to resume 'normal' coroutine
+B21 infinite recursion of coroutines
+B22 access to locals of erroneous coroutines
+B23 overwrite previous position of local `a'
+
+ >>> testC not active: skipping coroutine API tests <<<
+
+B24 leaving a pending coroutine open
++
+testing yields inside metamethods
+B25 repeat tests with larger constants (to use 'K' opcodes)
+B26 getuptable & setuptable
++
+testing yields inside 'for' iterators
+B27 tests for coroutine API
+
+ >>> testC not active: skipping coroutine API tests <<<
+
+OK
+BEACON DONE (C API harness skipped)
+
+SUITE PASS cobeacon WITH SKIPS
+
+SUITE START 7/15 cstack
+testing stack overflow detection
+testing stack overflow in message handling
+final count: 	3781
+testing recursion inside pattern matching
+testing stack-overflow in recursive 'gsub'
+final count: 	6
+testing stack-overflow in recursive 'gsub' with metatables
+final count: 	3
+testing limits in coroutines inside deep calls
+final count: 	6
+chain of 'coroutine.close'
+.final count: 	7
+nesting of resuming yielded coroutines
+final count: 	6
+nesting coroutines running after recoverable errors
+final count: 	7
+OK
+.
+SUITE PASS cstack
+
+SUITE START 8/15 pm
+testing pattern matching
++
++
++
++
+big strings
+OK
+
+SUITE PASS pm
+
+SUITE START 9/15 hwdiag2
+E00 hwdiag2 start Lua (IIgs) 5.4 mem=78K
+E10 trying 16000
+E10 string-16000 ok
+E10 trying 28000
+E10 string-28000 ok
+E10 trying 33000
+E10 string-33000 ok
+E10 trying 40000
+E10 string-40000 ok
+E10 trying 65000
+E10 string-65000 ok
+E10 trying 131000
+E10 string-131000 ok
+E11 mem=43K
+E20 trying 1000
+E20 table-1000 ok
+E21 mem=102K
+E20 trying 2400
+E20 table-2400 ok
+E21 mem=204K
+E20 trying 3000
+E20 table-3000 ok
+E21 mem=227K
+E20 trying 3200
+E20 table-3200 ok
+E21 mem=235K
+E20 trying 4096
+E20 table-4096 ok
+E21 mem=345K
+E20 trying 5000
+E20 table-5000 ok
+E21 mem=379K
+E30 trying 2400
+E30 const-2400 ok
+E31 mem=450K
+E30 trying 2900
+E30 const-2900 ok
+E31 mem=533K
+E30 trying 3000
+E30 const-3000 ok
+E31 mem=827K
+E30 trying 3200
+E30 const-3200 ok
+E31 mem=275K
+E70 stack test (per-level prints; if this freezes, note the level)
+E71 level 1
+E71 level 2
+E71 level 3
+E71 level 4
+E71 level 5
+E71 level 6
+E71 level 7
+E72 stopped cleanly at depth 7
+E73 chain caught ok
+E99 DONE fails=0
+ALL DIAGNOSTICS PASSED
+
+SUITE PASS hwdiag2
+
+SUITE START 10/15 hwtest
+=== Lua IIgs fix verification ===
+Lua (IIgs) 5.4
+[1] compiler: large constant table
+  ok   valid chunk compiles
+  ok   table length
+  ok   every constant intact
+[2] C-stack overflow is graceful
+  ok   C-boundary recursion reports stack overflow
+  ok   recursed several levels then stopped
+  ok   arithmetic intact after overflow
+  ok   tables intact after overflow
+  ok   deep call raises a catchable error
+  ok   error mentions overflow/stack
+[3] debug hooks / savedpc
+  ok   hooked coroutine ran
+  ok   result correct under hooks
+  ok   all hook line numbers valid
+  SKIP Lua hook cannot yield; requires the C-hook host test
+[4] math.random precision
+  ok   draws in [0,1) with <=53 mantissa bits
+[5] general integrity
+  ok   string.rep length
+  ok   string.sub
+  ok   5000-entry array sum
+  ok   2000-entry hash sum
+  ok   3000 interned strings
+  ok   live objects intact after full GC
+=== 19 passed, 0 failed, 1 skipped ===
+HWTEST PASSED WITH SKIPS
+
+SUITE PASS hwtest WITH SKIPS
+
+SUITE START 11/15 hookyield
+lines:	1006	calls:	501	sum:	125250
+OK
+
+SUITE PASS hookyield
+
+SUITE START 12/15 mmalloc
+MM allocation intact 16384
+MM allocation intact 28000
+MM allocation intact 33000
+MM allocation intact 40960
+MM allocation intact 65536
+MM allocation intact 131072
+MMALLOC PASSED
+
+SUITE PASS mmalloc
+
+SUITE START 13/15 errors
+testing errors
+
+ >>> testC not active: skipping memory message test <<<
+
++
+testing stack overflow
+(expected stack overflow after 14914 calls)
+(expected stack overflow after 14914 calls)
+(expected stack overflow after 14914 calls)
++
++
+testing tokens in error messages
++
+OK
+
+SUITE PASS errors WITH SKIPS
+
+SUITE START 14/15 events
+testing metatables
+
+ >>> testC not active: skipping tests for userdata <<<
+
++
++
+OK
+
+SUITE PASS events WITH SKIPS
+
+SUITE START 15/15 verybig
+testing RK
+(>64k programs: skipped on 16-bit int)
+
+SUITE PASS verybig WITH SKIPS
+
+SUITE COMPLETE group=runtime passed=15 failed=0 with_skips=7
+
+Expect shell prompt next
+
+Stack Usage: 20299
