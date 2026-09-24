@@ -139,7 +139,7 @@ def check_banner(tc: Toolchain, exe: Path, banner: str, log: Path) -> str:
     write_atomic(log, text.encode())
     if result.returncode or banner not in text:
         raise BuildError(f"{exe.name} -v did not print banner {banner!r}; see {rel(log)}")
-    return text.strip().splitlines()[0]
+    return next(line.strip() for line in text.splitlines() if banner in line)
 
 
 def write_manifest(tc, directory, ident, label, runtime, hosts, builds) -> dict:

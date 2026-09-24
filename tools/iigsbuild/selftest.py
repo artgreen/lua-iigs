@@ -209,6 +209,8 @@ def main(args) -> int:
     manifest = __import__("json").loads((build_dir / "BUILD-MANIFEST.json").read_text())
     check(manifest["configurations"]["lua-small"]["parser"]["parser_symbols_present"] == [],
           "manifest proves parser symbols absent from compact link")
+    check(re.fullmatch(r"IIgs [0-9a-f]{12} small", manifest["banners"].get("lua-small", "")) is not None,
+          "manifest records the build-ID banner printed by -v")
     shutil.rmtree(tree.dev)
     _, out = tree.make("package", f"BUILD={build_dir}", "KINDS=runtime small compiler library")
     check(not tree.dev.exists(), "packaging an identified build rebuilds nothing")
