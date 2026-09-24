@@ -1,8 +1,15 @@
 # File I/O investigation, 2026-09-23
 
-Status: all 38 focused probe checks pass on real hardware. Test-fixture
-defects are repaired; the broader test still needs hardware validation.
+Status: all 38 focused I/O checks pass on real hardware. BUFPROBE 3 shows
+that a reader cannot open while a writer is open, including after flush;
+two readers work together and final data is correct in all six cases.
+FILECHECK 4, with the buffering adaptation, completes on real hardware and
+returns to the shell. Its portable/small-file scope and skips are retained.
 No Lua runtime I/O change is included, and v0.2.1 is unchanged.
+
+The sections below preserve the investigation in order. Earlier next-step
+instructions describe the archive at that stage; the latest hardware result
+and repeat commands are at the end.
 
 ## Restoring the upstream test
 
@@ -133,3 +140,100 @@ and capture any assertion with its preceding section heading. A completed
 run ends with `FILECHECK 2 FINISHED - expect shell prompt next`; its explicit
 skips must remain part of the result, rather than claiming full upstream
 coverage. No broader hardware pass has been recorded yet.
+
+## FILECHECK 2 hardware result: second open fails
+
+The next photograph identifies the same LUATEST build and FILECHECK 2.
+It reaches `testing buffers`, then fails at FILEFIX.LUA line 680 with
+`no such file or directory` for the temporary name. That line opens the
+reader immediately after a successful `io.open(file, "w")`; it precedes
+`setvbuf`, the write, and the visibility assertion at line 683. The shell
+prompt is visible after the traceback. The pictured temporary pathname is
+not needed to reproduce the failure and is not recorded here.
+
+This is a different stopping point from the diagnostic emulator. It does
+not establish that the hardware ignores buffering, nor that writing loses
+data. Delayed creation, stream sharing, and runtime error mapping remain
+possibilities until the next probe distinguishes them. Earlier assertions
+in this portable/small-file run completed; buffering and date/time did not.
+
+BUFPROBE 3 tests five writer cases (new text, precreated empty text,
+precreated data with r+, new binary, and new unbuffered text) and one pair
+of simultaneous readers. Each writer case reports a second reader's result
+before writing, after writing, after flushing, and after closing. Failures
+to open that reader are observations, not premature assertions; unexpected
+writer failures or wrong final data are counted as errors. Every case uses
+its own temporary name. LUATEST remains unchanged.
+
+On installed GoldenGate, all six cases finish with `errors=0`. Readers
+always open successfully and see writes immediately, including full-buffer
+cases. This matches the local FILECHECK buffering assertion but does not
+predict the hardware result. The new archive replaces only the diagnostic
+at the stable TEST.SHK path; run the same commands and capture all R0/Rw/Rf/Rc
+lines. An `errors=0` line alone does not certify buffering semantics.
+
+## BUFPROBE 3 hardware result and FILECHECK 4
+
+The photograph shows `IIgs aa385d7-13178cdf3c75 plain`, all six cases,
+`BUFPROBE 3 DONE cases=6 errors=0`, and a clean shell prompt:
+
+| Case | R0: before write | Rw: after write | Rf: after flush | Rc: after close |
+| --- | --- | --- | --- | --- |
+| B1 new text, full | open-err:4 | open-err:4 | open-err:4 | `"x"` |
+| B2 existing empty, full | open-err:4 | open-err:4 | open-err:4 | `"x"` |
+| B3 existing data, r+/full | open-err:4 | open-err:4 | open-err:4 | `"xeed"` |
+| B4 new binary, full | open-err:4 | open-err:4 | open-err:4 | `"x"` |
+| B5 new text, unbuffered | open-err:4 | open-err:4 | open-err:4 | `"x"` |
+
+B6 successfully opens two readers and reads `"seed"`. This supports a
+writer-sharing restriction in the tested hardware/runtime/storage setup,
+rather than a problem limited to creating new files or flushing buffers.
+It does not identify which layer rejects the second open or explain its
+error mapping; the numeric code is recorded without interpreting it as a
+GS/OS error. No write loss was observed in these cases.
+
+The IIgs branch in files.lua now explicitly skips cross-handle buffer
+visibility assertions. In their place, each of the full/no/line modes
+checks setvbuf, write, flush, another write, close, and exact data on reopen.
+These checks do not establish when writes reach storage before close.
+Other platforms retain the original visibility checks, with a misplaced
+`"w"` argument corrected so it is passed to io.open instead of assert.
+
+FILECHECK 4 uses the same interpreter and portable/small-file flags as
+FILECHECK 2. It reaches the completion marker, including portable date/time,
+under the isolated diagnostic emulator described above (stack usage 7,325
+bytes, exit 0). This is not a stock-emulator or hardware pass. The broader
+test remains an expected failure in the normal test configuration pending
+further validation. Repeat the same TEST.SHK commands; expect `FILECHECK 4`
+and `FILECHECK 4 FINISHED - expect shell prompt next` followed by the shell.
+
+## FILECHECK 4 hardware pass
+
+The next photograph shows the unchanged `IIgs aa385d7-13178cdf3c75 plain`
+interpreter completing FILECHECK 4 and returning to `#`. All three buffer
+modes report `close/reopen data OK`; portable date/time checks complete,
+including the informational `no daylight saving information` message.
+The final marker is `FILECHECK 4 FINISHED - expect shell prompt next`.
+
+Record one complete hardware pass of the repaired/adapted files.lua with
+`_port=true` and `_soft=true`. Unix process tests, nonportable date cases,
+the large-file block, and cross-handle buffer visibility remain explicitly
+excluded. This closes the pending hardware check for this scope, not the
+whole upstream suite or the stock GoldenGate failures. No Lua runtime I/O
+change was needed. The NAS archive remains FILECHECK 4 for repeat runs.
+
+To reproduce the same test scope directly from the repository's tests
+directory, using an installed IIgs interpreter:
+
+```text
+lua -E -e "_port=true; _soft=true" files.lua
+```
+
+The direct run prints `test done on ...` and the Lua version before returning
+to the shell. The FILECHECK 4 marker belongs to the transfer archive's wrapper,
+not files.lua itself. To repeat that packaged run, keep using:
+
+```text
+yankit xvf /nas/lua.test/test.shk
+15:luatest -E -v test.lua
+```

@@ -26,7 +26,8 @@ identities and do not replace the archived hardware-tested bytes.
   items and unsuccessful runs are preserved; the latest summary describes
   current status. User reports and photographs are distinguished from logs.
 - [I/O investigation](validation/IO_INVESTIGATION.md) separates fixture
-  defects, the emulator EOF guard, and the pending hardware text-mode probe.
+  repairs, emulator EOF/text differences, and the hardware-validated file
+  tests with their explicit sharing and portability limits.
 - [September 22 LUAREVIEW record](validation/2026-09-22/README.md) identifies
   an earlier tested artifact, its source commit, local checks, and hardware
   follow-up.

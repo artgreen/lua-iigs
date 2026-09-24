@@ -92,7 +92,13 @@ NDA is implemented by this repository.
   while line reads return LF. The real IIgs passes all 38 focused probe
   checks with consistent LF bytes and clean EOF handling, so no Lua I/O
   runtime change is justified by those local differences. The broader
-  repaired file test still needs hardware validation, including buffering. See
+  repaired file test reaches buffering on hardware but fails to open a
+  reader while a writer is open. BUFPROBE 3 reproduces this for new and
+  existing files even after flush; two readers work and all final data is
+  correct. The test now explicitly skips cross-handle visibility on IIgs
+  and checks data after close/reopen instead. FILECHECK 4 completes on
+  hardware, including portable date/time, with the exclusions below.
+  No runtime fix is claimed. See
   [the I/O investigation](validation/IO_INVESTIGATION.md).
 - **The upstream `T` C API harness is not supplied.** `api.lua`, `code.lua`,
   and T-dependent sections skip coverage. The focused C-host regression
@@ -105,8 +111,10 @@ NDA is implemented by this repository.
   warm/cold runs and mixed-script use do not certify every application,
   allocator pressure scenario, or hardware configuration.
 
-Next, run FILECHECK 2 with the preserved math-tested interpreter. It executes
-the repaired files.lua with the upstream portable/small-test flags, reporting
-the excluded Unix, nonportable date, and large-file cases explicitly. Earlier
+FILECHECK 4 has one complete hardware pass with the preserved math-tested
+interpreter and a clean shell return. It includes the buffer-test adaptation
+and portable date/time checks, while explicitly excluding cross-handle buffer
+visibility, Unix processes, nonportable date cases, and the large-file block.
+Stock GoldenGate failures remain separate from this hardware result. Earlier
 corruption theories and timing estimates remain history, not established
 causes of this I/O failure.

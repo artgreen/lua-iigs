@@ -109,16 +109,22 @@ or unmodified upstream-suite pass is not claimed. `tracegc.lua` is a helper.
 case as a pass; [the evidence record](../docs/validation/HARDWARE_RESULTS.md)
 preserves the correction. Avoid quoting a whole-suite percentage.
 
-`files.lua` is still expected-failing. Its duplicate read, undefined
-variable, and corrupted fixture bytes have been repaired. The next issues
-are GoldenGate's repeated-EOF abort and text translation differences. The
-real IIgs passes all 38 focused probe checks; broader file/buffering and
-date testing is still pending. See the
+`files.lua` is still expected-failing in the stock GoldenGate suite because
+of its repeated-EOF abort and text translation differences. Its duplicate
+read, undefined variable, and corrupted fixture bytes have been repaired.
+The real IIgs passes all 38 focused I/O checks and FILECHECK 4: the adapted
+file test with portable date/time checks. That run excludes Unix processes,
+nonportable dates, large files, and cross-handle buffer visibility. The
+hardware refuses a reader while a writer is open; the IIgs buffer tests
+check final data after close/reopen instead. See the
 [I/O investigation](../docs/validation/IO_INVESTIGATION.md).
 `ioprobe.lua` is a diagnostic outside the default pass set. It prints byte
 comparisons and failure counts, and deliberately exercises repeated EOF
 reads that terminate the installed GoldenGate. Use hardware or the documented
 isolated emulator for the complete probe; a DONE line is not a pass by itself.
+`bufprobe.lua` records sharing behavior before/after writes, flush, and close.
+Its zero error count verifies final data, not cross-handle buffer visibility;
+record the per-case observations as well.
 
 `cobeacon.lua` is generated from `coroutine.lua`. Regenerate after changing
 the source test with `python3 tools/generate-cobeacon.py`; `--check` verifies
