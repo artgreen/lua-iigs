@@ -126,6 +126,14 @@ isolated emulator for the complete probe; a DONE line is not a pass by itself.
 Its zero error count verifies final data, not cross-handle buffer visibility;
 record the per-case observations as well.
 
+`largefile.lua` is a separate hardware diagnostic for binary offsets through
+256 KiB. It writes and rereads every byte in small chunks, checks set/cur/end
+seeks, updates across boundaries, appends beyond 256 KiB, and checks truncation.
+It uses one temporary file and closes writers before reopening for reading.
+This covers large file offsets, not single transfers or Lua strings above
+65,535 bytes. Progress markers accompany the work; require the final PASSED
+marker and shell return. It is outside the default targeted regression set.
+
 `cobeacon.lua` is generated from `coroutine.lua`. Regenerate after changing
 the source test with `python3 tools/generate-cobeacon.py`; `--check` verifies
 synchronization. Historical B numbering is retained, and some markers label

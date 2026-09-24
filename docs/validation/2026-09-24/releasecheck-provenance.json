@@ -1,0 +1,10 @@
+{
+  "release": "v0.2.1",
+  "build_id": "e026f5b-13178cdf3c75",
+  "release_archive_sha256": "a6c1df239fd8f781cffde851f4cdee5cd3c4493e79d8664e2894040b8920c4e9",
+  "executable_sha256": "431a82d763f25dfcf0c320d21406b599ef9e6c184197b7d034e9c41fd2599d0a",
+  "file_test_commit": "a0648fe7654fc2a23a82cd187701429550d4a999",
+  "hardware_result": "User reported \"everything passed\" after the requested RELEASECHECK 1 acceptance run; no new hardware photograph or log supplied.",
+  "hardware_report_date": "2026-09-24",
+  "hardware_scope": "Published plain interpreter only: smoke, 90 numeric conversion checks, full adapted math, portable/small-file I/O and date/time, with documented skips."
+}

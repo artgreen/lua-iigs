@@ -6,6 +6,11 @@ includes PR #15's hardware-validated minimum-integer fix. Its binaries were
 rebuilt from merged commit `e026f5b`; the same source inputs passed hardware
 math testing as `IIgs aa385d7-13178cdf3c75 plain`. Rebuilds retain their own
 identities and do not replace the archived hardware-tested bytes.
+The published plain interpreter itself subsequently passed the user-reported
+[September 24 acceptance run](validation/2026-09-24/README.md), covering smoke,
+numeric conversions, adapted math, and adapted file I/O with explicit skips.
+The same release executable also passed the reported LARGEFILE 1 run,
+checking binary I/O through 262,163 bytes using small transfers.
 
 ## Current guidance
 
