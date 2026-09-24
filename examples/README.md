@@ -11,12 +11,28 @@ interpreter is named `lua`.
 | `blackjack.lua` | Interactive card game; answers are read from the console |
 | `more.lua` | Prompts for a filename and pages through it, 23 lines at a time |
 | `replcli.lua` | Small demonstration command loop with `cat`, `echo`, and `exit` |
+| `warehouse.lua` | Self-checking warehouse simulation with three coroutines and 600 transactions |
 
 ```text
 lua -E blackjack.lua
 lua -E more.lua
 lua -E replcli.lua
+lua -E -v warehouse.lua
 ```
+
+`warehouse.lua` needs no input files or modules. It generates a deterministic
+stream of sales and restocks, parses the text records, checks stock conservation
+during the run, replays an audit log, sorts product totals, and forces garbage
+collection. The program prints progress at every 100 records so a slow run is
+visibly active. Its final line must be:
+
+```text
+WAREHOUSE PASSED events=600 shipped=499 backorders=320 digest=32697 top=11
+```
+
+Require a clean return to the shell prompt as well as that line. The expected
+figures were calculated independently and the program passed locally under
+GoldenGate with memory checking; it has not yet been run on real IIgs hardware.
 
 The demo command loop is not Lua's own REPL or a replacement system shell.
 It splits input on whitespace and does not implement shell quoting. Its

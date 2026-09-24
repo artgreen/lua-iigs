@@ -17,6 +17,7 @@ checking binary I/O through 262,163 bytes using small transfers.
 | Task | Guide |
 | --- | --- |
 | Understand the project and run Lua | [Project README](../README.md) |
+| See what changed from upstream Lua for the IIgs | [Port overview](PORT-OVERVIEW.md) |
 | Build, package, and verify artifacts | [Building](BUILDING.md) |
 | Transfer files and validate a new build on hardware | [Hardware testing](../HARDWARE_TESTING.md) |
 | Run local regression checks and interpret coverage | [Tests](../tests/README.md) |
