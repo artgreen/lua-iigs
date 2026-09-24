@@ -53,6 +53,10 @@ For transfer details, expected test output, and new-build validation, follow
 [hardware testing](HARDWARE_TESTING.md). Preserve the exact tested artifacts:
 a rebuild has its own identity and needs validation.
 
+The [repeatable regression suite](tests/SUITE.md) collects the hardware
+session's 23 Lua checks into named groups and a metadata-preserving ShrinkIt
+test kit, with stable commands for future retesting.
+
 ## Build and develop
 
 The supported development workflow uses GoldenGate's `iix`, an ORCA/C 2.2.x

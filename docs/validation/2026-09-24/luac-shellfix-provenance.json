@@ -1,0 +1,101 @@
+{
+  "test": "LUACPROBE 1",
+  "release": "v0.2.1",
+  "build_id": "e026f5b-13178cdf3c75",
+  "shell_prefix": "20:",
+  "hardware_result": "pending",
+  "local_environment": "installed GoldenGate; commands launched separately",
+  "shell_batch_validation": "generated from preflight sequence; ORCA batch execution requires hardware",
+  "executables_sha256": {
+    "LUATEST": "431a82d763f25dfcf0c320d21406b599ef9e6c184197b7d034e9c41fd2599d0a",
+    "LUACTEST": "a21493e2793b77149f99fc89fc00fb89a9b886cafadca24c8bfb24194b407d61"
+  },
+  "source_sha256": "1646715c3765c35be9d64de32e824b693480ab47d4c8edac0d565a33048f54f7",
+  "steps": [
+    {
+      "name": "prepare",
+      "exit_code": 0,
+      "result": "passed"
+    },
+    {
+      "name": "version",
+      "exit_code": 0,
+      "result": "passed"
+    },
+    {
+      "name": "compile-small",
+      "exit_code": 0,
+      "result": "passed"
+    },
+    {
+      "name": "small",
+      "exit_code": 0,
+      "result": "passed"
+    },
+    {
+      "name": "compile-debug",
+      "exit_code": 0,
+      "result": "passed"
+    },
+    {
+      "name": "debug",
+      "exit_code": 0,
+      "result": "passed"
+    },
+    {
+      "name": "compile-stripped",
+      "exit_code": 0,
+      "result": "passed"
+    },
+    {
+      "name": "stripped",
+      "exit_code": 0,
+      "result": "passed"
+    },
+    {
+      "name": "reject-syntax",
+      "exit_code": 255,
+      "result": "expected rejection"
+    },
+    {
+      "name": "syntax",
+      "exit_code": 0,
+      "result": "passed"
+    },
+    {
+      "name": "reject-depth",
+      "exit_code": 255,
+      "result": "expected rejection"
+    },
+    {
+      "name": "depth",
+      "exit_code": 0,
+      "result": "passed"
+    },
+    {
+      "name": "compile-recovery",
+      "exit_code": 0,
+      "result": "passed"
+    },
+    {
+      "name": "recovery",
+      "exit_code": 0,
+      "result": "passed"
+    },
+    {
+      "name": "finish",
+      "exit_code": 0,
+      "result": "passed"
+    }
+  ],
+  "transfer_sha256": {
+    "LUATEST": "431a82d763f25dfcf0c320d21406b599ef9e6c184197b7d034e9c41fd2599d0a",
+    "LUACTEST": "a21493e2793b77149f99fc89fc00fb89a9b886cafadca24c8bfb24194b407d61",
+    "LICENSE.TXT": "23623178b1c445a80c9aa254f61341315dd000714c7b5e56f08ed0be84e0442b",
+    "TEST.LUA": "e4d77e78e50c54b127c06527c9752baaf6b808ea2b28cbcc0d20ea141f443b3e",
+    "TEST": "eee1cf1caddc08451e80302c7967f1449c5e8974a053e6f1498d441c00bc11ce",
+    "README.TXT": "84cd549438594e0523f60adaf13dbd870a64d78c42fe63db7d7b1606bdc99e6d"
+  },
+  "archive_sha256": "940188ffb837819b742b194eacf0e2196a0ffc8cf49b2d4af478cf08e3bbca68",
+  "local_result": "six checks passed; all processes returned"
+}

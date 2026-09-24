@@ -1,0 +1,27 @@
+{
+  "suite_version": 1,
+  "environment": "real Apple IIgs",
+  "group": "full",
+  "status": "passed with skips",
+  "passed": 23,
+  "failed": 0,
+  "tests_with_skips": 8,
+  "shell_return_observed": true,
+  "evidence": "Two user-supplied photographs of completed runs, each showing the final summary and shell prompt",
+  "visible_summary": "SUITE COMPLETE group=full passed=23 failed=0 with_skips=8",
+  "visible_final_checks": {
+    "filelife_cases": 120,
+    "tableovf_entries": 49152
+  },
+  "hardware_setup_from_session": "ROM03, 8 MB, hardware acceleration; exact accelerator/storage and OS version unconfirmed",
+  "build_banner_visible": false,
+  "artifact_association": "Staged suite package and session context; build banner absent from photograph",
+  "expected_build_id": "e026f5b-13178cdf3c75",
+  "executable_sha256": "431a82d763f25dfcf0c320d21406b599ef9e6c184197b7d034e9c41fd2599d0a",
+  "archive_sha256": "d67f22d167fdb65e739f31d29eaf7a8baa94c515145d688b859d70f4e69f7186",
+  "elapsed_seconds": null,
+  "hardware_runs_confirmed": 2,
+  "second_run_context": "Photographed completion; user explicitly confirmed this run followed a complete power-off/on",
+  "cold_start_confirmed": true,
+  "cold_start_runs_confirmed": 1
+}

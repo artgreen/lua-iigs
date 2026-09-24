@@ -1,0 +1,9 @@
+{
+  "build_id": "e026f5b-13178cdf3c75",
+  "executable_sha256": "431a82d763f25dfcf0c320d21406b599ef9e6c184197b7d034e9c41fd2599d0a",
+  "test_source_sha256": "aebc920857ec84ae5f529bd752594543fd2c1aad6c550a8e6bf6a2a6cfefb668",
+  "archive_sha256": "711bcdf25c6d5226b4249492ec3f1735f6e28dd08dd473581aa61dcf43ee99fa",
+  "hardware_result": "User reported \"passed\" after the requested BIGIO 1 run; no new hardware photograph or log supplied.",
+  "hardware_report_date": "2026-09-24",
+  "hardware_scope": "Published plain interpreter: seven sizes from 32767 through 131073 bytes; single writes, counted reads, read-all, partial reads at EOF, and exact data/length/position checks."
+}

@@ -7,6 +7,12 @@ explained in [building](../docs/BUILDING.md).
 
 ## Commands
 
+For the reusable hardware kit covering all 23 session regressions, use the
+[repeatable suite guide](SUITE.md). It provides named groups, a stable
+`TEST.LUA` entry point, verified ShrinkIt packaging, and strict local reports.
+The older commands below remain useful for independent-process and broader
+upstream checks; their `suite` Makefile target is a different test set.
+
 ```sh
 make -C tests tests LUA="$PWD/build/lua"
 make -C tests suite LUA="$PWD/build/lua"
@@ -77,6 +83,16 @@ shell return. See the [hardware record](../docs/validation/HARDWARE_RESULTS.md).
 
 ## C and build checks
 
+The [native C-host batch](HOST_TESTING.md) checks the published embedding
+host and native C-hook yield/resume path, verifies its output/status, then
+runs a fresh Lua smoke test. Its package reuses the `TEST.SHK` / `20:test`
+workflow.
+
+For a hardware check of the published standalone LUAC executable, use the
+[LUAC batch test](LUAC_TESTING.md). It covers small and large source,
+debug/stripped bytecode, two expected compiler errors, and valid compilation
+afterward. This is separate from the reusable Lua-only suite.
+
 `python3 tools/hardware-kit.py --plain-name luanext` runs the targeted set in
 both plain and trace variants, then additional checks as part of packaging:
 
@@ -133,6 +149,29 @@ It uses one temporary file and closes writers before reopening for reading.
 This covers large file offsets, not single transfers or Lua strings above
 65,535 bytes. Progress markers accompany the work; require the final PASSED
 marker and shell return. It is outside the default targeted regression set.
+
+`bigio.lua` separately checks large single binary transfers at 32/64/128 KiB
+boundaries. Seven sizes cover 32,767 through 131,073 bytes; each case checks
+a single write, counted read, read-all, and partial read at EOF with exact
+byte/length/position assertions. It uses concatenation to build payloads
+without depending on string.rep's separate INT_MAX limit. Require
+`BIGIO 1 PASSED cases=7` and a shell return. This diagnostic is also outside
+the default targeted regression set.
+
+`bytefile.lua` generates a source chunk with 9,000 arithmetic statements,
+executes it, dumps debug and stripped bytecode larger than 64 KiB, and reloads
+both from memory and disk. It checks binary constants, nested closures after
+GC, rejection of wrong-mode/truncated input, and recovery with valid code.
+Require `BYTEFILE 1 PASSED variants=2` and shell return. It uses two temporary
+files and is a separate diagnostic, not validation of the LUAC executable
+or bytecode compatibility with other platforms.
+
+`filelife.lua` repeats five file cleanup paths for 12 rounds in each of
+incremental and generational GC: normal scope exit, error unwinding,
+coroutine cancellation, early io.lines exit, and an abandoned writer's
+finalization. It checks closed handles where inspectable, data after reopen,
+and temporary-file removal. Require `FILELIFE 1 PASSED cases=120` and shell
+return. This separate diagnostic does not measure OS-wide resource counts.
 
 `cobeacon.lua` is generated from `coroutine.lua`. Regenerate after changing
 the source test with `python3 tools/generate-cobeacon.py`; `--check` verifies
