@@ -58,16 +58,19 @@ hardware timing estimate. Every phase is announced before it starts.
 From the repository root:
 
 ```sh
-python3 tools/luac-test-kit.py --release-dir /path/to/release --sdk /path/to/orca-sdk
-TEST_LUA=/path/to/lua GOLDEN_GATE=/path/to/orca-sdk \
-  python3 -m unittest discover -s tests -p 'test_*checks.py'
+make hardware-suite KIT=luac RELEASE=/path/to/release
+make hardware-suite KIT=luac BUILD=<build id>
+TEST_LUA=build/dev/lua/out/lua python3 -m unittest discover -s tests -p 'test_*checks.py'
 ```
 
-The release directory must contain `LUA.SHK`, `LUAC.SHK`, and
-`RELEASE-MANIFEST.json`. Executables are extracted and checked against the
-manifest. No compilation or changes to runtime binaries occur.
-`--prefix 20:` selects the hardware executable prefix (the default); use a
-different numeric prefix or `--prefix ""` for shell lookup on other setups.
+A release directory must contain `LUA.SHK`, `LUAC.SHK`, and
+`RELEASE-MANIFEST.json`; its executables are extracted and checked against
+the manifest. An identified build is rechecked against its
+`BUILD-MANIFEST.json`. No compilation and no change to runtime binaries
+occurs. `PREFIX=20:` is the default hardware executable prefix; use a
+different numeric prefix, or `PREFIX=none` for shell lookup, on other
+setups. (`tools/luac-test-kit.py` is a deprecated forwarder to this
+command.)
 The generated batch contains no semicolons, including in its comment line.
 
 One command sequence generates both the ORCA batch file and local preflight.
@@ -79,8 +82,9 @@ The syntax and SRC/EXEC metadata follow the Byte Works ORCA/Shell 2.0.4
 source (`make`, `cmd.asm` BRun/Exit, and `io.asm` ParseIO). `>&` redirects
 stderr; `{status}` is saved immediately after each expected error.
 
-Outputs are isolated under `build/diagnostics/luacprobe1-*`: preflight log,
-provenance/hashes, metadata inspection, `TEST.po`, and `TEST.SHK`. Every
+Outputs are isolated under `build/hardware-suites/<utc>-luac-<id>/`:
+preflight log, `KIT-MANIFEST.json` (provenance and hashes), `TEST.po`, and
+`TEST.SHK`. Earlier kits remain under `build/diagnostics/luacprobe1-*`. Every
 archive member is extracted and checked; both executable types and the
 batch file's SRC/EXEC metadata are verified. The tool does not copy to a NAS
 or publish a release. See the [dated evidence](../docs/validation/2026-09-24/README.md#standalone-luacprobe-1).

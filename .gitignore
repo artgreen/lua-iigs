@@ -11,6 +11,8 @@
 *.lib
 /src/lua
 /src/luac
+# generated per build under build/<...>/<config>/gen/; never tracked
+/src/parseconf.h
 
 # local ORCA/C 2.2.1 SDK copy (see docs/BUILDING.md)
 /.orca-sdk-2.2.1/
@@ -27,3 +29,7 @@
 # Generated distribution and legacy disk-image output
 /dist/
 /images/
+
+# machine-specific build settings (see local.mk.example)
+/local.mk
+__pycache__/

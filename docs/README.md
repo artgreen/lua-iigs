@@ -21,6 +21,7 @@ checking binary I/O through 262,163 bytes using small transfers.
 | Build, package, and verify artifacts | [Building](BUILDING.md) |
 | Transfer files and validate a new build on hardware | [Hardware testing](../HARDWARE_TESTING.md) |
 | Run local regression checks and interpret coverage | [Tests](../tests/README.md) |
+| Test the compact, parser-free runtime | [Compact testing](../tests/COMPACT.md) |
 | Embed Lua or register a C module | [Embedding](EMBEDDING.md) |
 | Try the bundled demonstrations | [Examples](../examples/README.md) |
 | Check platform limits and outstanding work | [Limitations](LIMITATIONS.md) |
@@ -34,6 +35,9 @@ checking binary I/O through 262,163 bytes using small transfers.
 - [I/O investigation](validation/IO_INVESTIGATION.md) separates fixture
   repairs, emulator EOF/text differences, and the hardware-validated file
   tests with their explicit sharing and portability limits.
+- [September 24 build-system record](validation/2026-09-24-build-system/README.md)
+  documents the build-system replacement: reproduction of the v0.2.1
+  executables, local test results, and compact-runtime measurements.
 - [September 22 LUAREVIEW record](validation/2026-09-22/README.md) identifies
   an earlier tested artifact, its source commit, local checks, and hardware
   follow-up.

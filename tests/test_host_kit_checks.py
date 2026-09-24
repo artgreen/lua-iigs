@@ -1,30 +1,30 @@
 """Reject misleading native-host output before reporting a hardware pass."""
-import importlib.util
 import os
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-spec = importlib.util.spec_from_file_location("hostkit", ROOT / "tools/host-test-kit.py")
-kit = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(kit)
+sys.path.insert(0, str(ROOT / "tools"))
+from iigsbuild.common import BuildError  # noqa: E402
+from iigsbuild.kits import host_batch  # noqa: E402
 
 
 class HostKitChecks(unittest.TestCase):
     def test_batch_preserves_native_exit_status(self):
-        script = kit.batch()
+        script = host_batch()
         self.assertNotIn(";", script)
         self.assertIn("20:iigshost >host.out >&host.err\nset hoststatus {status}\nset exit on\n", script)
         self.assertIn("20:luatest -E test.lua verify {hoststatus}\n20:luatest -E test.lua finish", script)
-        self.assertNotIn("20:", kit.batch("15:"))
-        with self.assertRaises(ValueError):
-            kit.batch("20:;exit")
+        self.assertNotIn("20:", host_batch("15:"))
+        with self.assertRaises(BuildError):
+            host_batch("20:;exit")
 
     @unittest.skipUnless(os.environ.get("TEST_LUA"), "set TEST_LUA for IIgs verifier checks")
     def test_verifier_requires_status_marker_and_clean_output(self):
-        parent = ROOT / "build/diagnostics"
+        parent = ROOT / "build/test-runs"
         parent.mkdir(parents=True, exist_ok=True)
         with tempfile.TemporaryDirectory(dir=parent) as temp:
             stage = Path(temp)

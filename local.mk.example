@@ -1,0 +1,20 @@
+# Copy to local.mk (untracked) for machine-specific settings.
+# Environment variables and 'make VAR=value' work the same way.
+
+# ORCA/C 2.2.x SDK used as the GoldenGate root. Default: ./.orca-sdk-2.2.1,
+# then the primary Git worktree's .orca-sdk-2.2.1. Never the system
+# /Library/GoldenGate install unless selected here (it may carry ORCA/C 2.1.0).
+# GOLDEN_GATE := /path/to/orca-sdk-2.2.1
+
+# Tool locations when not on PATH (~/.local/bin is also searched).
+# IIX := /usr/local/bin/iix
+# ACX := $(HOME)/.local/bin/acx
+# CP2 := $(HOME)/.local/bin/cp2
+# NULIB2 := /usr/local/bin/nulib2
+
+# Concurrent compiler processes. Default: 1, or the verified value after
+# 'make verify-concurrency' for the current toolchain.
+# JOBS := 1
+
+# Python 3.9 or later.
+# PYTHON := python3

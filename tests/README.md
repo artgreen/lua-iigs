@@ -1,51 +1,78 @@
 # Tests and coverage
 
-Run commands in this guide from the repository root. These automation
-commands execute the IIgs binary under GoldenGate, not natively on the Mac
-and not on real hardware. Build `build/lua` first and select the SDK as
-explained in [building](../docs/BUILDING.md).
+Run the commands in this guide from the repository root. They execute the
+IIgs binaries under GoldenGate, not natively on the Mac and not on real
+hardware. Select the SDK as explained in [building](../docs/BUILDING.md).
 
 ## Commands
 
-For the reusable hardware kit covering all 23 session regressions, use the
-[repeatable suite guide](SUITE.md). It provides named groups, a stable
-`TEST.LUA` entry point, verified ShrinkIt packaging, and strict local reports.
-The older commands below remain useful for independent-process and broader
-upstream checks; their `suite` Makefile target is a different test set.
+```sh
+make test
+make test BUILD=<build id>
+make test CHECKS="targeted luac"
+make test CONFIG=luatrace
+make test CONFIG=lua-small
+make suite GROUP=runtime
+make test-build
+```
+
+`make test` brings the development builds up to date, then runs the
+default checks: `unit targeted luac compact hosts`. With `BUILD=` it tests
+an identified build instead and rebuilds nothing. `CONFIG=luatrace` runs
+the targeted scripts with the trace contracts, and `CONFIG=lua-small` runs
+the LUAC and compact checks. `make suite` runs the
+[repeatable suite](SUITE.md) in one Lua state; `make test-build` is the
+build-system integration test. Each run writes `report.json`:
+
+- in `build/test-reports/<id>-<utc>/` for identified builds (kept);
+- in `build/test-runs/` for dev builds (disposable).
+
+The report records executable hashes, the test identity (a hash of the
+scripts and contracts), the emulator identity, each check's status, and
+intentional skips.
+
+| Check group | Contents |
+| --- | --- |
+| `unit` | Python unit tests for contracts, packaging, batches, and the build tooling |
+| `targeted` | the 16 scripts below, as independent processes, on full Lua |
+| `luac` | debug and stripped bytecode (hwsmoke on full, numconv and nosource on both runtimes); clean rejection of a syntax error and of excessive nesting; valid compile afterward |
+| `compact` | [bytecode acceptance on parser-free Lua](COMPACT.md), plus rejection of source from a script and from stdin |
+| `hosts` | iigshost, allocfail, bridge demo and bridge cstack, mmtest; memfree is built but needs real hardware |
+| `trace` | the targeted scripts on `luatrace`, requiring state closure and MM activation for `mmalloc` |
+
+The older independent-process runner still works for ad hoc and broader
+upstream runs:
 
 ```sh
-make -C tests tests LUA="$PWD/build/lua"
-make -C tests suite LUA="$PWD/build/lua"
-python3 tools/run-tests.py --lua "$PWD/build/lua" coroutine hwdiag2
-python3 -m unittest discover -s tests -p 'test_kit_checks.py'
+make -C tests tests
+make -C tests suite
+python3 tools/run-tests.py --lua build/dev/lua/out/lua coroutine hwdiag2
 python3 tools/generate-cobeacon.py --check
 ```
 
-The first command runs sixteen targeted scripts; `suite` runs the thirty
-entries in the broader `passing` group followed by the known `files` failure.
-These sets overlap but are not interchangeable: the broader group does not
-include every targeted regression. Run both when appropriate to a runtime
-change. `tests/all.lua` is not the supported IIgs driver: its exact version
-check expects `Lua 5.4`, whereas this port reports `Lua (IIgs) 5.4`.
+`make -C tests tests` runs the sixteen targeted scripts. `make -C tests
+suite` runs the thirty scripts in the broader `passing` group, followed by
+the known `files` failure. The two sets overlap but are not
+interchangeable. `tests/all.lua` is not the supported IIgs driver: its
+exact version check expects `Lua 5.4`, whereas this port reports
+`Lua (IIgs) 5.4`.
 
-The runner invokes `iix --memcheck` with `-E` and closed stdin. It copies
-tests into a fresh `build/test-runs/<unique directory>/tests/`, creates the
-required `libs/P1` scratch directory, and saves output logs beside it.
-`LUA` overrides the executable; `TIMEOUT=600` overrides the Makefile's
-300-second per-script local timeout. Direct runner use supports `--timeout`.
-These limits apply to GoldenGate, not to physical IIgs run times.
+Every runner uses `iix --memcheck` with `-E` and closed stdin. It copies the
+tests into a fresh scratch directory, creates the required `libs/P1`
+directory, and saves the logs. Local timeouts apply to GoldenGate, not to
+physical IIgs run times.
 
-A targeted pass requires zero process exit, its completion marker, and no
-recognized corruption or allocator-degradation reports. Trace validation in
-the hardware-kit builder additionally requires state closure and successful
-MM activation for `mmalloc`. The general runner does not enable the builder's
-trace-specific contracts. Non-targeted scripts in the broader group get
-exit/memory checks only; "completed" does not mean all assertions ran.
+A targeted pass requires three things: a zero process exit, the script's
+completion marker, and no recognized corruption or allocator-degradation
+report. Trace checks additionally require state closure, and successful MM
+activation for `mmalloc`. Non-targeted scripts in the broader group get
+exit and memory checks only, so "completed" does not mean all assertions
+ran.
 
-`make -C tests fails` expects `files.lua` to return a nonzero status without
-a recognized corruption report. An unexpected pass makes that target fail
-for review. The expected-failure check does not match the exact historical
-error, so inspect its log before concluding the same failure recurred.
+`make -C tests fails` expects `files.lua` to return a nonzero status
+without a recognized corruption report. An unexpected pass makes that
+target fail for review. The check does not match the exact historical
+error, so inspect its log before concluding that the same failure recurred.
 
 ## Targeted scripts
 
@@ -83,34 +110,31 @@ shell return. See the [hardware record](../docs/validation/HARDWARE_RESULTS.md).
 
 ## C and build checks
 
-The [native C-host batch](HOST_TESTING.md) checks the published embedding
-host and native C-hook yield/resume path, verifies its output/status, then
-runs a fresh Lua smoke test. Its package reuses the `TEST.SHK` / `20:test`
-workflow.
+The [native C-host batch](HOST_TESTING.md) runs the embedding host and the
+native C-hook yield/resume path. It verifies the host's output and status,
+then runs a fresh Lua smoke test. The [LUAC batch](LUAC_TESTING.md) covers
+the standalone compiler on hardware. Both come from
+`make hardware-suite KIT=host` and `KIT=luac`, and use the `TEST.SHK` /
+`20:test` workflow.
 
-For a hardware check of the published standalone LUAC executable, use the
-[LUAC batch test](LUAC_TESTING.md). It covers small and large source,
-debug/stripped bytecode, two expected compiler errors, and valid compilation
-afterward. This is separate from the reusable Lua-only suite.
+The local `hosts` group of `make test` runs:
 
-`python3 tools/hardware-kit.py --plain-name luanext` runs the targeted set in
-both plain and trace variants, then additional checks as part of packaging:
+- `iigshost.c`: refuses state creation before stack initialization;
+  recovers from deep Lua-stack recursion; rejects oversized array/vector
+  requests; checks retained table data; yields and resumes from a native
+  C hook (100 yields observed). This is separate from the upstream T
+  harness.
+- `allocfail.c`: compiles the actual allocator with fault-injection
+  wrappers, and checks bounded fallback, old-data retention, and exactly
+  one expected degradation warning. That deliberate warning is not an
+  ordinary runtime pass.
+- The bridge demo, and `cstack` through the embedding host.
+- `mmtest`: the raw Memory Manager probe, requiring `MMTEST DONE errs=0`.
+- `memfree`: built only; the query tools it needs are unavailable locally.
 
-- `iigshost.c`: refuse state creation before stack initialization; recover
-  from deep Lua-stack recursion; reject oversized array/vector requests;
-  check retained table data; yield/resume from a native C hook (100 yields
-  observed). This is separate from the upstream T harness.
-- `allocfail.c`: compile the actual allocator with fault-injection wrappers;
-  check bounded fallback, old-data retention, and one expected degradation
-  warning. This deliberately generated warning is not an ordinary runtime pass.
-- Bridge demo and `cstack` through the embedding host.
-- `mmtest`: raw Memory Manager probe, requiring `MMTEST DONE errs=0`.
-- `luac`: source/bytecode smoke round trip and clean excessive-nesting error.
-- `memfree`: compilation only; required query tools are unavailable locally.
-
-The kit builds these hosts itself; `make -C tests tests` does not build or
-run them. Root `make mmtest memfree` builds the standalone probes. The kit
-is the maintained end-to-end route for C-host validation.
+The build system has its own tests: `make test-build` (integration) and
+`tests/test_build_tools.py` (unit). See
+[building](../docs/BUILDING.md#tests).
 
 ## Coverage boundaries and diagnostics
 
@@ -119,6 +143,9 @@ and other tests omit T-dependent sections. `main.lua` currently sets `_iigs`
 true and immediately returns, so its successful exit is not interpreter-CLI
 coverage. Several inherited tests hard-code IIgs adaptations; a host-native
 or unmodified upstream-suite pass is not claimed. `tracegc.lua` is a helper.
+
+`nosource.lua` checks source rejection on the parser-free runtime, and
+source loading on full Lua; see [compact testing](COMPACT.md).
 
 `hwtest.lua` reports its unsupported Lua-hook yield case as a skip and prints
 `HWTEST PASSED WITH SKIPS`. Earlier baseline output counted that unsupported

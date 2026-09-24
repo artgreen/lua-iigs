@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "about": "Bytecode acceptance for the parser-free runtime (lua-small). Scripts are compiled with the same build's luac; 'debug' keeps debug information, 'stripped' uses luac -s. Classification measured under GoldenGate; see tests/COMPACT.md.",
+  "groups": {
+    "debug": ["nosource", "numconv", "sieve", "coroutine", "cobeacon", "cstack", "hookyield",
+              "mmalloc", "events", "verybig", "bufprobe", "largefile", "bigio", "filelife",
+              "tableovf"],
+    "stripped": ["nosource", "numconv", "sieve", "cstack", "mmalloc", "events", "verybig"]
+  },
+  "tests": {
+    "nosource": {
+      "marker": "^NOSOURCE 1 PASSED parser=no checks=%d+$"
+    }
+  },
+  "helpers": ["tracegc"],
+  "requires_parser": {
+    "hwsmoke": "loads a text chunk to check source/bytecode round trips",
+    "math": "builds numeric literals with load(text)",
+    "pm": "dostring() evaluates generated source",
+    "hwdiag2": "compiles large constant tables from generated source",
+    "hwtest": "checks that a valid text chunk compiles",
+    "errors": "checks parser error messages",
+    "bytefile": "generates and compiles a 9,000-statement source chunk",
+    "ioprobe": "stock GoldenGate EOF abort (both runtimes); not a parser issue",
+    "files": "stock GoldenGate EOF/text-translation failure (both runtimes); uses load(text)"
+  },
+  "requires_debug_info": {
+    "coroutine": "checks line numbers / names from debug information",
+    "cobeacon": "generated from coroutine.lua; same debug-information checks",
+    "hookyield": "line hooks need line information",
+    "errors": "error-message positions",
+    "hwtest": "traceback and position checks"
+  },
+  "upstream_requiring_parser": ["attrib", "big", "bitwise", "calls", "constructs", "db", "gc", "goto",
+                                "literals", "locals", "sort", "strings", "vararg"],
+  "upstream_bytecode_note": "literals also fails as precompiled bytecode on the full runtime (string-sharing check)",
+  "upstream_bytecode_ok": ["api", "bwcoercion", "closure", "code", "gengc", "heavy", "main", "nextvar", "tpack"],
+  "upstream_bytecode_ok_note": "api, code, and main return early (no T harness / IIgs adaptation); exit and memory checks only"
+}

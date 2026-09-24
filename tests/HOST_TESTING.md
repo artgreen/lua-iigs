@@ -55,22 +55,25 @@ Manager probe remain separate tests.
 ## Reproduce and verify
 
 ```sh
-python3 tools/host-test-kit.py --release-dir /path/to/release --sdk /path/to/orca-sdk --prefix 20:
-TEST_LUA=/path/to/lua GOLDEN_GATE=/path/to/orca-sdk \
-  python3 -m unittest discover -s tests -p 'test_*checks.py'
+make hardware-suite KIT=host RELEASE=/path/to/release
+make hardware-suite KIT=host BUILD=<build id>
+TEST_LUA=build/dev/lua/out/lua python3 -m unittest discover -s tests -p 'test_*checks.py'
 ```
 
-The release directory must contain `LUA.SHK`, `IIGSHOST.SHK`, and
-`RELEASE-MANIFEST.json`. Extracted binaries must match the manifest hashes.
+A release directory must contain `LUA.SHK`, `IIGSHOST.SHK`, and
+`RELEASE-MANIFEST.json`, and the extracted binaries must match the
+manifest hashes. An identified build is rechecked against its own manifest.
+(`tools/host-test-kit.py` is a deprecated forwarder to this command.)
 The tool runs each native process separately under GoldenGate with memory
 checks, including the Lua log verifier and subsequent smoke test. This does
 not execute the ORCA shell batch locally. The numeric prefix is configurable;
 an empty prefix requests normal shell lookup. Batch comments contain no
 semicolon command separators.
 
-Outputs under `build/diagnostics/hostcheck1-*` include preflight output,
-provenance/checksums, inspected file metadata, and a verified `TEST.SHK` plus
-800 KB ProDOS image. Every archive member is extracted and compared with
+Outputs under `build/hardware-suites/<utc>-host-<id>/` include preflight
+output, `KIT-MANIFEST.json` (provenance and checksums), and a verified
+`TEST.SHK` plus 800 KB ProDOS image. Earlier kits remain under
+`build/diagnostics/hostcheck1-*`. Every archive member is extracted and compared with
 its input. The packager does not stage to the NAS or publish a release.
 See the [dated record](../docs/validation/2026-09-24/README.md#native-hostcheck-1)
 for the exact executable identities and current hardware status.

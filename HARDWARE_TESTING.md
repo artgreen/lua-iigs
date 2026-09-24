@@ -13,30 +13,54 @@ repeated solely because documentation changed.
 
 ## Prepare and transfer
 
-For routine checks using an existing interpreter, the
-[repeatable regression suite](tests/SUITE.md) packages all 23 Lua regressions
-as `SUITE.SHK` and runs them with one command. It also offers smaller groups.
-The build-kit and individual commands below remain useful for new runtime
-builds and separate native C-host checks.
+For routine checks of an existing interpreter, the
+[repeatable regression suite](tests/SUITE.md) runs all 23 Lua regressions
+from one kit with one command. It also offers smaller groups. The steps
+below prepare a new runtime build. The separate kits cover the compact
+runtime, LUAC, and the native C host.
 
-1. Build a verified kit using the [build guide](docs/BUILDING.md). Keep its
-   manifest, checksums, and original executable. Do not overwrite a known-good
-   installation while testing a changed runtime.
-2. Transfer a ProDOS `.po` image or a ShrinkIt `.SHK` archive. The kit images
-   are 800 KB transfer disks, not boot disks. Copying a naked executable
-   through a NAS may lose its file type; use GS ShrinkIt or a disk-image
-   tool that preserves EXE `$B5` / auxiliary `$0000` metadata.
-3. Place the interpreter and scripts together in a separate test directory.
-   Keep `tracegc.lua` beside `cstack.lua`. Extract the separate `iigshost`
-   executable there too. The kit does not package every tool it builds.
-4. Power fully off/on before the first validation run, then use your normal
-   ORCA-compatible shell. Keep accelerator settings consistent across runs.
+1. Make an identified build and test it locally:
 
-Commands below assume the executable is named `lua`. If the kit was built
-with a unique test name, substitute that name. Check the banner against
-`BUILD.TXT` from the same kit; do not assume the shell selected the right
-binary merely because a command named `lua` exists. An earlier failed run
-lacked the expected build identifier, while the identified build passed.
+   ```sh
+   make identify
+   make test BUILD=<build id>
+   ```
+
+   Keep its `BUILD-MANIFEST.json` and test report. Do not overwrite a
+   known-good installation while testing a changed runtime.
+2. Package it, or prepare a kit, without rebuilding:
+
+   ```sh
+   make package BUILD=<build id>
+   make hardware-suite BUILD=<build id> KIT=suite
+   ```
+
+3. Stage the containers to the transfer share:
+
+   ```sh
+   make stage FROM=<package or kit directory> DEST=/Volumes/nas/<new directory>
+   ```
+
+   Staging refuses to replace different files unless `REPLACE=1` is given.
+   Transfer the `.SHK` archive or the `.po` image, never a naked executable:
+   the containers carry EXE `$B5` / aux `$0000` metadata, which a NAS copy
+   can lose. The images are 800 KB transfer disks, not boot disks.
+4. Extract into a separate test directory with GS ShrinkIt, keeping the
+   interpreter and scripts together. Keep `tracegc.lua` beside `cstack.lua`.
+   IIGSHOST comes in its own package and kit.
+5. Power fully off and on before the first validation run, then use your
+   normal ORCA-compatible shell. Keep accelerator settings consistent
+   across runs.
+
+The recorded shell runs these kits with the executable prefix `20:`
+(`20:test`). Kits are generated with a different prefix using `PREFIX=`.
+
+Commands below assume the executable is named `lua`. The runtime package
+contains `LUA`; kits rename the interpreter `LUATEST`. Check the printed
+banner against the build ID in `BUILD-MANIFEST.json` or the kit's
+`README.TXT`. Do not assume the shell ran the right binary merely because
+a command named `lua` exists: an earlier failed run lacked the expected
+build identifier, while the identified build passed.
 
 ## First checks
 
@@ -50,8 +74,8 @@ lua -E -v hwdiag2.lua
 ```
 
 `-E` ignores Lua environment initialization and module-path settings.
-`-v` prints the Lua version, the kit's build ID, and allocator status. Normal
-Makefile builds lack the kit's unique ID; use an identified kit for comparison.
+`-v` prints the Lua version, the build ID, and allocator status. Development
+builds (`make lua`) carry no build ID; use an identified build for comparison.
 
 | Script | Required result |
 | --- | --- |
@@ -119,7 +143,7 @@ build, with additional mixed-script warm-session success reported.
 
 ## When a failure needs localization
 
-Use the same kit's traced executable:
+Use the traced executable from the same identified build (`LUATRACE` package):
 
 ```text
 luatrace -E -v hwsmoke.lua

@@ -76,8 +76,11 @@ Other OS and file facilities depend on the ORCA runtime and shell; the
 repository does not establish full Unix behavior.
 
 The default configuration includes the text parser and builds shell EXE
-programs. `LUA_NO_PARSER` and `LUA_IIGS_BUILD_S16` are experimental options,
-not the validated distribution configuration. The kit packages EXE files;
+programs. The parser-free `lua-small` configuration (`LUA_NO_PARSER`) is
+built and tested locally as a separate product; it runs precompiled
+bytecode only, and has not yet been run on hardware (see
+[compact testing](../tests/COMPACT.md)). `LUA_IIGS_BUILD_S16` remains
+experimental and is not a build configuration. Packaging produces EXE files;
 it is not a SYS16/Finder-app packaging workflow. No Lua system tool set or
 NDA is implemented by this repository.
 

@@ -27,9 +27,9 @@ See [known limitations](docs/LIMITATIONS.md) and the chronological
 
 ## Run Lua
 
-Build a kit with `--plain-name lua` as described below, or use a distribution
-prepared from that kit. Extract `LUA.SHK` with GS ShrinkIt, or copy from
-`lua.po`, preserving executable metadata. From an ORCA-compatible shell in
+Use a published release, or a package made from an identified build as
+described below. Extract `LUA.SHK` with GS ShrinkIt, or copy from `lua.po`,
+preserving executable metadata. From an ORCA-compatible shell in
 the installed directory:
 
 ```text
@@ -38,7 +38,7 @@ lua -E -v hwsmoke.lua
 lua -E myscript.lua
 ```
 
-For a kit build, check the printed identifier against its `BUILD.TXT`.
+Check the printed build identifier against the package's `BUILD-MANIFEST.json`.
 The smoke test should print `SMOKE DONE - expect shell prompt next` and
 return to `#`. Run `lua -E -i` for the interactive prompt; `os.exit()`
 leaves it. The `-E` option ignores Lua environment settings, including
@@ -59,25 +59,38 @@ test kit, with stable commands for future retesting.
 
 ## Build and develop
 
-The supported development workflow uses GoldenGate's `iix`, an ORCA/C 2.2.x
-SDK (the recorded builds used 2.2.1), `make`, Python 3, and native
-AppleCommander `acx`. The SDK and tools are not bundled in Git.
+The development workflow needs:
 
-From the repository root, with those tools installed:
+- GoldenGate's `iix`;
+- an ORCA/C 2.2.x SDK (the recorded builds used 2.2.1);
+- GNU `make` and Python 3.9 or later;
+- for packaging, AppleCommander `acx`, CiderPress II `cp2`, and `nulib2`.
+
+The SDK and tools are not in Git. From the repository root:
 
 ```sh
-python3 tools/hardware-kit.py --sdk /path/to/orca-sdk --plain-name lua
+make doctor
+make
+make test
 ```
 
-This builds in a fresh directory, runs the local checks, and produces
-metadata-preserving ProDOS images plus a manifest and checksums. It does
-not create ShrinkIt archives, copy to a NAS, or run tests on the real IIgs.
-See [building and packaging](docs/BUILDING.md) for setup, individual build
-targets, archive creation, and artifact verification.
+`make` builds full Lua, LUAC, and the embedding library under
+`build/dev/<configuration>/out/`. `make lua-small` builds the compact,
+parser-free interpreter (about 53 KB smaller), which runs precompiled
+bytecode. For something to put on the IIgs, make an identified build,
+test it, and package it:
 
-Embedding applications must request the configured stack size and call
-`lua_iigs_initstack()` from `main` before creating a Lua state. See the
-[embedding guide](docs/EMBEDDING.md); older clients need this initialization.
+```sh
+make identify
+make test BUILD=<build id>
+make package BUILD=<build id>
+```
+
+`make hardware-suite` prepares the reusable real-hardware test kits. The
+tools never create hardware results; those come only from runs on the
+IIgs. See [building and packaging](docs/BUILDING.md) for setup,
+configurations, provenance, packaging, and migration from the old
+Makefiles.
 
 ## Documentation
 

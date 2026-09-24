@@ -52,8 +52,20 @@
 
 /*
 @@ LUA_NO_PARSER disables the text parser and lexer for LUA
+** The build selects BUILD_IS_LUA or BUILD_IS_LUAC, and optionally
+** LUA_NO_PARSER, in a parseconf.h generated separately for each build
+** configuration (see docs/BUILDING.md). Including it here makes every
+** translation unit, and every embedding host, see the same choice.
 */
-//#define LUA_NO_PARSER
+#include "parseconf.h"
+
+#if defined(BUILD_IS_LUA) == defined(BUILD_IS_LUAC)
+#error "parseconf.h must define exactly one of BUILD_IS_LUA or BUILD_IS_LUAC"
+#endif
+
+#if defined(BUILD_IS_LUAC) && defined(LUA_NO_PARSER)
+#error "LUAC always needs the parser; LUA_NO_PARSER applies only to LUA"
+#endif
 
 /*
 @@ LUA_IIGS_BUILD_S16 builds lua for GS/OS instead of ORCA shell
