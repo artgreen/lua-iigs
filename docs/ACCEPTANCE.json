@@ -1,0 +1,19 @@
+{
+  "schema": "lua-iigs-hardware-acceptance/1",
+  "status": "accepted; maintainer-reported",
+  "reported_date": "2026-09-25",
+  "report": "acceptance testing worked!",
+  "evidence_type": "maintainer report in publication approval",
+  "candidate_source_commit": "e6a167b40f2bd9f27ce67b39bc87f3045f747a36",
+  "candidate_directory": "lua-iigs-0.3.0-20260926T010921Z-6fy4_qsw",
+  "candidate_release_manifest_sha256": "5c7371f6b926277ef33f35308152351963e16e2b0185fad344f3bece80b5d1e7",
+  "build_id": "63eca55c48e5",
+  "executables_sha256": {
+    "LUA": "2bd98bff0bd818226543a8096a37c0b107a2383b304c9523def47e00882ee1d0",
+    "LUASMALL": "a7f277060f091a0038d12d51bec5916abffad6d5e181050b0ff9d6229e612947",
+    "LUAC": "a21493e2793b77149f99fc89fc00fb89a9b886cafadca24c8bfb24194b407d61",
+    "LUATRACE": "0af1fa9ef6a509c4e0908b6dbe526570753d4f22fd20edfbfabbc6d851f8a5fa",
+    "IIGSHOST": "4d8a7695f6a3accd5792fd1979dacd706ea0fcd2ecbd56cfed0b35f915187f93"
+  },
+  "scope": "Maintainer reported acceptance testing successful and approved publication of this candidate. Individual kit results, machine configuration, and a new detailed hardware transcript were not supplied with this report."
+}

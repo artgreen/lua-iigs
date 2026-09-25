@@ -1,0 +1,21 @@
+Lua 5.4.6 for the Apple IIgs - standard distribution
+
+Extract with GS ShrinkIt or copy from the ProDOS transfer image.
+Use an ORCA-compatible shell in the installed directory:
+  lua -E -v
+  lua -E hello.lua
+  lua -E hwsmoke.lua
+  lua -E -i
+Leave the interactive prompt with os.exit().
+
+LUA is the full interpreter; LUAC compiles bytecode.
+All thirteen standalone Lua examples are included. Try:
+  lua -E adventure.lua
+  lua -E blackjack.lua
+  lua -E maze.lua 42 solve
+  lua -E life.lua 6
+  lua -E queens.lua 8
+  lua -E warehouse.lua
+This is not a boot disk or Finder application.
+See EXAMPLES.TXT for the full catalog, and INSTALL.TXT, USAGE.TXT,
+and COMPAT.TXT for installation, commands, and limitations.

@@ -1,0 +1,13 @@
+Lua 5.4.6 for the Apple IIgs - compact distribution
+
+LUASMALL is a bytecode-only interpreter. It has no source parser or REPL.
+LUAC is included; compile on the IIgs, then run the binary chunk:
+  luac -o hello.luo hello.lua
+  luasmall -E hello.luo
+
+Use compatible IIgs bytecode, not bytecode from desktop Lua.
+GoldenGate can fold floating-point constants at different precision;
+compile on the IIgs when comparing folded and runtime arithmetic.
+Transfer bytecode as binary. Preserve executable file types by using
+GS ShrinkIt or the supplied ProDOS transfer image.
+See INSTALL.TXT and COMPAT.TXT.

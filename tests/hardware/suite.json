@@ -1,0 +1,152 @@
+{
+  "version": 1,
+  "groups": {
+    "smoke": [
+      "hwsmoke",
+      "numconv"
+    ],
+    "acceptance": [
+      "hwsmoke",
+      "numconv",
+      "math",
+      "files"
+    ],
+    "runtime": [
+      "hwsmoke",
+      "numconv",
+      "math",
+      "sieve",
+      "coroutine",
+      "cobeacon",
+      "cstack",
+      "pm",
+      "hwdiag2",
+      "hwtest",
+      "hookyield",
+      "mmalloc",
+      "errors",
+      "events",
+      "verybig"
+    ],
+    "io": [
+      "ioprobe",
+      "bufprobe",
+      "files",
+      "largefile",
+      "bigio",
+      "bytefile",
+      "filelife"
+    ],
+    "stress": [
+      "tableovf"
+    ],
+    "trace": [
+      "hwsmoke",
+      "sieve",
+      "cstack",
+      "mmalloc",
+      "cobeacon"
+    ],
+    "full": [
+      "hwsmoke",
+      "numconv",
+      "math",
+      "sieve",
+      "coroutine",
+      "cobeacon",
+      "cstack",
+      "pm",
+      "hwdiag2",
+      "hwtest",
+      "hookyield",
+      "mmalloc",
+      "errors",
+      "events",
+      "verybig",
+      "ioprobe",
+      "bufprobe",
+      "files",
+      "largefile",
+      "bigio",
+      "bytefile",
+      "filelife",
+      "tableovf"
+    ]
+  },
+  "tests": {
+    "hwsmoke": {
+      "marker": "^SMOKE DONE %- expect shell prompt next$"
+    },
+    "numconv": {
+      "marker": "^NUMCONV PASSED checks=90$"
+    },
+    "math": {
+      "marker": "^OK$"
+    },
+    "sieve": {
+      "marker": "^chain=40.*caught: .*C stack overflow$"
+    },
+    "coroutine": {
+      "marker": "^OK$"
+    },
+    "cobeacon": {
+      "marker": "^BEACON DONE %(C API harness skipped%)$",
+      "alternate": "^BEACON DONE$"
+    },
+    "cstack": {
+      "marker": "^OK$"
+    },
+    "pm": {
+      "marker": "^OK$"
+    },
+    "hwdiag2": {
+      "marker": "^ALL DIAGNOSTICS PASSED$"
+    },
+    "hwtest": {
+      "marker": "^HWTEST PASSED WITH SKIPS$",
+      "alternate": "^ALL TESTS PASSED$"
+    },
+    "hookyield": {
+      "marker": "^OK$"
+    },
+    "mmalloc": {
+      "marker": "^MMALLOC PASSED$"
+    },
+    "errors": {
+      "marker": "^OK$"
+    },
+    "events": {
+      "marker": "^OK$"
+    },
+    "verybig": {
+      "marker": "^%(>64k programs: skipped on 16%-bit int%)$"
+    },
+    "ioprobe": {
+      "marker": "^IOPROBE 1 DONE checks=38 failures=0$"
+    },
+    "bufprobe": {
+      "marker": "^BUFPROBE 3 DONE cases=6 errors=0$",
+      "notice": "OBSERVATION bufprobe: errors=0 checks final data; retain R0/Rw/Rf/Rc sharing observations"
+    },
+    "files": {
+      "marker": "^testing date/time$",
+      "notice": "SKIP files: Unix processes, nonportable dates, and upstream large-file block; separate largefile/bigio cover binary file boundaries"
+    },
+    "largefile": {
+      "marker": "^LARGEFILE 1 PASSED bytes=262163 %- expect shell prompt next$"
+    },
+    "bigio": {
+      "marker": "^BIGIO 1 PASSED cases=7 %- expect shell prompt next$"
+    },
+    "bytefile": {
+      "marker": "^BYTEFILE 1 PASSED variants=2 %- expect shell prompt next$"
+    },
+    "filelife": {
+      "marker": "^FILELIFE 1 PASSED cases=120 %- expect shell prompt next$"
+    },
+    "tableovf": {
+      "marker": "^TABLEOVF PASSED entries=49152$",
+      "notice": "LONG tableovf: previously about 18 minutes on accelerated hardware; silent until completion"
+    }
+  }
+}

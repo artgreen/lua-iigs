@@ -1,0 +1,17 @@
+# Local toolchain and settings
+/.orca-sdk-*/
+/local.mk
+/.claude/
+/.rebuild-backup/
+
+# Generated files and release candidates
+/build/
+/dist/
+/src/parseconf.h
+*.a
+*.root
+*.sym
+*.lib
+*.out
+__pycache__/
+.DS_Store

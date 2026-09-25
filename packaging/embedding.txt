@@ -1,0 +1,15 @@
+Lua IIgs embedding example
+
+TEST.C is the host, TESTIFACE.C the Lua bindings, TESTBRIDGE.C the C
+implementation, and TESTIFACE.H the shared header. BRIDGE.LUA is its script.
+
+Build with ORCA/C 2.2.x. Select the headers from the full LUALIB package,
+including PARSECONF.H. Link the three compiled objects, then LVM.A,
+then LUA.LIB. The host requests the Lua bank-0 stack and initializes
+its stack anchor before creating a Lua state.
+
+From the source repository on the development Mac: make bridge
+Run the built host with BRIDGE.LUA as its argument.
+Read docs/EMBEDDING.md in the outer SDK bundle for the complete host contract.
+The collection demo does not validate indexes, allocation failures, or
+access after explicit free. It demonstrates C module registration.
