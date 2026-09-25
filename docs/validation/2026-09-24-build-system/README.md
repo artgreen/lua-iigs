@@ -194,3 +194,34 @@ published.
   wrapper have not been executed by the ORCA shell.
 - The I/O group on stock GoldenGate, which remains an expected local
   failure; hardware results for it exist only for the earlier kits.
+
+## Hardware follow-up: compact kit, first run (user photograph)
+
+The first compact-kit run, from `/nas/lua.test/test.shk` with `20:test`,
+used build `63eca55c48e5` on the accelerated ROM 03 IIgs.
+
+- **Passed:** 1/15 `nosource`, 2/15 `numconv`, and 3/15 `sieve`, which
+  caught `C stack overflow` at `chain=40`.
+- **Failed:** 4/15 `coroutine`, in "testing yields inside metamethods",
+  with `coroutine.lua:881: assertion failed!`. The shell prompt then
+  returned normally. The driver stops at the first failure, so tests
+  5–15 and the stripped group did not run. No crash or screen corruption
+  was reported.
+
+Line 881 is `assert(run(function () return a ^ b end, {"pow"}) == 10^12)`.
+`luac` folds `10^12` into the float constant `1000000000000.0` at compile
+time, and this kit's bytecode was compiled under GoldenGate. `a ^ b` is
+computed by the IIgs's SANE `pow` at run time.
+
+The same line passed on hardware when the suite ran from source, because
+both sides were then computed on the IIgs. It also passes under
+GoldenGate. The working hypothesis is therefore a difference between
+GoldenGate's host-precision `pow` and the real SANE `pow` for `10^12`. That
+would make it a property of cross-compiled bytecode, not a
+compact-runtime defect.
+
+To test the hypothesis, POWPROBE 1 is staged at `/nas/lua.pow/test.shk`
+(kit manifest in `build/diagnostics/*-powprobe1-*`). It prints run-time
+versus folded results for five powers, three ways: full Lua from source,
+full Lua from the GoldenGate-compiled bytecode, and compact Lua from the
+same bytecode. Result pending.
