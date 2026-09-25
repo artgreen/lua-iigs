@@ -1,0 +1,433 @@
+{
+  "schema": "lua-iigs-kit/1",
+  "kit": "small",
+  "utc": "2026-09-24T23:21:31+00:00",
+  "input": {
+    "kind": "identified build",
+    "build_id": "63eca55c48e5",
+    "build_dir": "63eca55c48e5-20260924T231837Z",
+    "build_manifest_sha256": "47d70a1b247edecd6e159a27fb71738cb4c34e237f373421ed4d446f7998fa16"
+  },
+  "shell_prefix": "20:",
+  "run_command": "20:test",
+  "executables_sha256": {
+    "LUATEST": "a7f277060f091a0038d12d51bec5916abffad6d5e181050b0ff9d6229e612947"
+  },
+  "kit_identity": "2bfbb448bc50",
+  "batch": [
+    "* Compact Lua bytecode acceptance. Parser-free runtime, no rebuild.",
+    "set exit on",
+    "20:luatest -E -v",
+    "echo COMPACT source rejection. An error message goes to source.log.",
+    "unset exit",
+    "20:luatest -E source.lua >&source.log",
+    "set srcstatus {status}",
+    "set exit on",
+    "20:luatest -E nosource.lua cli {srcstatus}",
+    "20:luatest -E -v test.lua compact",
+    "20:luatest -E -v test.lua stripped",
+    "exit 0"
+  ],
+  "preflight": {
+    "environment": "GoldenGate with --memcheck, commands launched separately; not ORCA batch execution, not hardware",
+    "steps": [
+      {
+        "step": "version",
+        "exit_code": 0,
+        "result": "passed"
+      },
+      {
+        "step": "reject-source",
+        "exit_code": 255,
+        "result": "status captured"
+      },
+      {
+        "step": "verify-rejection",
+        "exit_code": 0,
+        "result": "passed"
+      },
+      {
+        "step": "debug",
+        "exit_code": 0,
+        "result": "passed",
+        "status": "passed with skips",
+        "tests": [
+          {
+            "name": "nosource",
+            "status": "passed"
+          },
+          {
+            "name": "numconv",
+            "status": "passed"
+          },
+          {
+            "name": "sieve",
+            "status": "passed"
+          },
+          {
+            "name": "coroutine",
+            "status": "passed with skips"
+          },
+          {
+            "name": "cobeacon",
+            "status": "passed with skips"
+          },
+          {
+            "name": "cstack",
+            "status": "passed"
+          },
+          {
+            "name": "hookyield",
+            "status": "passed"
+          },
+          {
+            "name": "mmalloc",
+            "status": "passed"
+          },
+          {
+            "name": "events",
+            "status": "passed with skips"
+          },
+          {
+            "name": "verybig",
+            "status": "passed with skips"
+          },
+          {
+            "name": "bufprobe",
+            "status": "passed"
+          },
+          {
+            "name": "largefile",
+            "status": "passed"
+          },
+          {
+            "name": "bigio",
+            "status": "passed"
+          },
+          {
+            "name": "filelife",
+            "status": "passed"
+          },
+          {
+            "name": "tableovf",
+            "status": "passed"
+          }
+        ],
+        "skip_evidence": [
+          " >>> testC not active: skipping coroutine API tests <<<",
+          " >>> testC not active: skipping coroutine API tests <<<",
+          " >>> testC not active: skipping coroutine API tests <<<",
+          " >>> testC not active: skipping coroutine API tests <<<",
+          "BEACON DONE (C API harness skipped)",
+          " >>> testC not active: skipping tests for userdata <<<",
+          "(>64k programs: skipped on 16-bit int)"
+        ]
+      },
+      {
+        "step": "stripped",
+        "exit_code": 0,
+        "result": "passed",
+        "status": "passed with skips",
+        "tests": [
+          {
+            "name": "nosource",
+            "status": "passed"
+          },
+          {
+            "name": "numconv",
+            "status": "passed"
+          },
+          {
+            "name": "sieve",
+            "status": "passed"
+          },
+          {
+            "name": "cstack",
+            "status": "passed"
+          },
+          {
+            "name": "mmalloc",
+            "status": "passed"
+          },
+          {
+            "name": "events",
+            "status": "passed with skips"
+          },
+          {
+            "name": "verybig",
+            "status": "passed with skips"
+          }
+        ],
+        "skip_evidence": [
+          " >>> testC not active: skipping tests for userdata <<<",
+          "(>64k programs: skipped on 16-bit int)"
+        ]
+      }
+    ]
+  },
+  "container": {
+    "image": {
+      "file": "TEST.po",
+      "volume": "LUACOMPACT",
+      "sha256": "fb6cdf8320bbb0bc6995993fd894414be64030d9f31a866b5df9a9ce69cc70c5",
+      "size": 819200
+    },
+    "archive": {
+      "file": "TEST.SHK",
+      "sha256": "de574532afa629577b85ee6ab5ac3a9a77129ee9ae4971c89e3d98d74421409f",
+      "size": 294298
+    },
+    "members": [
+      {
+        "name": "LUATEST",
+        "kind": "EXE",
+        "file_type": "$B5",
+        "aux_type": "$0000",
+        "size": 309037,
+        "sha256": "a7f277060f091a0038d12d51bec5916abffad6d5e181050b0ff9d6229e612947"
+      },
+      {
+        "name": "TEST",
+        "kind": "EXEC",
+        "file_type": "$B0",
+        "aux_type": "$0006",
+        "size": 368,
+        "sha256": "0821673166a3aef458dcd6733b9a13f94d1c87fc911fad38d384f6d9614b8f64"
+      },
+      {
+        "name": "SOURCE.LUA",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 43,
+        "sha256": "6c7930630ef3fed914a515f34bfbd9b146ff13bd3aca0a2e9efcafc2ee035119"
+      },
+      {
+        "name": "BIGIO.LUA",
+        "kind": "BIN",
+        "file_type": "$06",
+        "aux_type": "$0000",
+        "size": 3151,
+        "sha256": "31be50315886ef45e49294bcb6f03a229f394d0cff3c8cfeba9a59d121070eac"
+      },
+      {
+        "name": "BUFPROBE.LUA",
+        "kind": "BIN",
+        "file_type": "$06",
+        "aux_type": "$0000",
+        "size": 3029,
+        "sha256": "692409124bf866436e889cc0a3c76b225a362a9288ef575a7e4cff2a90870ffc"
+      },
+      {
+        "name": "COBEACON.LUA",
+        "kind": "BIN",
+        "file_type": "$06",
+        "aux_type": "$0000",
+        "size": 41365,
+        "sha256": "fce1c738e44c57520a859646785cf38750829d78b4e876ab4491f19ee49c3585"
+      },
+      {
+        "name": "COROUTINE.LUA",
+        "kind": "BIN",
+        "file_type": "$06",
+        "aux_type": "$0000",
+        "size": 38701,
+        "sha256": "397264c80edc5ee2424e991046da202cb6bed7b3d459ace52c1f8b0033c3ca96"
+      },
+      {
+        "name": "CSTACK.LUA",
+        "kind": "BIN",
+        "file_type": "$06",
+        "aux_type": "$0000",
+        "size": 4391,
+        "sha256": "1270c778f3b6b3565acce0712dae8a3d9be439a663500bceb7cdac4c11c38b9e"
+      },
+      {
+        "name": "CSTACK.LUS",
+        "kind": "BIN",
+        "file_type": "$06",
+        "aux_type": "$0000",
+        "size": 3276,
+        "sha256": "521d735defe476ddbd956340fd0a46db9c3d026946c0da0873f8c92957f5b021"
+      },
+      {
+        "name": "EVENTS.LUA",
+        "kind": "BIN",
+        "file_type": "$06",
+        "aux_type": "$0000",
+        "size": 18567,
+        "sha256": "f83138b742e49f5218bfe3e3859a126e0498134c594165e80f5efaff17918fc2"
+      },
+      {
+        "name": "EVENTS.LUS",
+        "kind": "BIN",
+        "file_type": "$06",
+        "aux_type": "$0000",
+        "size": 14218,
+        "sha256": "7f2db869abecdd5103b597542b734ce33cbd6f4c3dd4aab3ecfacf1a5198f1ae"
+      },
+      {
+        "name": "FILELIFE.LUA",
+        "kind": "BIN",
+        "file_type": "$06",
+        "aux_type": "$0000",
+        "size": 4225,
+        "sha256": "24fc54b213eafb7b3ca0db0790020d2a0807d50db6aa40584b84994c4551e884"
+      },
+      {
+        "name": "HOOKYIELD.LUA",
+        "kind": "BIN",
+        "file_type": "$06",
+        "aux_type": "$0000",
+        "size": 996,
+        "sha256": "4fd6cdff779c4c6d22024f70184c6ffa96c96f5c7dc64607452f61f6ebd50599"
+      },
+      {
+        "name": "LARGEFILE.LUA",
+        "kind": "BIN",
+        "file_type": "$06",
+        "aux_type": "$0000",
+        "size": 5642,
+        "sha256": "ef10b4d2fb35b26321a490539adcf879b3d6e6993d39530b3757f10aa91a3432"
+      },
+      {
+        "name": "MMALLOC.LUA",
+        "kind": "BIN",
+        "file_type": "$06",
+        "aux_type": "$0000",
+        "size": 1127,
+        "sha256": "f53d4e7510813f93963bcd9e3a1ea48e1e2d7bb79a9bed5173dda5327298eea2"
+      },
+      {
+        "name": "MMALLOC.LUS",
+        "kind": "BIN",
+        "file_type": "$06",
+        "aux_type": "$0000",
+        "size": 749,
+        "sha256": "efd1eb3f044477f84e6944d3748ea5d5a26ef583670f1a1045dff715c5dcb4e2"
+      },
+      {
+        "name": "NOSOURCE.LUA",
+        "kind": "BIN",
+        "file_type": "$06",
+        "aux_type": "$0000",
+        "size": 4494,
+        "sha256": "6f14d3a00b88ed9985144dc659e9055ce4645b119afbc9b4b2c7373d69377482"
+      },
+      {
+        "name": "NOSOURCE.LUS",
+        "kind": "BIN",
+        "file_type": "$06",
+        "aux_type": "$0000",
+        "size": 3516,
+        "sha256": "38b3dcf1ae0c6a70567c9c87fe90643a331822b197b42c64742c21ea1782f4ad"
+      },
+      {
+        "name": "NUMCONV.LUA",
+        "kind": "BIN",
+        "file_type": "$06",
+        "aux_type": "$0000",
+        "size": 2457,
+        "sha256": "d7c77ed46f47f8c37d2d7d78bd23c9b51a33d2cc45d4da85653ad1ad08a36fdd"
+      },
+      {
+        "name": "NUMCONV.LUS",
+        "kind": "BIN",
+        "file_type": "$06",
+        "aux_type": "$0000",
+        "size": 1936,
+        "sha256": "f5a89dce78bd9ca278d4dd2218790234c8bb2b6eba89d5a5eff075a5715d8813"
+      },
+      {
+        "name": "SIEVE.LUA",
+        "kind": "BIN",
+        "file_type": "$06",
+        "aux_type": "$0000",
+        "size": 925,
+        "sha256": "56d24592fd3b46d658f26992350fbab2d93f5588e7c6f26d76ddf2f2474d8957"
+      },
+      {
+        "name": "SIEVE.LUS",
+        "kind": "BIN",
+        "file_type": "$06",
+        "aux_type": "$0000",
+        "size": 671,
+        "sha256": "6d417037aefbc9e411888e2dc887488c53765c82d7f7b9e72dd9f357f1aefabd"
+      },
+      {
+        "name": "SUITECFG.LUA",
+        "kind": "BIN",
+        "file_type": "$06",
+        "aux_type": "$0000",
+        "size": 1503,
+        "sha256": "2b4251e81c34384f511bba14a06627a97f52666b0df2b8ba77d1149d5e15d594"
+      },
+      {
+        "name": "TABLEOVF.LUA",
+        "kind": "BIN",
+        "file_type": "$06",
+        "aux_type": "$0000",
+        "size": 948,
+        "sha256": "79e44e408dab3ebba2ac35d0114de8d5dd69b0a4be9e5ec1249717db064a25c1"
+      },
+      {
+        "name": "TEST.LUA",
+        "kind": "BIN",
+        "file_type": "$06",
+        "aux_type": "$0000",
+        "size": 4155,
+        "sha256": "f4abecafe1d9b79f23a8832c9ec931bae457b24c87c9b5ba60ad4acb13d9e76a"
+      },
+      {
+        "name": "TRACEGC.LUA",
+        "kind": "BIN",
+        "file_type": "$06",
+        "aux_type": "$0000",
+        "size": 597,
+        "sha256": "6a816794e0123ef4bc92d151e061ba6777a47e208d65eb77a1097946a65ed348"
+      },
+      {
+        "name": "TRACEGC.LUS",
+        "kind": "BIN",
+        "file_type": "$06",
+        "aux_type": "$0000",
+        "size": 391,
+        "sha256": "4ec1f3ed4b2f1f7a4165381244c82339090ec577b1edd06bd63ee16dbd0a3a04"
+      },
+      {
+        "name": "VERYBIG.LUA",
+        "kind": "BIN",
+        "file_type": "$06",
+        "aux_type": "$0000",
+        "size": 4422,
+        "sha256": "69c50253ed32327ded9584f1f0ca0d3e37883a7e9b8784b57c60a03de1776030"
+      },
+      {
+        "name": "VERYBIG.LUS",
+        "kind": "BIN",
+        "file_type": "$06",
+        "aux_type": "$0000",
+        "size": 3613,
+        "sha256": "ed31059cd2e933f6e173277164cdd296ced440be6ef2f23322c5a8ff46bd125a"
+      },
+      {
+        "name": "README.TXT",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 843,
+        "sha256": "4aeb62f2e239079249d2cc97956f65bf9ab36ce8d56c9be6ed33b70ea262ac46"
+      },
+      {
+        "name": "LICENSE.TXT",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 1066,
+        "sha256": "23623178b1c445a80c9aa254f61341315dd000714c7b5e56f08ed0be84e0442b"
+      }
+    ],
+    "verification": "every member extracted (acx for .po, nulib2 for .SHK) and compared byte-for-byte; type/aux read back with cp2; exact member set"
+  },
+  "hardware_result": "pending: record the observed banner, final lines, and shell return separately"
+}

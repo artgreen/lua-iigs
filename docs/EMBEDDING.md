@@ -1,11 +1,23 @@
 # Embedding Lua in an IIgs application
 
-From the repository root, run `make lua` followed by `make liblua`.
-The first step builds the VM object that the current library target assumes
-already exists.
-Link both `src/lvm.a` and `src/lua.lib`, using headers from the same build.
-The Makefile also copies both into `build/`. The VM object is separate from
-the library; linking only `lua.lib` is incomplete.
+From the repository root, run `make liblua`. It needs no interpreter build,
+and writes to `build/dev/lua/out/`:
+
+- `lua.lib`, the library;
+- `lvm.a`, the VM object, linked separately (linking only `lua.lib` is
+  incomplete);
+- `include/`, with `lua.h`, `luaconf.h`, `lualib.h`, `lauxlib.h`, and this
+  build's generated `parseconf.h`.
+
+`luaconf.h` includes `parseconf.h`, so compile against the `include/`
+directory of the same build. The `library` package of an identified build
+(`make package`) contains the same files with ORCA file types.
+
+`make liblua-small` builds the parser-free variant in
+`build/dev/lua-small/out/` (`luasmall.lib`, `lvm.a`, `include/`). With it,
+`lua_load` and `luaL_loadbuffer` accept only binary chunks, precompiled by
+`luac` from the same build. Text is refused with a catchable
+`LUA_ERRSYNTAX` error. The library is 21% smaller than the full one.
 
 ## Required stack initialization
 
@@ -72,12 +84,15 @@ int main(int argc, char *argv[]) {
 With the SDK selected as in [building](BUILDING.md):
 
 ```sh
-make lua
 make liblua
-iix compile -I -P -D +O host.c
-iix link host src/lvm src/lua.lib KEEP=host
+iix compile -I -P -D +O host.c cc=-ibuild/dev/lua/out/include
+iix link host build/dev/lua/out/lvm build/dev/lua/out/lua.lib KEEP=host
 iix --memcheck host tests/hwsmoke.lua
 ```
+
+ORCA searches the current directory first, then each `cc=-i` directory in
+order. Give each directory as a separate `cc=-i` argument; ORCA rejects
+long command lines.
 
 The minimal host is not the interpreter CLI: it does not implement `-E`,
 `-v`, a REPL, or construct the interpreter's `arg` table. It opens the
@@ -99,9 +114,8 @@ Then Lua can call `require("test_iface")`. The bundled example is
 and `bridge.lua` (script). Run it on the development Mac with:
 
 ```sh
-make lua
 make bridge
-iix --memcheck bridge bridge.lua
+iix --memcheck build/dev/lua/out/bridge bridge.lua
 ```
 
 The bridge's explicit free is idempotent with its GC finalizer, but the demo
@@ -113,7 +127,8 @@ operations into an application without adding its required checks.
 
 `tests/iigshost.c` exercises the library initialization contract, overflow
 recovery, array/vector limits, and yielding from a native C hook. The
-hardware-kit builder compiles, links, runs, and packages that host. A Lua
+local `make test` hosts group compiles, links, and runs it, and
+`make hardware-suite KIT=host` packages it for hardware. A Lua
 `debug.sethook` callback cannot replace the native yielding-hook test.
 
 `luaL_iigsmmstatus()` returns a read-only string describing the hybrid

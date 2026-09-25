@@ -1,20 +1,20 @@
 """Check batch error handling and probe rejection of false success."""
-import importlib.util
 import os
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-spec = importlib.util.spec_from_file_location("luac_kit", ROOT / "tools/luac-test-kit.py")
-kit = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(kit)
+sys.path.insert(0, str(ROOT / "tools"))
+from iigsbuild.common import BuildError  # noqa: E402
+from iigsbuild.kits import luac_batch  # noqa: E402
 
 
 class LuacKitChecks(unittest.TestCase):
     def test_batch_captures_expected_failure_status_before_another_command(self):
-        script = kit.batch()
+        script = luac_batch()
         for name in ("bad", "deep"):
             self.assertIn(f"unset exit\n20:luactest -p lc.{name}.lua >&lc.{name}.log\n"
                           "set lcstatus {status}\nset exit on\n", script)
@@ -22,23 +22,23 @@ class LuacKitChecks(unittest.TestCase):
         self.assertEqual(script.count("unset exit\n"), 2)
 
     def test_comment_does_not_contain_command_separator(self):
-        self.assertNotIn(";", kit.batch())
+        self.assertNotIn(";", luac_batch())
 
     def test_executable_prefix_is_configurable(self):
-        script = kit.batch("15:")
+        script = luac_batch("15:")
         self.assertNotIn("20:", script)
         self.assertIn("15:luatest -E -v test.lua prepare", script)
         self.assertIn("15:luactest -v", script)
-        self.assertIn("\nluactest -v\n", kit.batch(""))
+        self.assertIn("\nluactest -v\n", luac_batch(""))
 
     def test_prefix_cannot_inject_shell_commands(self):
         for prefix in ("20:;exit", "20:\necho", "20", "arbitrary:"):
-            with self.subTest(prefix=prefix), self.assertRaises(ValueError):
-                kit.batch(prefix)
+            with self.subTest(prefix=prefix), self.assertRaises(BuildError):
+                luac_batch(prefix)
 
     @unittest.skipUnless(os.environ.get("TEST_LUA"), "set TEST_LUA for IIgs probe fault injection")
     def test_missing_stages_and_unrelated_errors_cannot_pass(self):
-        parent = ROOT / "build/diagnostics"
+        parent = ROOT / "build/test-runs"
         parent.mkdir(parents=True, exist_ok=True)
         with tempfile.TemporaryDirectory(dir=parent) as temp:
             stage = Path(temp)

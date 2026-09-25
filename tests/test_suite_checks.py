@@ -1,5 +1,4 @@
 """Regression contracts for the repeatable suite, including misleading logs."""
-import importlib.util
 import os
 from pathlib import Path
 import subprocess
@@ -9,19 +8,17 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
-spec = importlib.util.spec_from_file_location("suite_tool", ROOT / "tools/test-suite.py")
-suite = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(suite)
+from iigsbuild import contracts, suite  # noqa: E402
 
 
 class SuiteChecks(unittest.TestCase):
     def setUp(self):
-        self.data = suite.manifest()
+        self.data = contracts.suite_manifest()
         self.good = ("SUITE PASS hwsmoke\nSUITE PASS numconv WITH SKIPS\n"
                      "SUITE COMPLETE group=smoke passed=2 failed=0 with_skips=1\n")
 
     def check(self, text):
-        return suite.validate_suite(text, "smoke", self.data)
+        return contracts.validate_suite(text, "smoke", self.data["groups"])
 
     def test_success_retains_partial_coverage(self):
         self.assertEqual(self.check(self.good)["status"], "passed with skips")
@@ -70,12 +67,12 @@ class SuiteChecks(unittest.TestCase):
         reasons = {"printed-failure": "SUITE FAIL hwsmoke: FAIL injected",
                    "no-marker": "SUITE FAIL hwsmoke: missing completion marker",
                    "error-after-marker": "hwsmoke.lua:1: injected"}
-        scratch = ROOT / "build/suites"
+        scratch = ROOT / "build/test-runs"
         scratch.mkdir(parents=True, exist_ok=True)
         for name, source in cases.items():
             # GoldenGate cannot resolve the macOS system-temp alias reliably.
             with self.subTest(name=name), tempfile.TemporaryDirectory(dir=scratch) as temp:
-                stage, _ = suite.prepare(Path(temp), Path(os.environ["TEST_LUA"]), self.data)
+                stage = suite.prepare(Path(temp), Path(os.environ["TEST_LUA"]), self.data)
                 (stage / "hwsmoke.lua").write_text(source)
                 result = subprocess.run([os.environ.get("IIX", "iix"), "--memcheck",
                                          str(stage / "luatest"), "-E", "test.lua", "smoke"],

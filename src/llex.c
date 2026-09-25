@@ -26,6 +26,7 @@
 #include "lstring.h"
 #include "ltable.h"
 #include "lzio.h"
+#include "parseconf.h"
 
 #ifdef LUA_USE_IIGS
 #pragma noroot

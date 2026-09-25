@@ -1,0 +1,237 @@
+{
+  "schema": "lua-iigs-test-report/1",
+  "utc": "2026-09-24T23:20:24+00:00",
+  "environment": "GoldenGate emulator with --memcheck; not hardware",
+  "emulator": {
+    "iix": "iix version 2.1.0",
+    "iix_sha256": "7212b18a03adefa8743419e21c6a8b76c6d6b2cb6f26b8447af75ff5eb438eff"
+  },
+  "subject": {
+    "kind": "identified",
+    "build_id": "63eca55c48e5",
+    "build_dir": "63eca55c48e5-20260924T231837Z",
+    "build_manifest_sha256": "47d70a1b247edecd6e159a27fb71738cb4c34e237f373421ed4d446f7998fa16",
+    "executables_sha256": {
+      "luatrace": "0af1fa9ef6a509c4e0908b6dbe526570753d4f22fd20edfbfabbc6d851f8a5fa"
+    }
+  },
+  "test_identity": "ccd763851463",
+  "test_inputs_sha256": {
+    "bridge.lua": "dc47d563f8ec3d85853347d02620f0f85afab4d37d81836fa55f8b0ae4006eac",
+    "tests/all.lua": "33d98c33faa8da0c433e9234d55a7c626cf169c14f28af2a4c626acb3e60db2c",
+    "tests/allocfail.c": "0b4d2974d1c4d8040c117e84bf081c0fa6e27c21b237d3cffd97099eb2c1876a",
+    "tests/api.lua": "19360fbef336458633883316ab226051dc39a0198d14741efed30cba8698a598",
+    "tests/attrib.lua": "1902a272afe3fbbe0b06907c84cfa4b14c5584b7ae8669aacb93d214187fa79a",
+    "tests/big.lua": "e8714b7f0274f0159a5e6a625fa7aded4779ba6b0a8cc0fd43fd9029ee7dbf29",
+    "tests/bigio.lua": "aebc920857ec84ae5f529bd752594543fd2c1aad6c550a8e6bf6a2a6cfefb668",
+    "tests/bitwise.lua": "d918d3030f85a6debca13c0a7e5e4e4931b43e53d61843970011a51a125537d4",
+    "tests/bufprobe.lua": "2a3e0290bcdb6545262aa6d6df43943ea0f2d356b6207b80a63236620656e9c5",
+    "tests/bwcoercion.lua": "73f7ae0e1295c4500e1d76a2bbebecea9b5298247e2d8ea1a29432cdfacc0232",
+    "tests/bytefile.lua": "f6a13d6c104176405747ca90dda8c244e939c755e7f03a22ecb473daaa888868",
+    "tests/calls.lua": "8fefaef3890a053a5ce022920aff9acb15bec6b352c28621b0eb2bdd3fc9c14a",
+    "tests/closure.lua": "c3555fe11899dc40e1c75eb14a8230f025c3a4f592fe5fb5decb868b90774acf",
+    "tests/cobeacon.lua": "c06065b8919cd65e21eb7029183f9228a523e10a13913b5ad1da2fd6cf9c0e25",
+    "tests/cobisect.lua": "5018d08dcf7c804fce2771864ae8284daa407d7fbff6cf5bd5fb6b234a2eb8e0",
+    "tests/code.lua": "2ed2b5a4aef2aa0470bbd1b13c613e2ab7f0ec9ba24cf38118ec6ad99c6a3412",
+    "tests/compact.json": "b07f236b29575286a0b438343aae16fde39b165211cdd4da5219600c7eda7f3e",
+    "tests/constructs.lua": "0f33846ef2b263f45409171aa791b5485c41334e840babcc61e3dc2009fc4bde",
+    "tests/coroutine.lua": "0c825e091e0b6f12b3d9b069664f5636b09eb39823b9c794b207171e3bbced92",
+    "tests/cstack.lua": "626adc09f79218d3265c57cae83b54ececd693c77f84b09cf28e9a016c63abce",
+    "tests/db.lua": "2e5eaf2e36d57bcb4c03a4823659f0cd86cd706333d878a336870daca8c68a8e",
+    "tests/errors.lua": "27ab58edcda2fb4d6e0c1e82f673b34d86a576cf704a18cc914614dbcc29db77",
+    "tests/events.lua": "b847a6643d8e52cd7a23b0fae0898d746f378514186b3df8d21cfdcccbd666d3",
+    "tests/filelife.lua": "7de44c02a712b8ad8087b9487f9345e366cad9a662d980ba9a4f8cca4b9d880f",
+    "tests/files.lua": "40191c0067110e3d2ee1949cb82f33a2980bf409849b04231d8b284d668ddf01",
+    "tests/gc.lua": "b058109b4c03a72ca33b16806e028dce836e53948f9ca8abb15f3d8c4fdf3424",
+    "tests/gengc.lua": "6c55430a9ec8323441b10434f41621807b3c0e2a6b06375a34ca870ef4b8d535",
+    "tests/goto.lua": "a082e103d195f097f9c38b518eca90d7142d3b5c8eb269a3325bb927ef164c77",
+    "tests/heavy.lua": "519bb3f13bb516185b4102a53d4a4d60e5537cd94ebc2363fa276eee0b0947f0",
+    "tests/hookyield.lua": "bd304940c7c056c9c334876b1f6cb8aeeff5397306afaeb180972b728fb4f885",
+    "tests/hostcheck.lua": "544b230e3bc15c66a8171be1fa4671776d9a655fa2920a4f1454a80c8f1f1c51",
+    "tests/hwdiag.lua": "a6388826383062abc3c27217cfe409538855a779aaa0218f369d0dd8afcbe0e7",
+    "tests/hwdiag2.lua": "c287c4beaab34675194758cf540bb972ed6cf3a93ede65faffec3b2f795b0954",
+    "tests/hwsmoke.lua": "a67e43fdd51285e68483cff99d7ffddad2c6de347cae3373a65245d63924a7c3",
+    "tests/hwtest.lua": "4340d5f5266d25f64677fcf0d6ad994bb24d8881a761a9f0809c6f0b9415f61b",
+    "tests/iigshost.c": "52445774b95e0b87e68a0fa48df7bf62e9325e0e6b7f33d37139b7daf71a188e",
+    "tests/ioprobe.lua": "6669e9184e85da1705919fba819972a4df9a96f6181d7769f05422f90ea0bc14",
+    "tests/largefile.lua": "c8210906e750ff8fc7903c9effc3baa04c1e38a06db26ade59ce9bcde272ab6c",
+    "tests/literals.lua": "51c324df341e5e37634846e5db35b3eac6a5062fb98da2023e08d295e3d09058",
+    "tests/locals.lua": "89ff0912073780ca8068d16a006377825873bdd77c1a91a24317a1ea1cd2dbad",
+    "tests/luacprobe.lua": "1646715c3765c35be9d64de32e824b693480ab47d4c8edac0d565a33048f54f7",
+    "tests/main.lua": "09357b4cee0e7ffc9c18f9a90cb30d77d9459431d66d13b2f83c75c74874a3cc",
+    "tests/math.lua": "9692250bc2f8137d67dd9fa3f8f6f652ce7bfd424e5c9326eb8855fe4a3f2d0e",
+    "tests/mmalloc.lua": "32b21d537244cdfa01a76456260801b0e51c72868f3fdc0d79a962900aa35b58",
+    "tests/nextvar.lua": "035b70531b3e33e318e5f75c0434608164a2d4dd67efb11b22529dc745ffa425",
+    "tests/nosource.lua": "4942b75d1103c63da0da1d07e32bbaa9005c6934653af690c07e6f328120ae69",
+    "tests/numconv.lua": "ded839d8a8477dcc86ff0929a42b1d02f9239ab9be3c395d22fb34cc650c1060",
+    "tests/pm.lua": "d812341508381ec8f0f74c366508f17541193e82c15ad7ac59cf8236c41ccac7",
+    "tests/sieve.lua": "edc19160c2ee359af6a8178d717e4d15bc2afe520671562beed37e82efdd746e",
+    "tests/sort.lua": "ca33064406879e33404ffda509ffd454fb9b0f90e5dfff36fb63a2f4b8b803b2",
+    "tests/stackcal.lua": "a00b4312e4d0b16ab4644ae36f287ce8c7114266146635f87b9e42d72f07cd6a",
+    "tests/strings.lua": "9ced13317e2bb98345f36e61db734eb1223d1596647677df9c3f672b8506d5b4",
+    "tests/suite.json": "1e84c2f23ec688599bd7b640d76ef2a24ff11c5f9f26ac25f2a4c3ac41343d13",
+    "tests/suite.lua": "cc671b42c266172377ee23c5e3f29700196961c072acb8d6c9580475501d40a9",
+    "tests/tableovf.lua": "272e07bcd8298f78fc4c055b639faca9ebc53413466eb2355b62591386727726",
+    "tests/tpack.lua": "30a8ef71dd4f78cfa3b2a60bbc7c7a4478e305a533c00aa50351500da32195d5",
+    "tests/tracegc.lua": "cab25cde8d0c3c944c583383ad9b1c10e1d4f023f547f84239421bcc567edd55",
+    "tests/utf8.lua": "c05438e35e26c11a73be87cd286dc149472284f210837c98d32c3735956fd3ae",
+    "tests/vararg.lua": "d2285d422f084c52763cf2777c49178e06d9cd7dff05e9f64481bb22709d7f83",
+    "tests/verybig.lua": "41b6ebe34c9bba0834e290fd32353052c1b4010816e0b541d491e76c6f1b5982",
+    "tools/iigsbuild/contracts.py": "5a67b9789bc2d79b9cacbe0716fa385a9a475310d68bdbeaf59b5a37013e5a5b",
+    "tools/iigsbuild/runtests.py": "d7ea46733f6b81bb45af073c52577e0e8142d8f57121ea1a54198f3c00d77b78"
+  },
+  "checks": [
+    {
+      "group": "trace",
+      "name": "hwsmoke",
+      "subject": "luatrace",
+      "status": "passed",
+      "skips": [],
+      "seconds": 0.2
+    },
+    {
+      "group": "trace",
+      "name": "sieve",
+      "subject": "luatrace",
+      "status": "passed",
+      "skips": [],
+      "seconds": 0.0
+    },
+    {
+      "group": "trace",
+      "name": "coroutine",
+      "subject": "luatrace",
+      "status": "passed with skips",
+      "skips": [
+        ">>> testC not active: skipping coroutine API tests <<<",
+        ">>> testC not active: skipping coroutine API tests <<<"
+      ],
+      "seconds": 0.3
+    },
+    {
+      "group": "trace",
+      "name": "cobeacon",
+      "subject": "luatrace",
+      "status": "passed with skips",
+      "skips": [
+        ">>> testC not active: skipping coroutine API tests <<<",
+        ">>> testC not active: skipping coroutine API tests <<<",
+        "BEACON DONE (C API harness skipped)"
+      ],
+      "seconds": 0.3
+    },
+    {
+      "group": "trace",
+      "name": "cstack",
+      "subject": "luatrace",
+      "status": "passed",
+      "skips": [],
+      "seconds": 0.7
+    },
+    {
+      "group": "trace",
+      "name": "pm",
+      "subject": "luatrace",
+      "status": "passed",
+      "skips": [],
+      "seconds": 0.4
+    },
+    {
+      "group": "trace",
+      "name": "hwdiag2",
+      "subject": "luatrace",
+      "status": "passed",
+      "skips": [],
+      "seconds": 5.0
+    },
+    {
+      "group": "trace",
+      "name": "hwtest",
+      "subject": "luatrace",
+      "status": "passed with skips",
+      "skips": [
+        "SKIP Lua hook cannot yield; requires the C-hook host test",
+        "=== 19 passed, 0 failed, 1 skipped ==="
+      ],
+      "seconds": 2.5
+    },
+    {
+      "group": "trace",
+      "name": "hookyield",
+      "subject": "luatrace",
+      "status": "passed",
+      "skips": [],
+      "seconds": 0.3
+    },
+    {
+      "group": "trace",
+      "name": "mmalloc",
+      "subject": "luatrace",
+      "status": "passed",
+      "skips": [],
+      "seconds": 0.1
+    },
+    {
+      "group": "trace",
+      "name": "tableovf",
+      "subject": "luatrace",
+      "status": "passed",
+      "skips": [],
+      "seconds": 8.6
+    },
+    {
+      "group": "trace",
+      "name": "errors",
+      "subject": "luatrace",
+      "status": "passed with skips",
+      "skips": [
+        ">>> testC not active: skipping memory message test <<<"
+      ],
+      "seconds": 3.5
+    },
+    {
+      "group": "trace",
+      "name": "events",
+      "subject": "luatrace",
+      "status": "passed with skips",
+      "skips": [
+        ">>> testC not active: skipping tests for userdata <<<"
+      ],
+      "seconds": 0.2
+    },
+    {
+      "group": "trace",
+      "name": "math",
+      "subject": "luatrace",
+      "status": "passed with skips",
+      "skips": [
+        ">>> IIgs: skipping platform-dependent 0^0 comparison <<<"
+      ],
+      "seconds": 10.3
+    },
+    {
+      "group": "trace",
+      "name": "verybig",
+      "subject": "luatrace",
+      "status": "passed with skips",
+      "skips": [
+        "(>64k programs: skipped on 16-bit int)"
+      ],
+      "seconds": 0.0
+    },
+    {
+      "group": "trace",
+      "name": "numconv",
+      "subject": "luatrace",
+      "status": "passed",
+      "skips": [],
+      "seconds": 0.0
+    }
+  ],
+  "summary": {
+    "total": 16,
+    "failed": 0,
+    "with_skips": 7
+  },
+  "hardware_result": "not established by local tests"
+}

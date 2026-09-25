@@ -40,6 +40,13 @@
     "stress": [
       "tableovf"
     ],
+    "trace": [
+      "hwsmoke",
+      "sieve",
+      "cstack",
+      "mmalloc",
+      "cobeacon"
+    ],
     "full": [
       "hwsmoke",
       "numconv",

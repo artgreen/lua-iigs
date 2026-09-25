@@ -1029,12 +1029,18 @@ static void f_parser (lua_State *L, void *ud) {
     checkmode(L, p->mode, "binary");
     cl = luaU_undump(L, p->z, p->name);
   }
-#if defined(BUILD_IS_LUAC) || !defined(LUA_NO_PARSER)
   else {
     checkmode(L, p->mode, "text");
+#if defined(BUILD_IS_LUAC) || !defined(LUA_NO_PARSER)
     cl = luaY_parser(L, p->z, &p->buff, &p->dyd, p->name, c);
-  }
+#else
+    /* parser-free build: reject text before 'cl' could be used; the
+       error is an ordinary, catchable syntax error */
+    luaO_pushfstring(L,
+       "attempt to load a text chunk (parser not included in this build)");
+    luaD_throw(L, LUA_ERRSYNTAX);
 #endif
+  }
   lua_assert(cl->nupvalues == cl->p->sizeupvalues);
   luaF_initupvals(L, cl);
 }

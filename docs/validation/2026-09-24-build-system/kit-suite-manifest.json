@@ -1,0 +1,366 @@
+{
+  "schema": "lua-iigs-kit/1",
+  "kit": "suite",
+  "utc": "2026-09-24T23:21:11+00:00",
+  "input": {
+    "kind": "identified build",
+    "build_id": "63eca55c48e5",
+    "build_dir": "63eca55c48e5-20260924T231837Z",
+    "build_manifest_sha256": "47d70a1b247edecd6e159a27fb71738cb4c34e237f373421ed4d446f7998fa16"
+  },
+  "shell_prefix": "20:",
+  "run_command": "20:test",
+  "executables_sha256": {
+    "LUATEST": "2bd98bff0bd818226543a8096a37c0b107a2383b304c9523def47e00882ee1d0"
+  },
+  "kit_identity": "af8ba75c3241",
+  "batch": [
+    "* IIgs regression suite group full. Existing executable, no rebuild.",
+    "set exit on",
+    "20:luatest -E -v test.lua full",
+    "exit 0"
+  ],
+  "preflight": {
+    "environment": "GoldenGate with --memcheck, commands launched separately; not ORCA batch execution, not hardware",
+    "steps": [
+      {
+        "step": "suite",
+        "exit_code": 0,
+        "result": "passed",
+        "status": "passed with skips",
+        "tests": [
+          {
+            "name": "hwsmoke",
+            "status": "passed"
+          },
+          {
+            "name": "numconv",
+            "status": "passed"
+          },
+          {
+            "name": "math",
+            "status": "passed with skips"
+          },
+          {
+            "name": "sieve",
+            "status": "passed"
+          },
+          {
+            "name": "coroutine",
+            "status": "passed with skips"
+          },
+          {
+            "name": "cobeacon",
+            "status": "passed with skips"
+          },
+          {
+            "name": "cstack",
+            "status": "passed"
+          },
+          {
+            "name": "pm",
+            "status": "passed"
+          },
+          {
+            "name": "hwdiag2",
+            "status": "passed"
+          },
+          {
+            "name": "hwtest",
+            "status": "passed with skips"
+          },
+          {
+            "name": "hookyield",
+            "status": "passed"
+          },
+          {
+            "name": "mmalloc",
+            "status": "passed"
+          },
+          {
+            "name": "errors",
+            "status": "passed with skips"
+          },
+          {
+            "name": "events",
+            "status": "passed with skips"
+          },
+          {
+            "name": "verybig",
+            "status": "passed with skips"
+          }
+        ],
+        "skip_evidence": [
+          ">>> IIgs: skipping platform-dependent 0^0 comparison <<<",
+          " >>> testC not active: skipping coroutine API tests <<<",
+          " >>> testC not active: skipping coroutine API tests <<<",
+          " >>> testC not active: skipping coroutine API tests <<<",
+          " >>> testC not active: skipping coroutine API tests <<<",
+          "BEACON DONE (C API harness skipped)",
+          "  SKIP Lua hook cannot yield; requires the C-hook host test",
+          "=== 19 passed, 0 failed, 1 skipped ===",
+          " >>> testC not active: skipping memory message test <<<",
+          " >>> testC not active: skipping tests for userdata <<<",
+          "(>64k programs: skipped on 16-bit int)"
+        ]
+      }
+    ]
+  },
+  "container": {
+    "image": {
+      "file": "TEST.po",
+      "volume": "LUASUITE",
+      "sha256": "caf8cc9d672bf5106ecd9acf2a696d862b152146d6be21ea907cc5c6b0f518c7",
+      "size": 819200
+    },
+    "archive": {
+      "file": "TEST.SHK",
+      "sha256": "4026190f1948b7436319320386e009c7bb4e910e5d14a039e23f161fbd4522f0",
+      "size": 333740
+    },
+    "members": [
+      {
+        "name": "LUATEST",
+        "kind": "EXE",
+        "file_type": "$B5",
+        "aux_type": "$0000",
+        "size": 362344,
+        "sha256": "2bd98bff0bd818226543a8096a37c0b107a2383b304c9523def47e00882ee1d0"
+      },
+      {
+        "name": "TEST",
+        "kind": "EXEC",
+        "file_type": "$B0",
+        "aux_type": "$0006",
+        "size": 119,
+        "sha256": "3f4fbbe65b939820bc2f2c1d9f848d5cf819c45113970848e855997bd1e4c5e3"
+      },
+      {
+        "name": "TEST.LUA",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 3998,
+        "sha256": "05cc91eb7951b0dcddc69304877f47eabc3a5e32da2ac384056b2feb9bdaace8"
+      },
+      {
+        "name": "SUITECFG.LUA",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 2309,
+        "sha256": "078a9d6ce2897c4c47830a6940d7c6b40235b53763cd4f1ec26297256f4a9361"
+      },
+      {
+        "name": "HWSMOKE.LUA",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 1206,
+        "sha256": "12e1ed0b4797273678ab4f82f72b42ed6ccab0cc5d98e6ed0362069e0e4abc70"
+      },
+      {
+        "name": "NUMCONV.LUA",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 1816,
+        "sha256": "9604e08c8f276574fb2fc5cfdeba052a50e92be775c7ea26f04ad6fec3d57e29"
+      },
+      {
+        "name": "MATH.LUA",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 30321,
+        "sha256": "130df2dde302323aedaa3ed285e24b1c16a165e7f7b5fa024bb19e4e934ec49e"
+      },
+      {
+        "name": "SIEVE.LUA",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 1575,
+        "sha256": "39eada785ba292d854fc5f87c23ce6b9c015ed5008ca9ac6fb8d113b8b17149f"
+      },
+      {
+        "name": "COROUTINE.LUA",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 32116,
+        "sha256": "9df683959ee80babd651f295027a2920513aa89728134b626e4286c75cb079d7"
+      },
+      {
+        "name": "COBEACON.LUA",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 34012,
+        "sha256": "9b9b5dc032b75be41b1d96c3b760a578be0411f77093c68a6416a6d8e27c2a66"
+      },
+      {
+        "name": "CSTACK.LUA",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 5393,
+        "sha256": "44bc316fbd4f01d62953c0c5cc61acb5992e5b01be1cbc0b59c94c0dd9390dc1"
+      },
+      {
+        "name": "PM.LUA",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 13706,
+        "sha256": "e1771ac7f9cdea33b47a9d3f34d8ab6a2910ad0f39c74dde82b1cde629ae4810"
+      },
+      {
+        "name": "HWDIAG2.LUA",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 5496,
+        "sha256": "e55e7fb1341c082d30c23a510380adc02cc03e96ec23dc240242701de93ed5b6"
+      },
+      {
+        "name": "HWTEST.LUA",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 7586,
+        "sha256": "3303d91813611df59dc52cdae6d0a80c63a39df97259f5eca2babc352a6dcf20"
+      },
+      {
+        "name": "HOOKYIELD.LUA",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 1088,
+        "sha256": "8c4bb050aa1cad0b2c71d76dbabafa5e3d0e0a3574bb70b8f7f039f5d689b605"
+      },
+      {
+        "name": "MMALLOC.LUA",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 916,
+        "sha256": "596c1f1de2b38f2ab588eaeb44168b2a7983d0cc1bce17f7c6e2999272b5fb29"
+      },
+      {
+        "name": "ERRORS.LUA",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 19594,
+        "sha256": "c66eddd41b0271360a1b00788de31344628a1b571f4865a987a678ea59dc6815"
+      },
+      {
+        "name": "EVENTS.LUA",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 12672,
+        "sha256": "c634543cba674d45bf1ed330becf820b13b7cc77a4a5bbfceb4b3639bc6eb15b"
+      },
+      {
+        "name": "VERYBIG.LUA",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 4133,
+        "sha256": "081bcebd5b56c48f4e9fc32668f895dbc0fe8acb16fdc21e152a9d322a425a8b"
+      },
+      {
+        "name": "IOPROBE.LUA",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 3918,
+        "sha256": "85c8a8503c63ac32237b0ec8db92b30f8b1aac75949c0657df0181d67f7a3a04"
+      },
+      {
+        "name": "BUFPROBE.LUA",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 2653,
+        "sha256": "7e922399ccf237d88a0ef38b355bff673e5aec55e4f0d9c55bce63aeef554c04"
+      },
+      {
+        "name": "FILES.LUA",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 27163,
+        "sha256": "bf6c4720f6bd2daa97c19f93f213b7659695342495989a8f0658a13626bae181"
+      },
+      {
+        "name": "LARGEFILE.LUA",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 5132,
+        "sha256": "4b512dfe827acb2a64989e520ae5bb15928a72256a11cb0b9e49bd7d5488e4db"
+      },
+      {
+        "name": "BIGIO.LUA",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 2791,
+        "sha256": "70e3dd95aa42674d43455828fb9e6c6b3a92ed296fd333c1a557f468a4113c81"
+      },
+      {
+        "name": "BYTEFILE.LUA",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 3464,
+        "sha256": "8f9b8dd4a7966da3892e6a2bb07f2b34b042987ee8b9245f9780ff2376f676e7"
+      },
+      {
+        "name": "FILELIFE.LUA",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 3681,
+        "sha256": "ec2bbc747d59ff2f5dc93ed6bf1f2b10d6426762928a37c28f4cf28bf7dd9117"
+      },
+      {
+        "name": "TABLEOVF.LUA",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 638,
+        "sha256": "b8de6d1d5c53fed1f737b6c87886bedc5a7f5723b8a8731f3b6fe54eb0b9dfd7"
+      },
+      {
+        "name": "TRACEGC.LUA",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 680,
+        "sha256": "97253251b340d4e876af8b3155bfa5a1c15d993a0f79ccf079fde7a6aa0b4551"
+      },
+      {
+        "name": "README.TXT",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 711,
+        "sha256": "325f5e54df99bc45a1ba34c1a38e9c991c13fd6d0dec4a023fde717ae8b9c2aa"
+      },
+      {
+        "name": "LICENSE.TXT",
+        "kind": "TXT",
+        "file_type": "$04",
+        "aux_type": "$0000",
+        "size": 1066,
+        "sha256": "23623178b1c445a80c9aa254f61341315dd000714c7b5e56f08ed0be84e0442b"
+      }
+    ],
+    "verification": "every member extracted (acx for .po, nulib2 for .SHK) and compared byte-for-byte; type/aux read back with cp2; exact member set"
+  },
+  "hardware_result": "pending: record the observed banner, final lines, and shell return separately"
+}

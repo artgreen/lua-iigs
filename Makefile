@@ -1,115 +1,86 @@
+# Lua 5.4.6 for the Apple IIgs: public build interface.
+#
+# This file only maps targets and options onto the shared Python tooling in
+# tools/iigsbuild (one implementation of tool discovery, builds, tests,
+# packaging, and provenance). Run 'make help' for commands and options.
+# Machine-specific settings go in the untracked local.mk (see local.mk.example).
 
-# ORCA/C 2.2.x required; default to the repo-local SDK (see src/Makefile)
-ifneq (,$(wildcard $(CURDIR)/.orca-sdk-2.2.1))
-export GOLDEN_GATE ?= $(CURDIR)/.orca-sdk-2.2.1
-endif
+-include local.mk
 
-# apple commander
-AC := ac
-# nulib2 for shrinkit
-NULIB := nulib2
+PYTHON ?= python3
+IIGS = $(PYTHON) tools/iigs.py
 
-# disk image to target
-XFER := axfer.po
-EXE_DISK := luags.po
-LIB_DISK := lualib.po
-EXE_VOL := LUAGS
-LIB_VOL := LUALIB
-# lua .h files for lua.lib
-LUA_INC := luainc.shk
-SHK_FILE := luags.shk
+# Tool locations and compile concurrency, from local.mk or the command line.
+export GOLDEN_GATE IIX ACX CP2 NULIB2 JOBS
 
-# directory to hold binaries
-EXE_DIR := build
-SRC_DIR := src
-DSK_DIR := images
+# One orchestrator process per goal, run in order. The tooling also locks
+# each build directory, so 'make -j' or two terminals cannot interleave
+# ORCA runs. Compile concurrency is controlled by JOBS, not by make -j.
+.NOTPARALLEL:
+.DEFAULT_GOAL := all
 
-# compiler flags
-CFLAGS := -I -P -D +O
+opt = $(if $(strip $($(1))),$(2) "$(strip $($(1)))")
 
-.PHONY: lua liblua luac all testdisk luadisk clean cleanluacout cleandisk minitest bridgedisk release cleanrelease disks
+BUILD_TARGETS := all lua lua-small luac luatrace liblua liblua-small \
+                 hosts iigshost allocfail bridge mmtest memfree everything
+LEGACY_REMOVED := release disks luadisk luacdisk testdisk bridgedisk bridgesrcdisk \
+                  cleandisk cleanrelease minitest cleanluacout luac.out libluac
 
-bridge: test.a testiface.a testbridge.a liblua
-	iix link test testiface testbridge $(SRC_DIR)/lvm $(SRC_DIR)/lua.lib KEEP=$@
-test.a: test.c testiface.h src/lua.h src/luaconf.h
-testiface.a: testiface.c testiface.h src/lua.h src/luaconf.h
-testbridge.a: testbridge.c testiface.h src/lua.h src/luaconf.h
+.PHONY: help doctor $(BUILD_TARGETS) test test-build suite identify package \
+        hardware-suite stage kit sizes clean clean-legacy verify-concurrency $(LEGACY_REMOVED)
 
-lua: | $(EXE_DIR)
-	+$(MAKE) -C src lua
-liblua: | $(EXE_DIR)
-	+$(MAKE) -C src liblua
-luac: | $(EXE_DIR)
-	+$(MAKE) -C src luac
+help:
+	@$(IIGS) help
+
+doctor:
+	@$(IIGS) doctor
+
+$(BUILD_TARGETS):
+	@$(IIGS) build $@
+
+test:
+	@$(IIGS) test $(call opt,BUILD,--build) $(call opt,CONFIG,--config) \
+	  $(if $(strip $(CHECKS)),--checks $(CHECKS)) $(call opt,TIMEOUT,--timeout)
+
+test-build:
+	@$(IIGS) test-build
+
+suite:
+	@$(IIGS) suite $(call opt,BUILD,--build) $(call opt,CONFIG,--config) \
+	  $(call opt,EXE,--exe) $(call opt,GROUP,--group) $(call opt,TIMEOUT,--timeout)
+
+identify:
+	@$(IIGS) identify $(call opt,BUILD_LABEL,--label) \
+	  $(if $(strip $(CONFIGS)),--configs $(CONFIGS)) $(call opt,COMPARE_RELEASE,--compare-release)
+
+package:
+	@$(IIGS) package $(call opt,BUILD,--build) \
+	  $(if $(strip $(KINDS)),--kinds $(KINDS)) $(call opt,REPORT,--report)
+
+hardware-suite:
+	@$(IIGS) hardware-suite $(call opt,BUILD,--build) $(call opt,RELEASE,--release) \
+	  $(call opt,KIT,--kit) $(call opt,GROUP,--group) $(call opt,PREFIX,--prefix) \
+	  $(call opt,PREFLIGHT,--preflight) $(if $(strip $(EXES)),--exe $(EXES))
+
+stage:
+	@$(IIGS) stage $(call opt,FROM,--from) $(call opt,DEST,--dest) $(if $(strip $(REPLACE)),--replace)
+
+kit:
+	@$(IIGS) kit $(call opt,BUILD_LABEL,--label)
+
+sizes:
+	@$(IIGS) sizes $(call opt,BUILD,--build)
+
+verify-concurrency:
+	@$(IIGS) verify-concurrency
+
 clean:
-	+$(MAKE) -C src clean
-cleanluacout:
-	@rm -f -- luac.out
-luac.out:
-	iix $(EXE_DIR)/luac test.lua
-minitest: cleanluacout luac.out
-	iix $(EXE_DIR)/lua poker.lua
-bridgedisk: cleandisk bridge
-	<bridge $(AC) -p $(XFER) bridge exe
-	<bridge.out $(AC) -p $(XFER) bridge.out bin
-	<bridge.lua $(AC) -p $(XFER) bridge.lua txt
-	$(AC) -l $(XFER)
-bridgesrcdisk: lua cleandisk bridge
-	<$(EXE_DIR)/lua.lib $(AC) -p $(XFER) lua.lib lib
-	<$(SRC_DIR)/lvm.a $(AC) -p $(XFER) lvm.a obj
-	<luainc.shk $(AC) -p $(XFER) luainc.shk shk
-	<testbridge.c $(AC) -p $(XFER) testbridge.cc src
-	<test.c $(AC) -p $(XFER) test.cc src
-	<testiface.c $(AC) -p $(XFER) testiface.cc src
-	<testiface.h $(AC) -p $(XFER) testiface.h src
-	<bridge.out $(AC) -p $(XFER) bridge.out bin
-	<bridge.lua $(AC) -p $(XFER) bridge.lua txt
-	$(AC) -l $(XFER)
-testdisk: cleanluacout luac luadisk luac.out | $(DSK_DIR)
-	@<luac.out $(AC) -p $(DSK_DIR)/$(XFER) luac.out bin
-	@<test.lua $(AC) -p $(DSK_DIR)/$(XFER) test.lua txt
-luadisk: cleandisk lua | $(DSK_DIR)
-	@<$(EXE_DIR)/lua $(AC) -p $(DSK_DIR)/$(XFER) lua exe
-	@<examples/blackjack.lua $(AC) -ptx $(DSK_DIR)/$(XFER) blackjack.lua
-	@<examples/replcli.lua $(AC) -ptx $(DSK_DIR)/$(XFER) replcli.lua
-	@<examples/more.lua $(AC) -ptx $(DSK_DIR)/$(XFER) more.lua
-	@$(AC) -l $(DSK_DIR)/$(XFER)
-luacdisk: cleandisk luac | $(DSK_DIR)
-	@<$(EXE_DIR)/luac $(AC) -p $(DSK_DIR)/$(XFER) luac exe
-	@$(AC) -l $(DSK_DIR)/$(XFER)
-cleanrelease:
-	@rm -f -- $(EXE_DISK) $(LIB_DISK) $(DSK_DIR)/$(XFER) $(EXE_DIR)/* $(DSK_DIR)/* $(SHK_FILE)
-release: cleanrelease clean $(EXE_DISK) $(LIB_DISK) | $(DSK_DIR)
-	$(NULIB) -a $(DSK_DIR)/$(SHK_FILE) $(EXE_DIR)/lua $(EXE_DIR)/luac test.lua
-disks: $(EXE_DISK) $(LIB_DISK)
-$(EXE_DISK): luac lua | $(DSK_DIR)
-	@$(AC) -pro800 $(DSK_DIR)/$(EXE_DISK) LUAGS
-	@<$(EXE_DIR)/lua $(AC) -p $(DSK_DIR)/$(EXE_DISK) lua exe
-	@<$(EXE_DIR)/luac $(AC) -p $(DSK_DIR)/$(EXE_DISK) luac exe
-	@<test.lua $(AC) -ptx $(DSK_DIR)/$(EXE_DISK) test.lua
-	@<examples/blackjack.lua $(AC) -ptx $(DSK_DIR)/$(EXE_DISK) blackjack.lua
-	@<examples/replcli.lua $(AC) -ptx $(DSK_DIR)/$(EXE_DISK) replcli.lua
-	@<examples/more.lua $(AC) -ptx $(DSK_DIR)/$(EXE_DISK) more.lua
-	@$(AC) -l $(DSK_DIR)/$(EXE_DISK)
-$(LIB_DISK): liblua $(EXE_DIR)/lua.lib | $(DSK_DIR)
-	@$(AC) -pro800 $(DSK_DIR)/$(LIB_DISK) LUALIB
-	@<$(EXE_DIR)/lua.lib $(AC) -p $(DSK_DIR)/$(LIB_DISK) lua.lib lib
-	@<luainc.shk $(AC) -p $(DSK_DIR)/$(LIB_DISK) luainc.shk shk
-	@$(AC) -l $(DSK_DIR)/$(LIB_DISK)
-cleandisk:
-	@$(AC) -pro800 $(DSK_DIR)/$(XFER) XFER
-$(EXE_DIR):
-	@mkdir -p $@
-$(DSK_DIR):
-	@mkdir -p $@
+	@$(IIGS) clean $(if $(strip $(DRY_RUN)),--dry-run)
 
-%.a:
-	iix compile $(CFLAGS) $<
+clean-legacy:
+	@$(IIGS) clean-legacy $(if $(strip $(DRY_RUN)),--dry-run)
 
-# Standalone hardware probes (memfree requires the real Memory Manager).
-mmtest: mmtest.a
-	iix link mmtest KEEP=$@
-memfree: memfree.a
-	iix link memfree KEEP=$@
-mmtest.a: mmtest.c
-memfree.a: memfree.c
+$(LEGACY_REMOVED):
+	@echo "make $@ was removed with the legacy in-tree/AppleCommander 'ac' workflow." >&2
+	@echo "Use make package BUILD=<id> or make hardware-suite (see make help and docs/BUILDING.md)." >&2
+	@exit 2

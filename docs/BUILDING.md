@@ -1,191 +1,432 @@
-# Building and packaging
+# Building, testing, and packaging
 
-Run the commands below from the repository root unless stated otherwise.
-The target is an ORCA-compatible IIgs shell executable. These commands run
-on the development Mac through GoldenGate, not in the IIgs shell.
+Run the commands below from the repository root on the development Mac.
+They build IIgs ORCA shell executables through GoldenGate (`iix`); nothing
+here runs on the IIgs itself. `make help` prints the command reference.
 
-## Toolchain
+`make` is the public interface. Every command calls the shared Python
+tooling in [`tools/iigsbuild/`](../tools/iigsbuild/), which is the single
+implementation of tool discovery, builds, tests, packaging, checksums,
+metadata verification, and reports.
 
-Install GoldenGate (`iix`), `make`, Python 3, and an ORCA/C 2.2.x SDK. The
-recorded hardware builds used ORCA/C 2.2.1. Packaging also requires native
-AppleCommander `acx`; optional ShrinkIt conversion uses CiderPress II `cp2`
-and independent archive verification uses `nulib2`.
+## Setup
 
-The local SDK directory `.orca-sdk-2.2.1/` is ignored by Git and is not
-provisioned by the build scripts. It must be a complete GoldenGate SDK root,
-including `Languages`, headers, and libraries. Select it explicitly:
+Requirements:
+
+| Tool | Used for | Notes |
+| --- | --- | --- |
+| GNU `make`, Python 3.9+ | everything | standard library only |
+| GoldenGate `iix` | compile, link, run under emulation | |
+| ORCA/C **2.2.x** SDK | the compiler, linker, headers, libraries | recorded builds used 2.2.1 |
+| AppleCommander `acx` | ProDOS `.po` images | only type **names** work; see [packaging](#packaging) |
+| CiderPress II `cp2` | ShrinkIt archives, metadata readback | |
+| `nulib2` | independent archive extraction | |
+
+The SDK is not in Git. The tooling looks for it in this order:
+
+1. `GOLDEN_GATE` (environment, command line, or `local.mk`);
+2. `./.orca-sdk-2.2.1` in this checkout;
+3. `.orca-sdk-2.2.1` in the primary Git worktree (so linked worktrees
+   share one SDK).
+
+It never selects the system `/Library/GoldenGate` implicitly: that install
+has carried ORCA/C 2.1.0, which cannot compile this source. `iix --sdk`
+alone does not select the compiler.
+
+Machine-specific settings belong in an untracked `local.mk`:
 
 ```sh
-export GOLDEN_GATE="$PWD/.orca-sdk-2.2.1"
-command -v iix make python3 acx
+cp local.mk.example local.mk
 ```
 
-Substitute your actual SDK location if different. The root and source
-Makefiles default to this local SDK when it exists; an explicitly set
-`GOLDEN_GATE` takes precedence. `iix --sdk` alone does not select the compiler
-root. A system installation with ORCA/C 2.1.0 is not the validated toolchain.
-
-## Recommended: isolated hardware kit
+Edit it to set `GOLDEN_GATE`, `IIX`, `ACX`, `CP2`, `NULIB2`, or `JOBS` as
+needed. Then check the setup:
 
 ```sh
-python3 tools/hardware-kit.py --plain-name lua
+make doctor
 ```
 
-To override tool locations:
+`doctor` does more than check that files exist. It compiles, links, and
+runs a probe with the selected SDK, and round-trips a tiny `.po`/`.SHK`
+with metadata readback. It also reports the compile-concurrency setting and
+any legacy generated files left in `src/`.
 
-```sh
-python3 tools/hardware-kit.py --sdk /path/to/orca-sdk --acx /path/to/acx --plain-name lua
-```
+## Commands
 
-Use `lua` for distribution. During hardware comparisons, use a distinct
-name such as `luatest` for a changed runtime. The name must start
-with a letter, contain only letters, digits, or dots, and fit 15 characters;
-`luatrace` is reserved. The default plain name is `luaplain`. For the names
-shown here, the output is:
+| Command | Result |
+| --- | --- |
+| `make` / `make all` | full Lua, LUAC, and the full embedding library |
+| `make lua` | interpreter with the source parser (configuration `lua`) |
+| `make lua-small` | compact, bytecode-only interpreter (configuration `lua-small`) |
+| `make luac` | bytecode compiler, always parser-enabled (configuration `luac`) |
+| `make luatrace` | full interpreter with Memory Manager tracing |
+| `make liblua` | full embedding library: `lua.lib`, `lvm.a`, `include/` |
+| `make liblua-small` | parser-free embedding library: `luasmall.lib`, `lvm.a`, `include/` |
+| `make hosts` | `iigshost allocfail bridge mmtest memfree` (each also a target) |
+| `make everything` | every configuration, library, and host |
+| `make test` | default local regression checks ([tests](../tests/README.md)) |
+| `make test-build` | build-system integration tests |
+| `make suite GROUP=runtime` | the reusable Lua suite, run locally |
+| `make identify` | identified build of every configuration |
+| `make package BUILD=<id>` | verified `.po`/`.SHK` packages of an identified build |
+| `make hardware-suite BUILD=<id>` | `TEST.SHK` kit for the real IIgs |
+| `make stage FROM=<dir> DEST=<dir>` | copy verified containers to the transfer share |
+| `make kit` | identify, test, then package (replaces `tools/hardware-kit.py`) |
+| `make sizes [BUILD=<id>]` | measured sizes and compact-runtime savings |
+| `make verify-concurrency` | prove parallel compiles equal serial ones |
+| `make clean` | remove disposable outputs and preserve evidence |
+| `make clean-legacy` | archive loose outputs left by the old Makefiles |
+
+Options (on the command line or in `local.mk`):
+
+| Variable | Meaning |
+| --- | --- |
+| `GOLDEN_GATE`, `IIX`, `ACX`, `CP2`, `NULIB2` | tool locations |
+| `JOBS=N` | concurrent compiler processes ([concurrency](#concurrency)) |
+| `CONFIG=` | `lua`, `lua-small`, or `luatrace` for `make test` / `make suite` |
+| `CHECKS=` | subset for `make test`: `unit targeted luac compact hosts trace` |
+| `BUILD=` | identified build: a directory, its name, or a unique ID prefix |
+| `RELEASE=` | published release directory with `RELEASE-MANIFEST.json` |
+| `EXES="lua=<path> ..."` | explicit existing executables for a hardware kit |
+| `KIT=` | `suite` (default), `lua`, `small`, `luac`, or `host` |
+| `GROUP=`, `PREFLIGHT=` | suite group for the kit, and for its local preflight (`none` skips) |
+| `PREFIX=` | ORCA executable prefix in kit batches, default `20:`; `none` for shell lookup |
+| `KINDS=`, `REPORT=` | package kinds; a test report to cite in the package manifest |
+| `BUILD_LABEL=`, `CONFIGS=`, `COMPARE_RELEASE=` | options for `make identify` |
+| `FROM=`, `DEST=`, `REPLACE=1` | options for `make stage` |
+| `PYTHON=` | interpreter to run the tooling (default `python3`) |
+
+## Configurations
+
+| Configuration | Generated `parseconf.h` | Products | Notes |
+| --- | --- | --- | --- |
+| `lua` | `BUILD_IS_LUA` | `lua`, `lua.lib`, `lvm.a`, hosts | historical default; link order unchanged |
+| `lua-small` | `BUILD_IS_LUA`, `LUA_NO_PARSER` | `luasmall`, `luasmall.lib`, `lvm.a` | `lcode`, `llex`, `lparser` neither compiled nor linked |
+| `luac` | `BUILD_IS_LUAC` | `luac` | the compiler always has the parser |
+| `luatrace` | `BUILD_IS_LUA`, `LUA_IIGS_MMTRACE` | `luatrace` | traced diagnostics build |
+
+`parseconf.h` is generated separately for each configuration, in
+`<configuration>/gen/`. It is no longer tracked in `src/`, and switching
+targets never rewrites a tracked file. `src/luaconf.h` includes it, so
+every translation unit and every embedding host sees the same parser
+selection. That includes `llex.c` and `lcode.c`, which previously did not
+include it. `luaconf.h` rejects a missing or contradictory selection.
+Identified builds add `LUA_IIGS_BUILD_ID` to the same header.
+
+Compile flags (`-I -P -D +O`), the unit list, and the link order come from
+the historical `src/Makefile`, now in
+[`configs.py`](../tools/iigsbuild/configs.py). Each link is made with
+`+S`, and the symbol table is kept as `<exe>.map`. The build checks that
+map: the parser entry points (`luaY_parser`, `luaK_code`, `luaX_next`,
+`luaX_init`) must be present in parser configurations and absent from
+`lua-small`.
+
+Measured sizes (identified build `63eca55c48e5`, default banners, 2026-09-24):
+
+| Product | Full | Compact | Saving |
+| --- | ---: | ---: | ---: |
+| interpreter | 362,344 | 309,037 | 53,307 bytes (14.7%) |
+| embedding library | 524,380 | 412,143 | 112,237 bytes (21.4%) |
+
+Executable sizes vary by a few bytes with the banner text.
+
+What the compact runtime can and cannot run is described in
+[compact runtime testing](../tests/COMPACT.md).
+
+## Build directories
+
+Development builds are incremental and disposable:
 
 ```text
-build/hardware/<UTC timestamp>-<unique suffix>/
-  source/          exact input snapshot
-  plain/           separate objects, interpreter, compiler, library, C hosts
-  trace/           separate objects and traced interpreter
-  logs/            build, test, and image-verification logs
-  package/
-    lua.po
-    luatrace.po
-    iigshost.po
-    manifest.json
-    SHA256SUMS
-    HARDWARE_TESTING.md
+build/dev/<configuration>/
+  gen/parseconf.h      generated configuration
+  obj/                 objects, .deps/ content-hash stamps
+  hostobj/             host/probe objects (lua configuration)
+  out/                 executables, .map link maps, libraries, include/
+  logs/                compiler, linker, and makelib output
+  state.json           configuration + toolchain + recipe fingerprint
 ```
 
-Each image is an 800 KB ProDOS transfer image, not a boot disk. The plain
-and trace images each contain their interpreter, sixteen targeted scripts,
-`tracegc.lua`, `README.TXT`, and `BUILD.TXT`. IIGSHOST has a separate image.
-The kit builds and tests `luac`, the library, allocator fault injection,
-bridge, and mmtest locally; those executables are not all included on the
-transfer images. `memfree` is built but not run locally.
+An object is reused only if nothing it depends on has changed: its
+source, every header it includes, and the configuration fingerprint. The
+includes are found by scanning quoted `#include` lines along ORCA's own
+search path. The fingerprint covers the generated header, compile flags,
+recipe version, and the toolchain's identity: hashes of the compiler,
+linker, runtime libraries, ORCA/C headers, and `iix`. When the fingerprint
+changes, the configuration's objects and outputs are discarded before
+rebuilding. Timestamps are not used.
 
-The builder runs sixteen scripts in each variant with GoldenGate memory
-checking and completion contracts. It refuses to finish packaging after a
-failed check. The checks and intentional skips are recorded in the manifest.
-Its local timeouts are not hardware timing limits. See [test coverage](../tests/README.md).
+Failures are loud and leave no plausible-looking output behind. ORCA can
+exit with an error yet still leave a partial `.root` after a failed compile,
+or a truncated executable after an unresolved link. The tooling therefore
+builds in private staging names and renames them into place only on
+success. A product whose inputs failed to build is removed rather than left
+stale.
 
-The banner combines the current Git HEAD prefix with a digest of the input
-snapshot and the variant. Uncommitted input edits are included in the digest;
-HEAD alone does not identify the built source. `HARDWARE_TESTING.md` is one of
-the inputs, so even a documentation update can change the next build's ID.
-The manifest records compiler hashes without exposing the local SDK path.
-Existing objects, `build/lua`, earlier kits, and `lua.po` are not overwritten.
+## Concurrency
 
-The builder does **not** produce `.SHK` archives, upload files, or perform
-hardware validation. The NAS archives used during the session were created
-and verified separately.
+Compiler concurrency is not assumed. Compiles run serially until
+`make verify-concurrency` shows, for the exact toolchain fingerprint, three
+things:
 
-## Individual development targets
+- Parallel compiles produce objects and an executable byte-identical to a
+  serial build.
+- No tool writes to ORCA's shared work prefix `14:`, which GoldenGate maps
+  to the temporary directory. The check makes that directory read-only.
+- Both parallel rounds agree.
+
+The machine-local record in `build/local/concurrency.json` then enables up
+to eight concurrent compiler processes. An explicit `JOBS=N` always wins.
+Links and library creation are serial. On the recorded setup, all 33
+outputs were identical across one serial and two 8-way builds, with no
+temp-prefix writes. A clean build of one configuration then takes about 5 s
+instead of about 20 s.
+
+`make -j` is safe but does not add parallelism: the Makefile is
+`.NOTPARALLEL`, and each build directory is locked, so two `make`
+processes wait for each other instead of interleaving.
+
+## Identified builds
 
 ```sh
-make lua
-make luac
-make liblua
-make bridge
-make mmtest memfree
+make identify
 ```
 
-| Target | Output |
+This builds every configuration and host from a byte snapshot of the
+sources, into `build/builds/<build id>-<utc>/`:
+
+```text
+source/              the exact bytes compiled
+<configuration>/     gen/obj/out as above
+logs/                banner checks
+BUILD-MANIFEST.json  identities, hashes, configuration, parser evidence
+```
+
+The **build ID** covers only what can change executable bytes: `src/`
+sources, the recipe, configuration macros, and the toolchain identity.
+Documentation, tests, and packaging code are excluded, so a docs-only or
+packaging-only change keeps the same build ID and banner (for example
+`IIgs 63eca55c48e5 plain`). The manifest separately records:
+
+- the Git commit, and whether the snapshot matches it;
+- host-source hashes;
+- every artifact's hash and size;
+- the parser-symbol evidence;
+- a comparison with any earlier build of the same ID.
+
+It records no local paths. The finished directory is made read-only.
+Tests and packaging recheck every artifact hash before use and refuse a
+modified build. Nothing ever rebuilds an identified build in place.
+
+`BUILD_LABEL` overrides the banner prefix, which is useful for reproducing
+an older banner. `COMPARE_RELEASE=<release dir>` compares the executables
+with a release's recorded hashes.
+
+### Reproducibility
+
+Byte-for-byte reproduction is claimed only where it has been demonstrated.
+On 2026-09-24, with the same ORCA/C 2.2.1 SDK and GoldenGate 2.1.0, this
+command reproduced all four v0.2.1 release executables:
+
+```sh
+make identify BUILD_LABEL="IIgs e026f5b-13178cdf3c75" COMPARE_RELEASE=<v0.2.1 download directory>
+```
+
+The results were byte-identical to the release: LUA `431a82d7…`, LUAC
+`a21493e2…`, LUATRACE `76c854eb…`, and IIGSHOST `4d8a7695…` (see the
+[validation record](validation/2026-09-24-build-system/README.md)). Other
+toolchains, and any configuration not compared, have no such claim.
+
+## Tests
+
+`make test` runs the default local checks under GoldenGate `--memcheck`:
+unit tests, the 16 targeted scripts, LUAC debug and stripped bytecode on
+both runtimes, compact acceptance with source rejection, and the native
+hosts. Use `BUILD=<id>` to test an identified build instead of the dev
+builds. Identified-build reports go to `build/test-reports/` and are kept.
+Dev reports go to the disposable `build/test-runs/`. Every report
+records:
+
+- the executable hashes;
+- a **test identity**: a hash of the scripts, manifests, and contracts,
+  kept separate from the build ID;
+- the emulator identity;
+- each check's status and intentional skips.
+
+These are emulator results, never hardware results. See
+[tests/README.md](../tests/README.md).
+
+## Packaging
+
+```sh
+make package BUILD=<id> REPORT=build/test-reports/<...>/report.json
+```
+
+This writes to `build/packages/<id>-<utc>/`, one `.po` and one `.SHK` per
+kind (`KINDS=` selects a subset):
+
+| Kind | Container | Contents |
+| --- | --- | --- |
+| `runtime` | `lua.po`, `LUA.SHK` | `LUA`, targeted scripts, `TRACEGC.LUA` |
+| `small` | `luasmall.po`, `LUASMALL.SHK` | `LUASMALL` |
+| `compiler` | `luac.po`, `LUAC.SHK` | `LUAC` |
+| `trace` | `luatrace.po`, `LUATRACE.SHK` | `LUATRACE`, scripts |
+| `library` | `lualib.po`, `LUALIB.SHK` | `LUA.LIB`, `LVM.A`, headers incl. `PARSECONF.H` |
+| `library-small` | `luasmlib.po`, `LUASMLIB.SHK` | `LUASMALL.LIB`, `LVM.A`, headers |
+| `host` | `iigshost.po`, `IIGSHOST.SHK` | `IIGSHOST` |
+
+Each also contains `README.TXT` and `LICENSE.TXT`.
+`PACKAGE-MANIFEST.json` records the build ID and manifest hash, the cited
+test report and its summary, and a **package identity** (a hash of the
+members), plus every member's hash and type. A copy of
+`BUILD-MANIFEST.json` and a `SHA256SUMS` file sit alongside. Rewording a
+readme changes the package identity, not the build.
+
+ProDOS metadata:
+
+| Kind | Type / aux |
 | --- | --- |
-| `make lua` | `build/lua` and `src/lua` |
-| `make luac` | `build/luac` and `src/luac` |
-| `make liblua` | `src/lua.lib` and copies of it and the existing `src/lvm.a` in `build/` |
-| `make bridge` | root `bridge` embedding demo |
-| `make mmtest memfree` | root standalone Memory Manager probes |
+| executable | EXE `$B5` / `$0000` |
+| ORCA library | LIB `$B2` / `$0000` |
+| ORCA object | OBJ `$B1` / `$0000` |
+| text, Lua source | TXT `$04` / `$0000` (CR line endings) |
+| ORCA EXEC batch | SRC `$B0` / `$0006` |
+| ORCA/C header/source | SRC `$B0` / `$0008` |
+| Lua bytecode | BIN `$06` / `$0000` |
 
-Run `make lua` before `make liblua` or `make bridge`: the current library
-recipe assumes `src/lvm.a` already exists. Specify a target: bare `make`
-currently selects `bridge`, not an all-tools build. Build sequentially:
-interpreter/compiler modes share source objects and rewrite `src/parseconf.h`.
-Use the isolated kit for release evidence or
-plain/trace comparisons. A normal `make lua` build does not receive the kit's
-unique build-ID macro and must not be labeled the archived tested binary.
+Verification is independent of creation. Every member is extracted again
+(with `acx` for images and `nulib2` for archives) and compared byte for
+byte. Its type and aux are read back with `cp2`, and the member set must
+match exactly. This matters: `acx` silently stores `NON $00` when it is
+given a numeric type such as `$B5`, and `nulib2 -p` exits 0 for a missing
+member. Existing containers are never overwritten, and executables are
+copied from the identified build, never rebuilt.
 
-Quick local checks after building:
-
-```sh
-iix --memcheck build/lua -E tests/hwsmoke.lua
-iix build/luac -o build/hwsmoke.out tests/hwsmoke.lua
-iix --memcheck build/lua -E build/hwsmoke.out
-make -C tests tests LUA="$PWD/build/lua"
-```
-
-`make clean` cleans source objects and restores the Lua parser configuration;
-it does not erase archived kits. The legacy `release`, `disks`, `luadisk`,
-and bridge-disk targets use an older AppleCommander `ac` interface and have
-not been validated as the current transfer workflow. In particular, macOS
-`/usr/sbin/ac` is an unrelated accounting utility. Use the kit's `acx` path.
-Do not use `make cleanrelease` to tidy a tree containing preserved artifacts;
-it attempts removal of top-level build/image outputs.
-
-## ShrinkIt archives and transfer verification
-
-For a completed kit, replace the example path below with the directory
-printed by the builder. Use a new output directory for each build; do not
-overwrite archived packages. Distribution executables and archives can use
-`lua` and `LUA.SHK` without carrying temporary investigation names.
+## Hardware kits
 
 ```sh
-cd build/hardware/REPLACE-WITH-KIT-DIRECTORY/package
-shasum -a 256 -c SHA256SUMS
-cp2 create-file-archive LUA.SHK
-cp2 copy lua.po LUA.SHK
-cp2 get-attr LUA.SHK LUA
-nulib2 -p LUA.SHK LUA > lua-extracted
-cmp lua-extracted ../plain/build/lua
-shasum -a 256 LUA.SHK > ARCHIVE-SHA256SUMS
+make hardware-suite BUILD=<id> KIT=suite
+make hardware-suite BUILD=<id> KIT=small
+make hardware-suite RELEASE=build/release-v0.2.1-download KIT=luac
+make hardware-suite EXES="lua=path/to/validated/lua" KIT=suite
 ```
 
-The executable metadata should be EXE (`$B5`) with auxiliary type `$0000`.
-Create trace/host archives similarly if needed. Disk-to-archive copying
-preserves the metadata; extracting a naked executable and copying it over a
-NAS generally does not establish that its metadata survived. Plain `.PO`
-images are an alternative if the receiving setup can mount them.
+Each kit is written to `build/hardware-suites/<utc>-<kit>-<id>/package/`
+as `TEST.SHK` and `TEST.po`. They contain:
 
-Copy the containers, manifest, and checksums to a new NAS directory and
-verify the destination files by reading them back. The scripts do not mount
-the NAS. On the IIgs, use GS ShrinkIt to
-extract the archive, or copy from the mounted ProDOS image with a tool that
-preserves file types. [Hardware testing](../HARDWARE_TESTING.md) describes
-what to run after transfer.
+- `TEST`, an ORCA EXEC batch;
+- `TEST.LUA`;
+- the executables under test, as `LUATEST`, `LUACTEST`, or `IIGSHOST`;
+- the scripts, `README.TXT`, and `LICENSE.TXT`;
+- beside the containers, a `KIT-MANIFEST.json` with all hashes, the
+  batch, and the preflight result.
 
-## Preserving evidence
+The stable names allow the same IIgs commands every time:
 
-Keep the kit's source snapshot, objects, tools' hashes, executable hashes,
-logs, images, and manifest together. Preserve ProDOS/Mac metadata when
-copying ORCA object and library files too: a byte-only copy can be rejected
-by the linker as not being an object file. In-place links to the original
-staged objects avoid that transfer problem.
+```text
+yankit xvf /nas/lua.test/test.shk
+20:test
+```
 
-The checked-in [validation records](README.md#evidence-and-provenance) refer
-to original package checksums. Their public manifest copies redact the local
-SDK path, so the manifest entries in `SHA256SUMS` match only the preserved
-original packages. Run those checksums in the corresponding archived package
-directory, not in the documentation directory, where the image files are
-absent and the public manifests differ.
+| Kit | Checks | Guide |
+| --- | --- | --- |
+| `suite` | reusable regression suite (`GROUP=full` default; 23 tests) | [SUITE.md](../tests/SUITE.md) |
+| `lua` | new full and traced interpreters: suite group on `LUATEST`, then group `trace` on `LUATRACE` (Memory Manager armed, `[M7] state closed`; 1600 KB image) | [SUITE.md](../tests/SUITE.md) |
+| `small` | compact runtime: chunks compiled on the IIgs by `LUACTEST`, source rejection, debug and stripped groups (1600 KB image) | [COMPACT.md](../tests/COMPACT.md) |
+| `luac` | LUACPROBE 1 standalone compiler checks | [LUAC_TESTING.md](../tests/LUAC_TESTING.md) |
+| `host` | HOSTCHECK 1 native embedding and C-hook yields | [HOST_TESTING.md](../tests/HOST_TESTING.md) |
 
-## Clean source distribution
+Batch files have one command per line and contain no semicolons, not even
+in comments. `PREFIX` sets the executable prefix: the confirmed `20:` by
+default, or `PREFIX=none` for shell lookup. The batch text and the local
+preflight come from the same step list. The generated LUAC and HOSTCHECK
+command lines are identical to the batches validated on hardware. The
+preflight runs each step as a separate GoldenGate process and is recorded
+as an emulator result. The hardware result stays `pending` until someone
+records it.
 
-Use a Git export of the intended commit, not a zip of the working directory:
+The suite's full group includes `tableovf`, which took about **18 minutes
+silently** on the accelerated IIgs. Stock GoldenGate cannot pass the full
+I/O group, so the suite kit preflights `runtime` by default.
+
+### Transfer
+
+```sh
+make stage FROM=build/hardware-suites/<kit dir> DEST=/Volumes/nas/lua.test
+```
+
+This copies the containers, manifest, and `SHA256SUMS` after rechecking
+the sums, then reads each copy back. Metadata travels inside the `.SHK` or
+`.po`; do not copy naked executables. A different existing file is never
+replaced silently. Without `REPLACE=1` the copy is refused. With it, the
+old files are first moved to `DEST/replaced-<utc>/` and a notice is
+printed. Do not replace a staged kit or a published release without a
+reason.
+
+The established test machine is an accelerated ROM 03 IIgs with 8 MB RAM.
+GS/OS was tentatively reported as 6.04. Newly built executables need their
+own hardware run; earlier hardware passes belong to the exact executables
+they tested. See [hardware testing](../HARDWARE_TESTING.md).
+
+## Cleaning
+
+`make clean` uses an allow-list. It removes:
+
+- `build/dev/`
+- `build/test-runs/`
+- untracked legacy outputs that the old Makefiles left in source
+  directories: `src/*.a *.root *.sym *.lib`, `src/lua`, `src/luac`,
+  `src/parseconf.h`, root and `tests/` objects, `bridge`, `mmtest`,
+  `memfree`, and `luac.out`
+
+It never touches:
+
+- `build/builds`, `build/packages`, `build/hardware-suites`,
+  `build/test-reports`, `build/hardware`, `build/diagnostics`,
+  `build/archive`, `build/release-*`, `build/worktrees`, and `build/local`
+- `dist/` and `docs/validation/`
+- any file tracked by Git
+
+`make clean-legacy` moves old loose outputs (`build/lua`, `build/luac`,
+`build/lua.lib`, …) into `build/archive/legacy-<utc>/` rather than
+deleting them, because some served as evidence. `DRY_RUN=1` previews
+either command.
+
+## Migrating from the old workflow
+
+| Old | New |
+| --- | --- |
+| `make lua` → `build/lua`, `src/lua` | `make lua` → `build/dev/lua/out/lua` |
+| `make luac` (rewrote `src/parseconf.h`) | `make luac` → `build/dev/luac/out/luac` |
+| `make lua` before `make liblua` | `make liblua` alone → `build/dev/lua/out/{lua.lib,lvm.a,include/}` |
+| editing `luaconf.h` for `LUA_NO_PARSER` | `make lua-small` / `make liblua-small` |
+| bare `make` built `bridge` | `make` builds lua, luac, liblua; `make bridge` still works |
+| `make mmtest memfree` | unchanged names, outputs in `build/dev/lua/out/` |
+| `make -C src ...` | forwards to the root Makefile (deprecated) |
+| `make -C tests tests` | still works; default `LUA` is `build/dev/lua/out/lua`; prefer `make test` |
+| `python3 tools/hardware-kit.py` | `make kit` (the script forwards; `--plain-name` is ignored) |
+| `tools/test-suite.py run/package` | `make suite EXE=...` / `make hardware-suite EXES="lua=..."` |
+| `tools/luac-test-kit.py`, `tools/host-test-kit.py` | `make hardware-suite KIT=luac RELEASE=...` (or `KIT=host`) |
+| `tools/test_support.py` | `tools/iigsbuild/contracts.py` (shim kept) |
+| `make release disks luadisk testdisk bridgedisk cleanrelease minitest` | removed (they used an unrelated `ac`); `make package` / `make hardware-suite` |
+| copies into `../../../luagsdemo/lib` | removed; nothing writes outside this repository except `make stage` |
+| `make clean` restored `src/parseconf.h` | `make clean` removes dev outputs only |
+
+After switching an existing checkout, run `make clean` once to remove old
+objects from `src/`. The old `build/hardware/<utc>/` kits, releases, and
+diagnostics remain as recorded evidence. The new tooling reads release
+directories but never writes to them.
+
+## Source distribution
+
+Export a committed tree with Git rather than zipping the working directory:
 
 ```sh
 mkdir -p dist
 git archive --format=zip --prefix=lua-iigs/ --output=dist/lua-iigs-source.zip HEAD
 ```
 
-This exports committed source and documentation. Uncommitted edits are not
-included. The local SDK, `build/` kits/logs/archives, generated `images/`,
-`dist/`, editor settings not tracked by Git, and loose output files do not
-belong in a source distribution. Do not add them just to make a local build
-appear self-contained. Preserve tested binaries locally, and distribute
-selected `.PO`/`.SHK` containers separately when preparing binary packages.
-
-Historical transcripts live under `docs/history/`; dated validation manifests
-remain under `docs/validation/`. Temporary executable names in those records
-identify evidence and should not be substituted into the public run examples.
+The SDK, `build/`, `dist/`, `local.mk`, and loose outputs do not belong in
+a source distribution. Identified builds keep their own `source/`
+snapshot for provenance. Historical transcripts live under `docs/history/`,
+and dated validation records under `docs/validation/`.

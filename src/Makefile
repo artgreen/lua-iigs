@@ -1,134 +1,18 @@
-#
-# Crappy Makefile
-#
-# This code requires ORCA/C 2.2.x; the system GoldenGate install may
-# carry 2.1.0. Default to the repo-local SDK unless the caller already
-# selected one (iix reads GOLDEN_GATE as its root; --sdk only remaps
-# headers, not the compiler).
-ifneq (,$(wildcard $(CURDIR)/../.orca-sdk-2.2.1))
-export GOLDEN_GATE ?= $(CURDIR)/../.orca-sdk-2.2.1
-endif
-EXE_DIR := ../build
+# Deprecated: builds run from the repository root ('make help').
+# The historical recipe (flags, unit list, link order) now lives in
+# tools/iigsbuild/configs.py. These forwards never write into src/: objects
+# and the generated parseconf.h go under build/dev/<configuration>/.
+.NOTPARALLEL:
 
-names := lapi lauxlib lbaselib lcode lcorolib lctype ldblib ldebug ldo ldump lfunc lgc linit liolib llex lmathlib lmem loadlib lobject lopcodes loslib lparser lstate lstring lstrlib ltable ltablib ltm lundump lzio
-SRCS := $(names:%=*.c)
-OBJS := $(foreach wrd, $(names),$(wrd).a)
-ADDS := $(foreach wrd, $(names),+$(wrd).a)
-CFLAGS := -I -P -D +O
+lua luac liblua all clean:
+	@echo "src/Makefile is deprecated; running 'make $@' at the repository root." >&2
+	@$(MAKE) --no-print-directory -C .. $@
 
-.PHONY: luac_conf lua_conf all clean test libluac liblua run
-all: lua
-libluac: luac_conf luac.lib
-luac.lib: $(OBJS)
-	@echo "Making luac.lib"
-	@#rm -f $@
-	@# Fail the build and discard a partial library on compiler/tool failure.
-	@iix makelib $@ $(ADDS) || { rm -f -- $@; exit 1; }
-	@cp $@ $(EXE_DIR)/$@
-rmlibluac:
-	@rm -f luac.lib
-rmlib:
-	@rm -f lua.lib
-run: lua
-	iix ../build/lua ../test.lua
-liblua: lua_conf lua.lib
-lua.lib: $(OBJS)
-	@echo "Making lua.lib"
-	@#rm -f $@
-	@# Fail the build and discard a partial library on compiler/tool failure.
-	@iix makelib $@ $(ADDS) || { rm -f -- $@; exit 1; }
-	@cp $@ $(EXE_DIR)/$@
-	@cp lvm.a $(EXE_DIR)/lvm.a
-	@# optional: also stage into a sibling demo project if it exists
-	@if [ -d ../../../luagsdemo/lib ]; then cp $@ ../../../luagsdemo/lib/; fi
-lua_conf:
-ifeq ($(shell grep -s "LUAC" parseconf.h),)
-else
-	@echo "Switching to LUA build"
-	@echo '#define BUILD_IS_LUA' > parseconf.h
-	@# make sure new library gets built
-	@rm -f lua.lib $(EXE_DIR)/lua.lib
-endif
-lua: lua_conf lua.a lvm.a $(OBJS)
-	@iix link lua.a lvm $(OBJS) KEEP=$@
-	@cp $@ $(EXE_DIR)
-luac_conf:
-ifeq ($(shell grep -s LUAC parseconf.h),)
-	@echo "Switching to LUAC build"
-	@echo '#define BUILD_IS_LUAC' > parseconf.h
-	@# make sure new library gets built
-	@rm -f luac.lib
-endif
-luac: luac_conf luac.a lvm.a $(OBJS)
-	@iix link luac.a lvm $(OBJS) KEEP=$@
-	@cp $@ $(EXE_DIR)/
-clean:
-	@rm -f -- *.sym *.a *.b *.d *.e *.root lua luac *.lib
-	@#rm -f -- $(EXE_DIR)/*.lib $(EXE_DIR)/lua $(EXE_DIR)/luac
-	@echo '#define BUILD_IS_LUA' > parseconf.h
-# Dependencies
-lapi.a: lapi.c lprefix.h lua.h luaconf.h lapi.h llimits.h lstate.h \
- lobject.h ltm.h lzio.h lmem.h ldebug.h ldo.h lfunc.h lgc.h lstring.h \
- ltable.h lundump.h lvm.h
-lauxlib.a: lauxlib.c lprefix.h lua.h luaconf.h lauxlib.h
-lbaselib.a: lbaselib.c lprefix.h lua.h luaconf.h lauxlib.h lualib.h
-lcode.a: lcode.c lprefix.h lua.h luaconf.h lcode.h llex.h lobject.h \
- llimits.h lzio.h lmem.h lopcodes.h lparser.h ldebug.h lstate.h ltm.h \
- ldo.h lgc.h lstring.h ltable.h lvm.h
-lcorolib.a: lcorolib.c lprefix.h lua.h luaconf.h lauxlib.h lualib.h
-lctype.a: lctype.c lprefix.h lctype.h lua.h luaconf.h llimits.h
-ldblib.a: ldblib.c lprefix.h lua.h luaconf.h lauxlib.h lualib.h
-ldebug.a: ldebug.c lprefix.h lua.h luaconf.h lapi.h llimits.h lstate.h \
- lobject.h ltm.h lzio.h lmem.h lcode.h llex.h lopcodes.h lparser.h \
- ldebug.h ldo.h lfunc.h lstring.h lgc.h ltable.h lvm.h
-ldo.a: ldo.c lprefix.h lua.h luaconf.h lapi.h llimits.h lstate.h \
- lobject.h ltm.h lzio.h lmem.h ldebug.h ldo.h lfunc.h lgc.h lopcodes.h \
- lparser.h lstring.h ltable.h lundump.h lvm.h parseconf.h
-ldump.a: ldump.c lprefix.h lua.h luaconf.h lobject.h llimits.h lstate.h \
- ltm.h lzio.h lmem.h lundump.h
-lfunc.a: lfunc.c lprefix.h lua.h luaconf.h ldebug.h lstate.h lobject.h \
- llimits.h ltm.h lzio.h lmem.h ldo.h lfunc.h lgc.h
-lgc.a: lgc.c lprefix.h lua.h luaconf.h ldebug.h lstate.h lobject.h \
- llimits.h ltm.h lzio.h lmem.h ldo.h lfunc.h lgc.h lstring.h ltable.h
-linit.a: linit.c lprefix.h lua.h luaconf.h lualib.h lauxlib.h
-liolib.a: liolib.c lprefix.h lua.h luaconf.h lauxlib.h lualib.h
-llex.a: llex.c lprefix.h lua.h luaconf.h lctype.h llimits.h ldebug.h \
- lstate.h lobject.h ltm.h lzio.h lmem.h ldo.h lgc.h llex.h lparser.h \
- lstring.h ltable.h parseconf.h
-lmathlib.a: lmathlib.c lprefix.h lua.h luaconf.h lauxlib.h lualib.h
-lmem.a: lmem.c lprefix.h lua.h luaconf.h ldebug.h lstate.h lobject.h \
- llimits.h ltm.h lzio.h lmem.h ldo.h lgc.h
-loadlib.a: loadlib.c lprefix.h lua.h luaconf.h lauxlib.h lualib.h
-lobject.a: lobject.c lprefix.h lua.h luaconf.h lctype.h llimits.h \
- ldebug.h lstate.h lobject.h ltm.h lzio.h lmem.h ldo.h lstring.h lgc.h \
- lvm.h
-lopcodes.a: lopcodes.c lprefix.h lopcodes.h llimits.h lua.h luaconf.h
-loslib.a: loslib.c lprefix.h lua.h luaconf.h lauxlib.h lualib.h
-lparser.a: lparser.c lprefix.h lua.h luaconf.h lcode.h llex.h lobject.h \
- llimits.h lzio.h lmem.h lopcodes.h lparser.h ldebug.h lstate.h ltm.h \
- ldo.h lfunc.h lstring.h lgc.h ltable.h parseconf.h
-lstate.a: lstate.c lprefix.h lua.h luaconf.h lapi.h llimits.h lstate.h \
- lobject.h ltm.h lzio.h lmem.h ldebug.h ldo.h lfunc.h lgc.h llex.h \
- lstring.h ltable.h parseconf.h
-lstring.a: lstring.c lprefix.h lua.h luaconf.h ldebug.h lstate.h \
- lobject.h llimits.h ltm.h lzio.h lmem.h ldo.h lstring.h lgc.h
-lstrlib.a: lstrlib.c lprefix.h lua.h luaconf.h lauxlib.h lualib.h
-ltable.a: ltable.c lprefix.h lua.h luaconf.h ldebug.h lstate.h lobject.h \
- llimits.h ltm.h lzio.h lmem.h ldo.h lgc.h lstring.h ltable.h lvm.h
-ltablib.a: ltablib.c lprefix.h lua.h luaconf.h lauxlib.h lualib.h
-ltm.a: ltm.c lprefix.h lua.h luaconf.h ldebug.h lstate.h lobject.h \
- llimits.h ltm.h lzio.h lmem.h ldo.h lgc.h lstring.h ltable.h lvm.h
-lua.a: lua.c lprefix.h lua.h luaconf.h lauxlib.h lualib.h parseconf.h
-luac.a: luac.c lprefix.h lua.h luaconf.h lauxlib.h ldebug.h lstate.h parseconf.h \
- lobject.h llimits.h ltm.h lzio.h lmem.h lopcodes.h lopnames.h lundump.h
-lundump.a: lundump.c lprefix.h lua.h luaconf.h ldebug.h lstate.h \
- lobject.h llimits.h ltm.h lzio.h lmem.h ldo.h lfunc.h lstring.h lgc.h \
- lundump.h
-lvm.a: lvm.c lprefix.h lua.h luaconf.h ldebug.h lstate.h lobject.h \
- llimits.h ltm.h lzio.h lmem.h ldo.h lfunc.h lgc.h lopcodes.h lstring.h \
- ltable.h lvm.h ljumptab.h
-lzio.a: lzio.c lprefix.h lua.h luaconf.h llimits.h lmem.h lstate.h \
- lobject.h ltm.h lzio.h
+run:
+	@echo "src/Makefile 'run' was removed; use: make lua, then iix build/dev/lua/out/lua test.lua" >&2
+	@exit 2
 
-%.a:
-	iix compile $(CFLAGS) $< || { rm -f -- $@; exit 1; }
+.DEFAULT:
+	@echo "src/Makefile target '$@' is obsolete (luac.lib, lua_conf, luac_conf, rmlib ...)." >&2
+	@echo "Run 'make help' at the repository root." >&2
+	@exit 2

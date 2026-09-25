@@ -8,23 +8,24 @@ import subprocess
 import tempfile
 
 from test_support import FAILURE, TESTS, validate
+from iigsbuild.toolchain import Toolchain
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--lua", type=Path, default=ROOT / "build/lua")
+    parser.add_argument("--lua", type=Path, default=ROOT / "build/dev/lua/out/lua")
     parser.add_argument("--timeout", type=int, default=300)
     parser.add_argument("--expect-failure", action="store_true")
     parser.add_argument("tests", nargs="*", default=list(TESTS))
     args = parser.parse_args()
-    parent = ROOT / "build/test-runs"
+    parent = ROOT / "build/test-runs"  # disposable (make clean)
     parent.mkdir(parents=True, exist_ok=True)
     work = Path(tempfile.mkdtemp(dir=parent))
     shutil.copytree(ROOT / "tests", work / "tests")
     (work / "tests/libs/P1").mkdir(parents=True, exist_ok=True)
-    env = dict(os.environ, GOLDEN_GATE=os.environ.get("GOLDEN_GATE", str(ROOT / ".orca-sdk-2.2.1")))
+    env = Toolchain.discover().env()  # same SDK discovery as the Makefile
     failed = False
     for test in args.tests:
         if not (work / "tests" / (test + ".lua")).is_file():

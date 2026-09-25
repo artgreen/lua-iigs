@@ -20,21 +20,46 @@ for the tested artifact and evidence boundaries.
 
 ## Run on hardware
 
-Extract `SUITE.SHK` into a dedicated writable test directory. It contains
-`LUATEST`, all 23 scripts, `TRACEGC.LUA`, the driver, configuration, and a
-short readme and license. Archive extraction preserves EXE `$B5` / auxiliary `$0000`.
-For the shared NAS test kit, after the current test returns to the shell:
+Prepare a kit from an identified build, a published release, or explicit
+existing executables. None of these is rebuilt:
 
-```text
-yankit xvf /nas/lua.suite/suite.shk
-20:luatest -E -v test.lua
+```sh
+make hardware-suite BUILD=<build id>
+make hardware-suite RELEASE=build/release-v0.2.1-download
+make hardware-suite EXES="lua=path/to/validated/lua"
 ```
 
-`20:` is the currently confirmed executable prefix in this ORCA shell setup. If
-your shell finds `LUATEST` in the current directory, use `luatest` instead.
-Both extraction and execution should occur in the test directory. Future
-kits reuse these names. The suite archive is separate from the individual
-probe at `/nas/lua.test/test.shk`.
+The kit is `TEST.SHK` (plus `TEST.po`). It contains:
+
+- `LUATEST`;
+- all 23 scripts and `TRACEGC.LUA`;
+- the driver as `TEST.LUA` and its generated `SUITECFG.LUA`;
+- a `TEST` ORCA EXEC batch that runs the chosen group (`GROUP=full` by
+  default);
+- a readme and license.
+
+Archive extraction preserves EXE `$B5` / aux `$0000` and SRC `$B0` /
+`$0006`. Stage the kit with `make stage` (see
+[building](../docs/BUILDING.md#transfer)). Then, after the current test has
+returned to the shell:
+
+```text
+yankit xvf /nas/lua.test/test.shk
+20:test
+```
+
+`20:` is the confirmed executable prefix in this ORCA shell setup; kits
+for other setups are generated with `PREFIX=`. The batch runs
+`20:luatest -E -v test.lua full`, so another group can be run directly:
+
+```text
+20:luatest -E -v test.lua io
+```
+
+Extract and run in the test directory. Future kits reuse these names. The
+two recorded full-suite passes used the earlier `SUITE.SHK` layout (same
+`LUATEST`, driver, and scripts, with no `TEST` batch), launched with
+`20:luatest -E -v test.lua`.
 
 The default run ends with:
 
@@ -52,7 +77,9 @@ after a failure are **not run**; fix/investigate it and restart the group.
 Observe and record the build banner, final summary, skips, and shell return.
 
 `tableovf` previously took about **18 minutes** on the accelerated IIgs and
-is silent until completion. It is last in `full`; allow additional time for
+is silent until completion. The whole `full` group takes almost **40 minutes** there (user
+report, 2026-09-25); use a smaller group when the executable's code is
+already covered by an earlier full pass. It is last in `full`; allow additional time for
 the other tests. There is no hardware timeout or total runtime promise.
 
 To select a smaller group, append its name: `20:luatest -E -v test.lua io`.
@@ -64,6 +91,7 @@ To select a smaller group, append its name: `20:luatest -E -v test.lua io`.
 | `runtime` | 15 | All former targeted checks except the long table-overflow test |
 | `io` | 7 | Focused bytes/EOF, sharing observations, adapted files, large offsets, large transfers, source/bytecode, file lifetime |
 | `stress` | 1 | Table growth/overflow, data retention and collection |
+| `trace` | 5 | For the traced interpreter: smoke, sieve, cstack, mmalloc, cobeacon (kit `KIT=lua`) |
 | `full` | 23 | Runtime + I/O + stress, without duplicate tests |
 
 For warm-session repeatability, rerun the same command after `#` returns.
@@ -73,23 +101,36 @@ After a crash or screen corruption, power-cycle before continuing.
 
 ## Local execution and packaging
 
-From the repository root, with `iix` and an ORCA/C SDK installed:
-
 ```sh
-export GOLDEN_GATE=/path/to/orca-sdk
-python3 tools/test-suite.py run --lua /path/to/lua --group runtime
-python3 tools/test-suite.py package --lua /path/to/lua
-python3 -m unittest discover -s tests -p 'test_*checks.py'
-TEST_LUA=/path/to/lua python3 -m unittest discover -s tests -p 'test_suite_checks.py'
+make suite GROUP=runtime
+make suite BUILD=<build id> GROUP=runtime
+make suite EXE=/path/to/lua GROUP=smoke
+TEST_LUA=build/dev/lua/out/lua python3 -m unittest discover -s tests -p 'test_suite_checks.py'
 ```
 
-`run` copies the scripts and executable into a fresh `build/suites/run-*`
-directory, runs with `-E -v` and `--memcheck`, and saves `suite.log` plus a
-JSON report. It requires zero exit status, ordered completion of every test,
-a matching summary, and no recognized corruption/failure output. Logs are
-retained even on timeout. `--timeout` is a whole-run local limit in seconds
-(default 1800), not a hardware deadline. `--sdk` and `--iix` select explicit
-SDK and emulator locations; the report records the emulator hash.
+`make suite` copies the executable and scripts into a fresh
+`build/test-runs/suite-*` directory, runs the suite with `-E -v` and
+`--memcheck`, and saves `suite.log` plus a JSON report. It passes only
+with all of these:
+
+- zero exit status;
+- ordered completion of every test;
+- a matching summary;
+- no recognized corruption or failure output.
+
+Logs are kept even on timeout. `TIMEOUT` is a whole-run local limit in
+seconds (default 1800), not a hardware deadline.
+
+`make hardware-suite` needs `acx`, `cp2`, and `nulib2`, and writes to
+`build/hardware-suites/<utc>-suite-<id>/package/`. Before packaging it
+preflights the runtime group in GoldenGate (`PREFLIGHT=none` skips this).
+It compares every extracted member with its input and checks each file
+type. Text gets native CR line endings, while executable bytes stay
+unchanged. `KIT-MANIFEST.json` records the source, transfer, executable,
+batch, and archive hashes, plus the preflight result, with the hardware
+result left pending. Packaging does not validate the executable on
+hardware. The tool neither publishes a release nor copies to the NAS on
+its own (`make stage` does that on request).
 
 **Stock GoldenGate cannot pass the complete I/O group:** its repeated-EOF
 abort and text translation differ from the recorded real IIgs. The suite
@@ -98,15 +139,6 @@ the supported stock-emulator subset. Full local preflight used the explicitly
 selected diagnostic emulator described in the
 [I/O investigation](../docs/validation/IO_INVESTIGATION.md); it is not a
 hardware result or an installed-emulator change.
-
-`package` needs `acx`, `cp2`, and `nulib2`. It produces `SUITE.SHK` and an
-800 KB ProDOS transfer image under `build/suites/package-*/package`. It
-compares every extracted archive member with its input and verifies the
-executable file type. Text gets native CR line endings; executable bytes
-remain unchanged. `report.json` records source/transfer/executable/archive
-SHA-256 hashes. Keep it with the test results. Packaging alone does not
-validate the chosen executable; run the suite against that exact artifact.
-The tool neither publishes a release nor copies to a NAS automatically.
 
 ## Scope and maintenance
 
@@ -122,8 +154,8 @@ The tool neither publishes a release nor copies to a NAS automatically.
   input/output, and GC mode between successful cases. It is not a sandbox or
   a substitute for independent-process testing with `tools/run-tests.py`.
 - Native embedding/C-hook tests, allocator fault injection, raw Memory
-  Manager probes, and the separate LUAC executable remain in
-  `tools/hardware-kit.py`. They require separately built executables; a Lua
+  Manager probes, and the separate LUAC executable are covered by
+  `make test` (locally) and the `host`/`luac` kits. They require separately built executables; a Lua
   suite pass does not claim their coverage. See [C/build checks](README.md#c-and-build-checks).
   The [standalone LUAC batch](LUAC_TESTING.md) provides the hardware
   compiler checks with one launch command.

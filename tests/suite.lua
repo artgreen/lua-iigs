@@ -3,6 +3,8 @@
 local config = dofile("suitecfg.lua")
 local group = (arg and arg[1]) or "full"
 local selected = assert(config.groups[group], "unknown suite group: " .. group)
+-- Optional per-group chunk suffix (the compact kit keeps stripped bytecode in .lus files).
+local suffix = (config.suffix and config.suffix[group]) or ".lua"
 local out, stdout, fmt = print, io.stdout, string.format
 local pairs, type, tostring, select = pairs, type, tostring, select
 local loadfile, error, assert = loadfile, error, assert
@@ -53,15 +55,15 @@ for index, name in ipairs(selected) do
     if match(line, "skipping file tests") then bad = line end
     out(...)
   end
-  globals.arg = {[0] = name .. ".lua"}
+  globals.arg = {[0] = name .. suffix}
   globals._port, globals._soft = nil, nil
   globals.Message = nil
-  globals.package.path = "?.lua"
+  globals.package.path = "?" .. suffix
   if name == "files" then globals._port, globals._soft = true, true end
   -- Call directly in the Lua VM. pcall/dofile wrappers consume scarce native
   -- stack and can make otherwise valid tests fail. Uncaught errors abort the
   -- process without SUITE COMPLETE, which is always a failed run.
-  local chunk = assert(loadfile(name .. ".lua"))
+  local chunk = assert(loadfile(name .. suffix))
   chunk()
   hook()
   local tracer = globals.package.loaded.tracegc

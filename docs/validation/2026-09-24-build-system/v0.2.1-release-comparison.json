@@ -1,0 +1,26 @@
+{
+  "release": "v0.2.1",
+  "release_build_id": "e026f5b-13178cdf3c75",
+  "executables": {
+    "LUA": {
+      "release": "431a82d763f25dfcf0c320d21406b599ef9e6c184197b7d034e9c41fd2599d0a",
+      "build": "431a82d763f25dfcf0c320d21406b599ef9e6c184197b7d034e9c41fd2599d0a",
+      "identical": true
+    },
+    "LUAC": {
+      "release": "a21493e2793b77149f99fc89fc00fb89a9b886cafadca24c8bfb24194b407d61",
+      "build": "a21493e2793b77149f99fc89fc00fb89a9b886cafadca24c8bfb24194b407d61",
+      "identical": true
+    },
+    "LUATRACE": {
+      "release": "76c854ebef118e5cfd12d485a08beeafc20518bb612b15b1afae66939e289474",
+      "build": "76c854ebef118e5cfd12d485a08beeafc20518bb612b15b1afae66939e289474",
+      "identical": true
+    },
+    "IIGSHOST": {
+      "release": "4d8a7695f6a3accd5792fd1979dacd706ea0fcd2ecbd56cfed0b35f915187f93",
+      "build": "4d8a7695f6a3accd5792fd1979dacd706ea0fcd2ecbd56cfed0b35f915187f93",
+      "identical": true
+    }
+  }
+}

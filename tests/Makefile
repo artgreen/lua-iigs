@@ -1,6 +1,9 @@
+# Independent-process runs of arbitrary test scripts against one executable.
+# The default local regression is 'make test' at the repository root; these
+# targets remain for the broader upstream set and ad hoc runs.
 # Targeted regression checks and the broader upstream suite are separate.
 PYTHON ?= python3
-LUA ?= ../build/lua
+LUA ?= ../build/dev/lua/out/lua
 TIMEOUT ?= 300
 RUN = $(PYTHON) ../tools/run-tests.py --lua $(LUA) --timeout $(TIMEOUT)
 passes := api attrib big bitwise bwcoercion calls constructs coroutine closure code cstack db errors events gc gengc goto heavy literals locals main math nextvar pm sort strings tpack tracegc vararg verybig
@@ -8,6 +11,7 @@ passes := api attrib big bitwise bwcoercion calls constructs coroutine closure c
 # An unexpected local pass requires reclassification.
 fails := files
 
+.NOTPARALLEL:
 .PHONY: all tests passing fails suite clean
 all: tests
 tests:

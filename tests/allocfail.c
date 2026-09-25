@@ -27,7 +27,7 @@ static Handle fault_newhandle(long n, Word user, Word attr, Pointer where) {
 }
 #define malloc fault_malloc
 #define NewHandle fault_newhandle
-#include "../src/lauxlib.c"
+#include "lauxlib.c"
 #undef malloc
 #undef NewHandle
 

@@ -1,7 +1,7 @@
 # Examples
 
 These scripts are demonstrations, not the regression suite. They are not
-included in the current hardware-kit images; transfer desired scripts as
+included in the packages or hardware kits; transfer desired scripts as
 text separately. Run them with the interpreter from a working directory
 where they and any input files can be found. Commands below assume the
 interpreter is named `lua`.
