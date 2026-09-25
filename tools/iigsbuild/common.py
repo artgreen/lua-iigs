@@ -136,28 +136,31 @@ def new_unique_dir(parent: Path, prefix: str) -> Path:
 
 
 class DirLock:
-    """Exclusive advisory lock serializing work on one build directory.
+    """Advisory lock serializing work on one build directory.
 
     Concurrent 'make' invocations (including make -j across goals, or two
     terminals) wait here instead of interleaving ORCA runs in one tree.
+    A shared workspace lock permits concurrent commands while excluding
+    cleanup; per-directory build locks remain exclusive.
     """
 
-    def __init__(self, directory: Path, label: str):
+    def __init__(self, directory: Path, label: str, shared: bool = False):
         self.path = Path(directory) / ".lock"
         self.label = label
+        self.mode = fcntl.LOCK_SH if shared else fcntl.LOCK_EX
         self.handle = None
 
     def __enter__(self):
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.handle = self.path.open("a+")
         try:
-            fcntl.flock(self.handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            fcntl.flock(self.handle, self.mode | fcntl.LOCK_NB)
         except OSError as exc:
             if exc.errno not in (errno.EAGAIN, errno.EACCES):
                 raise
             say(f"Waiting for another build using {rel(self.path.parent)} ({self.label})...")
             started = time.monotonic()
-            fcntl.flock(self.handle, fcntl.LOCK_EX)
+            fcntl.flock(self.handle, self.mode)
             say(f"Lock acquired after {time.monotonic() - started:.0f}s")
         return self
 

@@ -9,6 +9,7 @@ import tempfile
 
 from test_support import FAILURE, TESTS, validate
 from iigsbuild.toolchain import Toolchain
+from iigsbuild.common import BUILD, DirLock
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -62,4 +63,5 @@ def main():
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    with DirLock(BUILD, "run-tests", shared=True):
+        raise SystemExit(main())

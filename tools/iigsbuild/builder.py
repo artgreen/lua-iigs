@@ -123,7 +123,9 @@ class ConfigBuild:
             record = read_json(obj_dir / ".deps" / (name + ".json"))
             obj = obj_dir / (name + ".a")
             if (record and record.get("stamp") == stamp and obj.is_file()
-                    and record.get("object_sha256") == sha256_file(obj)):
+                    and record.get("outputs_sha256") == {
+                        p.name: sha256_file(p)
+                        for p in (obj, obj_dir / (name + ".root")) if p.is_file()}):
                 self.reused += 1
                 continue
             todo.append((name, source, obj_dir, search, stamp))
@@ -133,9 +135,9 @@ class ConfigBuild:
         def work(item):
             name, source, obj_dir, search, stamp = item
             (obj_dir / ".deps" / (name + ".json")).unlink(missing_ok=True)
-            self.orca.compile(source, obj_dir, name, search, self.logs / f"compile-{name}.log")
+            outputs = self.orca.compile(source, obj_dir, name, search, self.logs / f"compile-{name}.log")
             write_json(obj_dir / ".deps" / (name + ".json"),
-                       {"stamp": stamp, "object_sha256": sha256_file(obj_dir / (name + ".a"))})
+                       {"stamp": stamp, "outputs_sha256": {p.name: sha256_file(p) for p in outputs}})
             return name
 
         say(f"  {self.config.name}: compiling {len(todo)} unit(s)"
@@ -249,12 +251,12 @@ class ConfigBuild:
             raise BuildError("hosts link against the full 'lua' configuration library")
         spec = HOSTS[name]
         lib = vm = None
-        if spec["lua"]:
-            lib, vm = self.library(), self.out / "lvm.a"
-        self.prepare()
-        sources = [self.tree / s for s in spec["sources"]]
-        (self.hostobj / ".deps").mkdir(parents=True, exist_ok=True)
         try:
+            if spec["lua"]:
+                lib, vm = self.library(), self.out / "lvm.a"
+            self.prepare()
+            sources = [self.tree / s for s in spec["sources"]]
+            (self.hostobj / ".deps").mkdir(parents=True, exist_ok=True)
             self._compile_all((s.stem, s, self.hostobj, True) for s in sources)
         except BuildError:
             self._fail_product(name)

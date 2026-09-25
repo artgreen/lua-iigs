@@ -3,6 +3,7 @@
 # tools/iigsbuild/configs.py. These forwards never write into src/: objects
 # and the generated parseconf.h go under build/dev/<configuration>/.
 .NOTPARALLEL:
+.PHONY: lua luac liblua all clean run
 
 lua luac liblua all clean:
 	@echo "src/Makefile is deprecated; running 'make $@' at the repository root." >&2

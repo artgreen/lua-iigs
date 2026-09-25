@@ -195,7 +195,8 @@ def lua_kit(args, tc, exe) -> dict:
     preflight = args.preflight or "runtime"
     spec["preflight_steps"] = ([] if preflight == "none" else
                                [Step("full", "luatest", ["-E", "-v", "test.lua", preflight], suite_group=preflight)])
-    spec["preflight_steps"].append(spec["steps"][1])
+    if preflight != "none":
+        spec["preflight_steps"].append(spec["steps"][1])
     spec.update(volume="LUAKIT", image_size="1600K",
                 title=f"New lua and luatrace. Suite group {group}, then traced group. No rebuild.",
                 expect=f"SUITE COMPLETE group=trace passed={len(trace)} failed=0 with_skips=N "
@@ -355,7 +356,8 @@ def hardware_suite(args) -> int:
     logs.mkdir()
     for member in members:
         (stage / member.name.lower()).write_bytes(member.native if member.kind == "EXE" else member.data)
-    results = preflight(tc, stage, spec["preflight_steps"], spec["groups"], logs) if spec["preflight_steps"] else []
+    steps = [] if args.preflight == "none" else spec["preflight_steps"]
+    results = preflight(tc, stage, steps, spec["groups"], logs) if steps else []
     package = work / "package"
     container = build_container(tc, package, "TEST", spec["volume"], members,
                                 image_size=spec.get("image_size", "800K"))

@@ -156,6 +156,11 @@ linker, runtime libraries, ORCA/C headers, and `iix`. When the fingerprint
 changes, the configuration's objects and outputs are discarded before
 rebuilding. Timestamps are not used.
 
+The cache also verifies every compiler output, including a unit's `.root`
+companion when present. Missing or modified outputs trigger recompilation.
+Older cache records that only hashed `.a` files are rebuilt once to record
+the complete output set.
+
 Failures are loud and leave no plausible-looking output behind. ORCA can
 exit with an error yet still leave a partial `.root` after a failed compile,
 or a truncated executable after an unresolved link. The tooling therefore
@@ -185,6 +190,12 @@ instead of about 20 s.
 `make -j` is safe but does not add parallelism: the Makefile is
 `.NOTPARALLEL`, and each build directory is locked, so two `make`
 processes wait for each other instead of interleaving.
+
+Commands hold a shared workspace lock in `build/.lock` for their entire
+run, including local tests after compilation finishes. Cleanup takes that
+lock exclusively and waits for active commands; new commands wait until
+cleanup finishes. The workspace lock survives removal of `build/dev/`
+and `build/test-runs/`.
 
 ## Identified builds
 
@@ -217,6 +228,9 @@ packaging-only change keeps the same build ID and banner (for example
 It records no local paths. The finished directory is made read-only.
 Tests and packaging recheck every artifact hash before use and refuse a
 modified build. Nothing ever rebuilds an identified build in place.
+Each destination is reserved under the identified-build lock. A name
+collision is refused before writing files, and a failed invocation removes
+only the directory it reserved.
 
 `BUILD_LABEL` overrides the banner prefix, which is useful for reproducing
 an older banner. `COMPARE_RELEASE=<release dir>` compares the executables
@@ -344,6 +358,11 @@ command lines are identical to the batches validated on hardware. The
 preflight runs each step as a separate GoldenGate process and is recorded
 as an emulator result. The hardware result stays `pending` until someone
 records it.
+
+`PREFLIGHT=none` skips local test execution for every kit, including the
+traced run in `KIT=lua`, and records the preflight as `skipped`. Package
+verification still runs. `KIT=small` still compiles its bytecode driver
+and configuration because those files are required kit contents.
 
 The suite's full group includes `tableovf`, which took about **18 minutes
 silently** on the accelerated IIgs. Stock GoldenGate cannot pass the full

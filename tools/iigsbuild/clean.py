@@ -48,10 +48,10 @@ def legacy_in_tree() -> List[Path]:
 
 
 def clean(args) -> int:
-    targets = [p for p in (DEV, TEST_RUNS) if p.exists()] + legacy_in_tree()
-    if not targets:
-        say("Nothing to clean.")
     with DirLock(BUILD, "clean"):
+        targets = [p for p in (DEV, TEST_RUNS) if p.exists()] + legacy_in_tree()
+        if not targets:
+            say("Nothing to clean.")
         for path in targets:
             say(("would remove " if args.dry_run else "removing ") + rel(path))
             if not args.dry_run:
@@ -67,12 +67,12 @@ def clean(args) -> int:
 
 
 def clean_legacy(args) -> int:
-    loose = [ROOT / p for p in LEGACY_LOOSE if (ROOT / p).exists()]
-    if not loose:
-        say("No legacy loose outputs.")
-        return 0
-    dest = BUILD / "archive" / f"legacy-{utc_stamp()}"
     with DirLock(BUILD, "clean-legacy"):
+        loose = [ROOT / p for p in LEGACY_LOOSE if (ROOT / p).exists()]
+        if not loose:
+            say("No legacy loose outputs.")
+            return 0
+        dest = BUILD / "archive" / f"legacy-{utc_stamp()}"
         for path in loose:
             say(("would move " if args.dry_run else "moving ") + f"{rel(path)} -> {rel(dest)}/")
             if not args.dry_run:

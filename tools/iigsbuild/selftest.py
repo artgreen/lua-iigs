@@ -6,10 +6,12 @@ checks:
   - independent library builds with no prior interpreter build
   - clean builds of every configuration; repeated builds compile nothing
   - incremental rebuilds after source, header, and toolchain changes
+  - missing/corrupted .root companions are rebuilt, with a runnable result
   - switching between full, compact, compiler, and traced builds without
     contamination (outputs and objects stay per configuration)
   - make -j and two concurrent make processes
   - compile and link failures propagate and leave no stale/partial outputs
+    (including hosts whose library failed to build)
   - LUAC debug/stripped bytecode on both runtimes; compact source rejection
   - identified build, packaging with byte/metadata verification, rejection
     of a tampered build and a corrupted container
@@ -130,6 +132,22 @@ def main(args) -> int:
     check(sha256_file(tree.dev / "lua/obj/lapi.a") == sha256_file(tree.dev / "lua-small/obj/lapi.a"),
           "parser-independent objects are identical, as expected")
 
+    say("   compiler companion outputs are required for cache reuse")
+    probe = tree.dev / "lua/out/mmtest"
+    probe_hash = sha256_file(probe)
+    root_object = tree.dev / "lua/hostobj/mmtest.root"
+    for damage in ("missing", "corrupted"):
+        if damage == "missing":
+            root_object.unlink()
+        else:
+            root_object.write_bytes(b"corrupted root object")
+        _, out = tree.make("mmtest")
+        check(compiled(out) == 1 and root_object.is_file() and sha256_file(probe) == probe_hash,
+              f"{damage} .root recompiles its unit and restores the correct executable")
+    result = subprocess.run([tc.iix, str(probe)], env=tree.env, capture_output=True, timeout=60)
+    check(result.returncode == 0 and b"MMTEST DONE errs=0" in result.stdout,
+          "recovered probe executes its main function")
+
     say("3. Switching configurations does not contaminate outputs")
     for target in ("lua-small", "lua", "luac", "luatrace", "lua", "lua-small"):
         _, out = tree.make(target)
@@ -180,7 +198,13 @@ def main(args) -> int:
     check(tree.hashes() == first, "concurrent invocations leave identical outputs")
 
     say("6. Failure propagation and incomplete outputs")
+    tree.make("iigshost")
     restore = tree.edit("src/lapi.c", "\nint broken_syntax( {\n")
+    rc, out = tree.make("iigshost", expect_ok=False)
+    check(rc != 0 and "compile failed: lapi.c" in out, "host build propagates its library compile failure")
+    check(not (tree.dev / "lua/out/iigshost").exists()
+          and not (tree.dev / "lua/out/.stamps/iigshost.json").exists(),
+          "library failure removes the stale host and its success stamp")
     rc, out = tree.make("lua", expect_ok=False)
     check(rc != 0 and "compile failed: lapi.c" in out, "compile error fails make with the compiler message")
     check(not (tree.dev / "lua/obj/lapi.a").exists(), "failed object is not left behind")

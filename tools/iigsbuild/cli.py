@@ -8,7 +8,7 @@ import sys
 import time
 from typing import List
 
-from .common import DEV, ROOT, BuildError, DirLock, say
+from .common import BUILD, DEV, ROOT, BuildError, DirLock, say
 
 BUILD_TARGETS = {
     "lua": ("lua", "executable"),
@@ -149,7 +149,14 @@ def main(argv=None) -> int:
                 "verify-concurrency": cmd_verify_concurrency, "build": cmd_build}
     handlers.update(commands.HANDLERS)
     try:
-        return handlers[args.command](args)
+        if args.command in ("help", "clean", "clean-legacy"):
+            # Cleanup takes the exclusive workspace lock itself.
+            return handlers[args.command](args)
+        # Keep dev outputs and scratch files alive for the entire command,
+        # including tests after cmd_build releases its per-directory lock.
+        # This file lives outside the directories that clean removes.
+        with DirLock(BUILD, args.command, shared=True):
+            return handlers[args.command](args)
     except BuildError as exc:
         print(f"error: {exc}", file=sys.stderr, flush=True)
         return 1

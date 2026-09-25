@@ -91,10 +91,14 @@ def identify(args) -> Path:
     ident = build_digest(tc, runtime)
     label = args.label or f"IIgs {ident}"
     configs = [CONFIGS[n] for n in (args.configs or list(CONFIGS))]
-    directory = IDENTIFIED / f"{ident}-{utc_stamp()}"
-    if directory.exists():
-        raise BuildError(f"{directory} already exists; wait a second and retry")
     with DirLock(IDENTIFIED, "identify"):
+        directory = IDENTIFIED / f"{ident}-{utc_stamp()}"
+        # Reserve our directory before entering failure cleanup. Never reuse
+        # or remove a directory created by another invocation.
+        try:
+            directory.mkdir()
+        except FileExistsError:
+            raise BuildError(f"{directory} already exists; wait a second and retry") from None
         say(f"Identified build {ident} -> {rel(directory)}")
         try:
             for name, data in {**runtime, **hosts}.items():
