@@ -52,7 +52,7 @@ Identified builds, packages, hardware kits (preserved; never rebuilt):
   make package BUILD=<id|dir>          verified .po/.SHK packages of that build
   make hardware-suite BUILD=<id|dir>   TEST.SHK kit for the real IIgs
       (or RELEASE=<dir> containing RELEASE-MANIFEST.json)
-      KIT=suite|small|luac|host   GROUP=full|runtime|...   PREFIX=20:
+      KIT=suite|lua|small|luac|host   GROUP=full|runtime|...   PREFIX=20:
   make stage FROM=<kit/package dir> DEST=/Volumes/nas/<dir>   copy containers to the NAS
   make kit              identify + test + package (replaces tools/hardware-kit.py)
 

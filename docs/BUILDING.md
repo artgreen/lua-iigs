@@ -88,7 +88,7 @@ Options (on the command line or in `local.mk`):
 | `BUILD=` | identified build: a directory, its name, or a unique ID prefix |
 | `RELEASE=` | published release directory with `RELEASE-MANIFEST.json` |
 | `EXES="lua=<path> ..."` | explicit existing executables for a hardware kit |
-| `KIT=` | `suite` (default), `small`, `luac`, or `host` |
+| `KIT=` | `suite` (default), `lua`, `small`, `luac`, or `host` |
 | `GROUP=`, `PREFLIGHT=` | suite group for the kit, and for its local preflight (`none` skips) |
 | `PREFIX=` | ORCA executable prefix in kit batches, default `20:`; `none` for shell lookup |
 | `KINDS=`, `REPORT=` | package kinds; a test report to cite in the package manifest |
@@ -331,6 +331,7 @@ yankit xvf /nas/lua.test/test.shk
 | Kit | Checks | Guide |
 | --- | --- | --- |
 | `suite` | reusable regression suite (`GROUP=full` default; 23 tests) | [SUITE.md](../tests/SUITE.md) |
+| `lua` | new full and traced interpreters: suite group on `LUATEST`, then group `trace` on `LUATRACE` (Memory Manager armed, `[M7] state closed`; 1600 KB image) | [SUITE.md](../tests/SUITE.md) |
 | `small` | compact runtime: chunks compiled on the IIgs by `LUACTEST`, source rejection, debug and stripped groups (1600 KB image) | [COMPACT.md](../tests/COMPACT.md) |
 | `luac` | LUACPROBE 1 standalone compiler checks | [LUAC_TESTING.md](../tests/LUAC_TESTING.md) |
 | `host` | HOSTCHECK 1 native embedding and C-hook yields | [HOST_TESTING.md](../tests/HOST_TESTING.md) |

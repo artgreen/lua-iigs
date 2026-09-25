@@ -68,7 +68,7 @@ def executables(args, tc, needed: List[str]) -> dict:
     manifest = read_json(release / "RELEASE-MANIFEST.json")
     if not manifest:
         raise BuildError(f"{release} has no RELEASE-MANIFEST.json")
-    names = {"lua": "LUA", "luac": "LUAC", "iigshost": "IIGSHOST", "luasmall": "LUASMALL"}
+    names = {"lua": "LUA", "luac": "LUAC", "iigshost": "IIGSHOST", "luasmall": "LUASMALL", "luatrace": "LUATRACE"}
     for name in needed:
         member = names[name]
         archive = release / (member + ".SHK")
@@ -175,6 +175,41 @@ def small_kit(args, tc, exe, work: Path) -> dict:
                        "Require both SUITE COMPLETE lines and then the shell prompt."]}
 
 
+TRACE_MARKER = r"\[mm\] selftest state=1[\s\S]*\[M7\] state closed"
+
+
+def lua_kit(args, tc, exe) -> dict:
+    """New full and traced interpreters from one input: the full suite group
+    on LUATEST, then the focused 'trace' group on LUATRACE, which must arm the
+    Memory Manager and reach the traced shutdown marker."""
+    spec = suite_kit(args, tc, exe)
+    data = suite_manifest()
+    group = args.group
+    trace = data["groups"]["trace"]
+    spec["exes"]["LUATRACE"] = exe["luatrace"]
+    spec["steps"] = [
+        Step("full", "luatest", ["-E", "-v", "test.lua", group], suite_group=group),
+        Step("trace", "luatrace", ["-E", "-v", "test.lua", "trace"], suite_group="trace", marker=TRACE_MARKER,
+             echo="TRACE traced interpreter, focused group. Memory Manager trace lines are expected."),
+    ]
+    preflight = args.preflight or "runtime"
+    spec["preflight_steps"] = ([] if preflight == "none" else
+                               [Step("full", "luatest", ["-E", "-v", "test.lua", preflight], suite_group=preflight)])
+    spec["preflight_steps"].append(spec["steps"][1])
+    spec.update(volume="LUAKIT", image_size="1600K",
+                title=f"New lua and luatrace. Suite group {group}, then traced group. No rebuild.",
+                expect=f"SUITE COMPLETE group=trace passed={len(trace)} failed=0 with_skips=N "
+                       "and [M7] state closed")
+    spec["readme"] = [f"Two interpreters from the same build. LUATEST runs suite group {group} "
+                      f"({len(data['groups'][group])} tests), then LUATRACE runs group trace "
+                      f"({', '.join(trace)}).",
+                      "The traced run prints Memory Manager events. It must show [mm] selftest state=1",
+                      "(from mmalloc) and end with [M7] state closed before the shell prompt.",
+                      "tableovf (last in full) previously took about 18 minutes and is silent.",
+                      "Require both SUITE COMPLETE lines. The batch stops at the first failure."]
+    return spec
+
+
 LUAC_STEPS = [
     ("prepare", "lua", ["-E", "-v", "test.lua", "prepare"], None),
     ("version", "luac", ["-v"], None),
@@ -244,7 +279,8 @@ def host_kit(args, tc, exe) -> dict:
                        "after success."]}
 
 
-NEEDS = {"suite": ["lua"], "small": ["luasmall", "luac"], "luac": ["lua", "luac"], "host": ["lua", "iigshost"]}
+NEEDS = {"suite": ["lua"], "lua": ["lua", "luatrace"], "small": ["luasmall", "luac"], "luac": ["lua", "luac"],
+         "host": ["lua", "iigshost"]}
 
 
 # -- preflight -----------------------------------------------------------------
@@ -301,7 +337,7 @@ def hardware_suite(args) -> int:
     say(f"Preparing {args.kit} kit from {inputs['source']['kind']} {label} in {rel(work)}")
     exe = inputs["bytes"]
     spec = (small_kit(args, tc, exe, work) if args.kit == "small" else
-            {"suite": suite_kit, "luac": luac_kit, "host": host_kit}[args.kit](args, tc, exe))
+            {"suite": suite_kit, "lua": lua_kit, "luac": luac_kit, "host": host_kit}[args.kit](args, tc, exe))
     batch = render(spec["title"], spec["steps"], prefix)
     readme = "\n".join([f"{args.kit.upper()} hardware kit. Extract into a dedicated writable test directory.",
                         f"Run: {prefix}test", *spec["readme"],

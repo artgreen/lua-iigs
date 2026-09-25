@@ -89,6 +89,7 @@ To select a smaller group, append its name: `20:luatest -E -v test.lua io`.
 | `runtime` | 15 | All former targeted checks except the long table-overflow test |
 | `io` | 7 | Focused bytes/EOF, sharing observations, adapted files, large offsets, large transfers, source/bytecode, file lifetime |
 | `stress` | 1 | Table growth/overflow, data retention and collection |
+| `trace` | 5 | For the traced interpreter: smoke, sieve, cstack, mmalloc, cobeacon (kit `KIT=lua`) |
 | `full` | 23 | Runtime + I/O + stress, without duplicate tests |
 
 For warm-session repeatability, rerun the same command after `#` returns.

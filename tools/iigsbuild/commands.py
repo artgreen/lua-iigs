@@ -44,7 +44,7 @@ def register(sub) -> None:
     p.add_argument("--build")
     p.add_argument("--release", type=Path)
     p.add_argument("--exe", nargs="*", help="explicit executables as name=path (lua, luac, luasmall, iigshost)")
-    p.add_argument("--kit", default="suite", choices=["suite", "small", "luac", "host"])
+    p.add_argument("--kit", default="suite", choices=["suite", "lua", "small", "luac", "host"])
     p.add_argument("--group", default="full")
     p.add_argument("--prefix", default="20:")
     p.add_argument("--preflight", default=None,
