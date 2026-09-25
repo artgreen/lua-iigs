@@ -234,3 +234,33 @@ all steps. The revised kit (same build `63eca55c48e5`) is staged at
 `/nas/lua.test/test.shk`. The previous compact kit is in
 `LUA.TEST/replaced-20260925T021751Z/`, and POWPROBE 1 stays at
 `/nas/lua.pow/`. Hardware result pending.
+
+## Hardware: revised compact kit passes (user photograph)
+
+The revised kit ran from `/nas/lua.test/test.shk` with `20:test` on the
+same accelerated ROM 03 IIgs: build `63eca55c48e5`, `LUATEST` =
+`luasmall`, with the chunks compiled on the IIgs by `LUACTEST` = `luac`.
+The photograph shows the end of the run:
+
+- `SUITE PASS mmalloc`, `events` and `verybig` (both with their documented
+  skips);
+- `SUITE COMPLETE group=stripped passed=7 failed=0 with_skips=2`;
+- `Expect shell prompt next`, then the `#` prompt.
+
+The batch runs with `set exit on`, and the driver exits nonzero on any
+failure. The stripped group runs only after every earlier command has
+returned success:
+
+- all 24 on-device compiles;
+- the source-rejection verifier (`nosource.luo cli`);
+- the 15-test `compact` group.
+
+So those steps completed on hardware too. Their own lines, including
+`SUITE COMPLETE group=compact`, were not photographed. The duration was
+not recorded.
+
+This is the first hardware pass of a parser-free interpreter. It is also
+the first hardware run of `luac` compiling the full set of compact-kit
+chunks, and those `luac` bytes are identical to v0.2.1. The result covers
+only these executables on this machine, and a single warm run. No
+cold-start repeat has been done.
