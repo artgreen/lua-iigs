@@ -285,4 +285,18 @@ The full group takes almost 40 minutes on the IIgs. Instead, the
 The GoldenGate preflight passed both groups. This checks that the exact
 new binaries load, identify themselves, run, trace, and exit cleanly on
 hardware. It does not repeat the full-suite coverage for these bytes.
-Result pending.
+
+**Result, 2026-09-25: user-reported pass.** A progress photograph shows
+the following:
+
+- The smoke group passed on the new `lua`. This is implied: the batch
+  runs with `set exit on`, and `LUATRACE` had already started.
+- On `luatrace`, `hwsmoke` passed. The Memory Manager armed: `[mm] probe
+  err=0000`, then `[mm] selftest state=1 attr=C018`, followed by clean
+  `new`/`shrink` events.
+- `sieve` passed, catching `C stack overflow` at `chain=40`.
+- `cstack` was in progress at "stack overflow in message handling".
+
+The user then reported that the run passed. The final
+`SUITE COMPLETE group=trace` and `[M7] state closed` lines were not
+photographed. This is a single warm run.
