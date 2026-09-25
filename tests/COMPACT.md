@@ -103,11 +103,31 @@ make hardware-suite BUILD=<id> KIT=small
 
 The kit contains:
 
-- `LUATEST`, the compact interpreter.
-- Bytecode compiled by that build's `luac`: `TEST.LUA` (the suite
-  driver), `SUITECFG.LUA`, the debug chunks as `*.LUA`, and the stripped
-  chunks as `*.LUS`. All of these are BIN `$06`.
-- `SOURCE.LUA`, the only text chunk, which must be rejected.
+- `LUATEST`, the compact interpreter, and `LUACTEST`, the same build's
+  compiler.
+- The test sources as text `*.LUA`. The batch compiles them **on the
+  IIgs** into `*.LUO` (debug) and `*.LUS` (stripped).
+- `TEST.LUA` (the suite driver) and `SUITECFG.LUA`, as host-compiled
+  bytecode (BIN `$06`). The kit builder checks that both contain no
+  floating-point constants.
+- `SOURCE.LUA`, which the compact runtime must reject.
+
+The test chunks are compiled on the IIgs because host compilation changes
+the constants they contain. The first hardware run, with chunks compiled
+under GoldenGate, failed `coroutine.lua:881`, which is
+`a / b == 10/12`. `luac` folds `10/12` at compile time, and GoldenGate's
+SANE emulation computes it at 53-bit host-double precision, while the
+IIgs computes `a / b` at 64-bit extended precision. POWPROBE 1 confirmed
+this on hardware:
+
+- `10/12` compiled on the IIgs compares equal;
+- the GoldenGate-folded constant does not, on full and compact Lua alike;
+- integer powers such as `10^12` match everywhere.
+
+This is a property of cross-compiled bytecode, not of the compact runtime
+(see [limitations](../docs/LIMITATIONS.md)). Compiling on the target also
+exercises `luac` on hardware. The kit's 1600 KB `.po` image is larger than
+usual; transfer the `.SHK`.
 
 On the IIgs:
 
@@ -116,13 +136,14 @@ yankit xvf /nas/lua.test/test.shk
 20:test
 ```
 
-The batch runs five steps:
+The batch runs six steps:
 
 1. Print the banner.
-2. Run `SOURCE.LUA`, capturing its status and messages in `source.log`.
-3. Verify the rejection.
-4. Run the `compact` group.
-5. Run the `stripped` group.
+2. Compile 16 debug and 8 stripped chunks with `LUACTEST`.
+3. Run `SOURCE.LUA`, capturing its status and messages in `source.log`.
+4. Verify the rejection with `nosource.luo`.
+5. Run the `compact` group.
+6. Run the `stripped` group.
 
 Require both `SUITE COMPLETE` lines and a shell prompt. `tableovf` is in
 the debug group and previously took about 18 minutes silently on the full

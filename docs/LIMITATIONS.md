@@ -75,6 +75,17 @@ Link C modules into a host and register them with `luaL_requiref`; see
 Other OS and file facilities depend on the ORCA runtime and shell; the
 repository does not establish full Unix behavior.
 
+**Bytecode compiled on the Mac can differ numerically from the IIgs.** The
+Lua compiler folds constant expressions such as `10/12` at compile time.
+When `luac` runs under GoldenGate, that arithmetic uses the emulator's
+53-bit host-double precision; the IIgs SANE uses 64-bit extended precision.
+On hardware, a GoldenGate-compiled `10/12` did not equal `a / b` computed
+on the IIgs, while exact results such as `10^12` matched (POWPROBE 1). If a
+program compares folded constant expressions with values computed at run
+time, compile it with `luac` on the IIgs, or avoid exact float equality.
+Source code, and bytecode compiled on the IIgs, fold constants with
+hardware arithmetic.
+
 The default configuration includes the text parser and builds shell EXE
 programs. The parser-free `lua-small` configuration (`LUA_NO_PARSER`) is
 built and tested locally as a separate product; it runs precompiled

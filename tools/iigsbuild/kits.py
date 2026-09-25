@@ -106,52 +106,71 @@ def suite_kit(args, tc, exe) -> dict:
                        "Require SUITE COMPLETE and then the shell prompt. Stops on the first failure."]}
 
 
+FLOAT_CONSTANT = re.compile(r"^\s+\d+\s+F\s", re.M)
+
+
 def small_kit(args, tc, exe, work: Path) -> dict:
-    """Parser-free runtime: every Lua file is bytecode compiled by the same build's luac."""
+    """Parser-free runtime: the test chunks are compiled ON THE IIGS by the
+    same build's luac, then run by the compact interpreter.
+
+    Bytecode compiled under GoldenGate folds inexact floating-point constant
+    expressions at the emulator's 53-bit host precision, while the IIgs SANE
+    computes at 64-bit extended precision (POWPROBE 1 on hardware: 10/12
+    folded by GoldenGate != 10/12 computed on the IIgs). Compiling on the
+    target gives the chunks hardware-folded constants and also exercises
+    luac on hardware. Only the suite driver and its configuration are
+    compiled here; they must contain no floating-point constants (checked).
+    """
     plan, data = compact_manifest(), suite_manifest()
     tests = {**data["tests"], **plan["tests"]}
     groups = {"compact": plan["groups"]["debug"], "stripped": plan["groups"]["stripped"]}
-    config = {"version": data["version"], "groups": groups, "suffix": {"stripped": ".lus"},
+    config = {"version": data["version"], "groups": groups, "suffix": {"compact": ".luo", "stripped": ".lus"},
               "tests": {name: tests[name] for name in groups["compact"]}}
     stage = work / "compile"
     stage.mkdir()
     (stage / "luac").write_bytes(exe["luac"])
-    sources = {"test": (ROOT / "tests/suite.lua").read_bytes(),
-               "suitecfg": ("return " + lua_value(config) + "\n").encode()}
-    for name in groups["compact"] + plan["helpers"]:
-        sources[name] = (ROOT / "tests" / (name + ".lua")).read_bytes()
     binary = {}
-    for name, text in sources.items():
+    for name, text in (("test", (ROOT / "tests/suite.lua").read_bytes()),
+                       ("suitecfg", ("return " + lua_value(config) + "\n").encode())):
         (stage / (name + ".lua")).write_bytes(text)
-        forms = [(False, ".LUA")]
-        if name in groups["stripped"] or name in plan["helpers"]:
-            forms.append((True, ".LUS"))
-        for strip, suffix in forms:
-            out = name + suffix.lower() + ".out"
-            argv = [tc.iix, str(stage / "luac")] + (["-s"] if strip else []) + ["-o", out, name + ".lua"]
-            result = subprocess.run(argv, cwd=stage, env=tc.env(), capture_output=True, stdin=subprocess.DEVNULL)
-            if result.returncode or not (stage / out).is_file():
-                raise BuildError(f"luac could not compile {name}.lua for the compact kit")
-            binary[name.upper() + suffix] = (stage / out).read_bytes()
-    steps = [
-        Step("version", "luatest", ["-E", "-v"], marker=r"Lua \(IIgs\)"),
+        result = subprocess.run([tc.iix, str(stage / "luac"), "-l", "-l", "-o", name + ".out", name + ".lua"],
+                                cwd=stage, env=tc.env(), capture_output=True, stdin=subprocess.DEVNULL)
+        listing = result.stdout.decode(errors="replace")
+        if result.returncode or not (stage / (name + ".out")).is_file():
+            raise BuildError(f"luac could not compile {name}.lua for the compact kit")
+        if FLOAT_CONSTANT.search(listing):
+            raise BuildError(f"{name}.lua has floating-point constants; it must be compiled on the IIgs")
+        binary[name.upper() + ".LUA"] = (stage / (name + ".out")).read_bytes()
+    chunks = groups["compact"] + plan["helpers"]
+    stripped = groups["stripped"] + plan["helpers"]
+    text = {"SOURCE.LUA": b'print("SOURCE RAN - this must not appear")\n'}
+    for name in chunks:
+        text[name.upper() + ".LUA"] = (ROOT / "tests" / (name + ".lua")).read_bytes()
+    steps = [Step("version", "luatest", ["-E", "-v"], marker=r"Lua \(IIgs\)")]
+    for i, name in enumerate(chunks):
+        steps.append(Step("compile-" + name, "luactest", ["-o", name + ".luo", name + ".lua"],
+                          echo=f"COMPACT compiling {len(chunks)} debug and {len(stripped)} stripped chunks with LUACTEST"
+                          if i == 0 else None))
+    for name in stripped:
+        steps.append(Step("strip-" + name, "luactest", ["-s", "-o", name + ".lus", name + ".lua"]))
+    steps += [
         Step("reject-source", "luatest", ["-E", "source.lua"], capture=("source.log", "srcstatus"),
              echo="COMPACT source rejection. An error message goes to source.log."),
-        Step("verify-rejection", "luatest", ["-E", "nosource.lua", "cli", "{srcstatus}"],
+        Step("verify-rejection", "luatest", ["-E", "nosource.luo", "cli", "{srcstatus}"],
              marker=r"^NOSOURCE 1 CLI REJECTED status=\d+$"),
         Step("debug", "luatest", ["-E", "-v", "test.lua", "compact"], suite_group="compact"),
         Step("stripped", "luatest", ["-E", "-v", "test.lua", "stripped"], suite_group="stripped"),
     ]
-    return {"volume": "LUACOMPACT", "title": "Compact Lua bytecode acceptance. Parser-free runtime, no rebuild.",
-            "exes": {"LUATEST": exe["luasmall"]}, "binary": binary, "groups": groups,
-            "text": {"SOURCE.LUA": b'print("SOURCE RAN - this must not appear")\n'},
-            "steps": steps, "preflight_steps": steps,
+    return {"volume": "LUACOMPACT", "title": "Compact Lua bytecode acceptance. Chunks compiled here by LUACTEST.",
+            "exes": {"LUATEST": exe["luasmall"], "LUACTEST": exe["luac"]}, "binary": binary, "groups": groups,
+            "text": text, "steps": steps, "preflight_steps": steps, "image_size": "1600K",
             "expect": f"SUITE COMPLETE group=stripped passed={len(groups['stripped'])} failed=0 with_skips=N",
-            "readme": ["Compact (parser-free) Lua acceptance. All .LUA/.LUS files except SOURCE.LUA",
-                       "are bytecode compiled by the same build's luac. SOURCE.LUA is text and",
-                       "must be rejected. Tests needing the parser are listed in tests/compact.json.",
+            "readme": ["Compact (parser-free) Lua acceptance. LUACTEST (same build) compiles the test",
+                       "sources on this IIgs to .LUO (debug) and .LUS (stripped); LUATEST runs them.",
+                       "TEST.LUA and SUITECFG.LUA are host-compiled bytecode without float constants.",
+                       "SOURCE.LUA is text and must be rejected by LUATEST.",
                        f"Two groups run: compact ({len(groups['compact'])} debug chunks) and "
-                       f"stripped ({len(groups['stripped'])} chunks).",
+                       f"stripped ({len(groups['stripped'])} chunks). Parser-dependent tests: tests/compact.json.",
                        "tableovf previously took about 18 minutes and is silent until it completes.",
                        "Require both SUITE COMPLETE lines and then the shell prompt."]}
 
@@ -302,7 +321,8 @@ def hardware_suite(args) -> int:
         (stage / member.name.lower()).write_bytes(member.native if member.kind == "EXE" else member.data)
     results = preflight(tc, stage, spec["preflight_steps"], spec["groups"], logs) if spec["preflight_steps"] else []
     package = work / "package"
-    container = build_container(tc, package, "TEST", spec["volume"], members)
+    container = build_container(tc, package, "TEST", spec["volume"], members,
+                                image_size=spec.get("image_size", "800K"))
     record = {
         "schema": "lua-iigs-kit/1", "kit": args.kit, "utc": utc_iso(), "input": inputs["source"],
         "shell_prefix": prefix, "run_command": f"{prefix}test",

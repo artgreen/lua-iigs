@@ -331,7 +331,7 @@ yankit xvf /nas/lua.test/test.shk
 | Kit | Checks | Guide |
 | --- | --- | --- |
 | `suite` | reusable regression suite (`GROUP=full` default; 23 tests) | [SUITE.md](../tests/SUITE.md) |
-| `small` | compact runtime: source rejection, debug and stripped bytecode groups | [COMPACT.md](../tests/COMPACT.md) |
+| `small` | compact runtime: chunks compiled on the IIgs by `LUACTEST`, source rejection, debug and stripped groups (1600 KB image) | [COMPACT.md](../tests/COMPACT.md) |
 | `luac` | LUACPROBE 1 standalone compiler checks | [LUAC_TESTING.md](../tests/LUAC_TESTING.md) |
 | `host` | HOSTCHECK 1 native embedding and C-hook yields | [HOST_TESTING.md](../tests/HOST_TESTING.md) |
 

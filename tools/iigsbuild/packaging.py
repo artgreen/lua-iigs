@@ -33,7 +33,7 @@ TYPES = {
     "BIN": ("BIN", 0x06, 0x0000),   # Lua bytecode chunk
 }
 TEXT_KINDS = {"TXT", "EXEC", "CSRC"}
-IMAGE_CAPACITY = 780 * 1024  # 800 KB image minus directory/bitmap overhead margin
+IMAGE_SIZES = {"800K": 780 * 1024, "1600K": 1580 * 1024}  # usable bytes, with directory margin
 CATALOG = re.compile(r"^([A-Z0-9?]{3})\s+\$([0-9A-F]{4})\s.*?\s\*?(\S+)\s*$", re.M)
 
 
@@ -108,16 +108,20 @@ def verify_container(tc: Toolchain, container: Path, members: Sequence[Member]) 
 
 
 def build_container(tc: Toolchain, out_dir: Path, basename: str, volume: str,
-                    members: List[Member], archive: bool = True) -> dict:
-    """Create and verify <basename>.po (+ <BASENAME>.SHK). Never overwrites."""
+                    members: List[Member], archive: bool = True, image_size: str = "800K") -> dict:
+    """Create and verify <basename>.po (+ <BASENAME>.SHK). Never overwrites.
+
+    Images are 800 KB transfer images unless a kit needs 1600K; the .SHK
+    archive is what normally travels to the IIgs.
+    """
     tc.require_packaging()
     check_prodos_name(volume)
     names = [m.name.upper() for m in members]
     if len(names) != len(set(names)):
         raise BuildError(f"duplicate member names in {basename}: {sorted(names)}")
     total = sum(len(m.native) + 512 for m in members)
-    if total > IMAGE_CAPACITY:
-        raise BuildError(f"{basename}: {total:,} bytes do not fit an 800 KB transfer image")
+    if total > IMAGE_SIZES[image_size]:
+        raise BuildError(f"{basename}: {total:,} bytes do not fit a {image_size} transfer image")
     out_dir.mkdir(parents=True, exist_ok=True)
     image = out_dir / (basename + ".po")
     shk = out_dir / (basename.upper() + ".SHK")
@@ -127,7 +131,7 @@ def build_container(tc: Toolchain, out_dir: Path, basename: str, volume: str,
     staging = out_dir / "files" / basename  # exact member bytes, kept for audit
     staging.mkdir(parents=True, exist_ok=True)
     try:
-        _run([tc.acx, "create", "--prodos", "--prodos-order", "-s", "800K", "-n", volume, "-d", image])
+        _run([tc.acx, "create", "--prodos", "--prodos-order", "-s", image_size, "-n", volume, "-d", image])
         for member in members:
             source = staging / member.name
             write_atomic(source, member.native)
@@ -135,7 +139,8 @@ def build_container(tc: Toolchain, out_dir: Path, basename: str, volume: str,
             _run([tc.acx, "import", "-d", image, "--raw", "-t", typename, "--aux", f"0x{aux:04X}",
                   "-n", member.name, source])
         verify_container(tc, image, members)
-        record = {"image": {"file": image.name, "volume": volume, "sha256": sha256(image.read_bytes()),
+        record = {"image": {"file": image.name, "volume": volume, "size_class": image_size,
+                            "sha256": sha256(image.read_bytes()),
                             "size": image.stat().st_size}}
         if archive:
             _run([tc.cp2, "create-file-archive", shk])

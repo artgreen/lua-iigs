@@ -208,20 +208,29 @@ used build `63eca55c48e5` on the accelerated ROM 03 IIgs.
   5–15 and the stripped group did not run. No crash or screen corruption
   was reported.
 
-Line 881 is `assert(run(function () return a ^ b end, {"pow"}) == 10^12)`.
-`luac` folds `10^12` into the float constant `1000000000000.0` at compile
-time, and this kit's bytecode was compiled under GoldenGate. `a ^ b` is
-computed by the IIgs's SANE `pow` at run time.
+Line 881 is `assert(run(function () return a / b end, {"div"}) == 10/12)`.
+(I first misread it as the `^` line above.)
 
-The same line passed on hardware when the suite ran from source, because
-both sides were then computed on the IIgs. It also passes under
-GoldenGate. The working hypothesis is therefore a difference between
-GoldenGate's host-precision `pow` and the real SANE `pow` for `10^12`. That
-would make it a property of cross-compiled bytecode, not a
-compact-runtime defect.
+**POWPROBE 1 result (user photograph).** The probe ran on the same
+machine, three ways:
 
-To test the hypothesis, POWPROBE 1 is staged at `/nas/lua.pow/test.shk`
-(kit manifest in `build/diagnostics/*-powprobe1-*`). It prints run-time
-versus folded results for five powers, three ways: full Lua from source,
-full Lua from the GoldenGate-compiled bytecode, and compact Lua from the
-same bytecode. Result pending.
+- **A, full Lua, source:** every case matched, `10/12` included.
+- **B, full Lua, GoldenGate-compiled bytecode:** every power matched
+  (`r==exact true`), but `10/12 r==k false`.
+- **C, compact Lua, same bytecode:** identical to B.
+
+In A, the IIgs folded the constant itself. In B and C, the constant was
+folded under GoldenGate at host-double precision, and `a / b` was computed
+by the IIgs SANE at extended precision, so the low bits differ. This is a
+property of cross-compiled bytecode, reproducible on full Lua; it is not a
+compact-runtime defect. It is now documented in
+[LIMITATIONS](../../LIMITATIONS.md#modules-and-host-facilities).
+
+**Kit change.** The compact kit now includes `LUACTEST` and compiles the
+16 debug and 8 stripped chunks on the IIgs. Only the driver and its
+configuration are host-compiled, and the kit builder verifies that they
+contain no floating-point constants. The kit's GoldenGate preflight passed
+all steps. The revised kit (same build `63eca55c48e5`) is staged at
+`/nas/lua.test/test.shk`. The previous compact kit is in
+`LUA.TEST/replaced-20260925T021751Z/`, and POWPROBE 1 stays at
+`/nas/lua.pow/`. Hardware result pending.
