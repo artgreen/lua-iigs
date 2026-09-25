@@ -77,7 +77,9 @@ after a failure are **not run**; fix/investigate it and restart the group.
 Observe and record the build banner, final summary, skips, and shell return.
 
 `tableovf` previously took about **18 minutes** on the accelerated IIgs and
-is silent until completion. It is last in `full`; allow additional time for
+is silent until completion. The whole `full` group takes almost **40 minutes** there (user
+report, 2026-09-25); use a smaller group when the executable's code is
+already covered by an earlier full pass. It is last in `full`; allow additional time for
 the other tests. There is no hardware timeout or total runtime promise.
 
 To select a smaller group, append its name: `20:luatest -E -v test.lua io`.

@@ -264,3 +264,25 @@ the first hardware run of `luac` compiling the full set of compact-kit
 chunks, and those `luac` bytes are identical to v0.2.1. The result covers
 only these executables on this machine, and a single warm run. No
 cold-start repeat has been done.
+
+## Hardware: new `lua` and `luatrace`, reduced check (staged 2026-09-25)
+
+The new `lua` and `luatrace` differ from the v0.2.1-label rebuild only in
+the banner string. Of the 32 objects in each configuration, only `lua.a`
+differs, and it contains `IIgs 63eca55c48e5 plain` instead of
+`IIgs e026f5b-13178cdf3c75 plain`. The v0.2.1-label rebuild is
+byte-identical to the released v0.2.1 LUA and LUATRACE, and that LUA has
+passed the full suite on hardware twice. The banner is 17 bytes shorter,
+so everything linked after it moves: 320,112 byte positions differ.
+
+The full group takes almost 40 minutes on the IIgs. Instead, the
+`KIT=lua` kit staged at `/nas/lua.test/test.shk` runs:
+
+- `smoke` (hwsmoke, numconv) on `LUATEST`, the new `lua`;
+- the `trace` group (hwsmoke, sieve, cstack, mmalloc, cobeacon) on
+  `LUATRACE`, the new `luatrace`.
+
+The GoldenGate preflight passed both groups. This checks that the exact
+new binaries load, identify themselves, run, trace, and exit cleanly on
+hardware. It does not repeat the full-suite coverage for these bytes.
+Result pending.
